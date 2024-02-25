@@ -1,0 +1,166 @@
+<template>
+    <ion-page>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Hledám lidi</ion-title>
+        <ion-buttons slot="start">
+            <ion-back-button default-href="#" @click="router.back"></ion-back-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content :fullscreen="true">
+
+        <ion-input placeholder="Jméno" v-model="group.name"></ion-input>
+        <ion-select interface="popover" label="Barva"  v-model="group.color">
+            <ion-select-option v-for="color in colorsCasesValues">
+                {{ color }}
+            </ion-select-option>
+        </ion-select>
+
+      <ion-select interface="popover" label="Počet členů" placeholder="2" v-model="group.maxMembers">
+            <ion-select-option v-for="n in rangeNumbers">
+                {{ n }}
+            </ion-select-option>
+        </ion-select>
+
+        <ion-textarea label="Popis" label-placement="floating" v-model="group.description" fill="outline" rows="3"></ion-textarea>
+        
+        <ion-select interface="popover" label="Účel" placeholder="Práce" v-model="group.useCase">
+            <ion-select-option v-for="uC in useCasesValues">
+                {{ uC }}
+            </ion-select-option>
+        </ion-select>
+
+        <div v-if="group.useCase == useCase.Work">
+            <ion-select interface="popover" label="Kategorie" v-model="group.workCases">
+            <ion-select-option v-for="wC in workCasesValues">
+                {{ wC }}
+            </ion-select-option>
+        </ion-select>
+        </div>
+
+        <div v-if="group.useCase == useCase.Sport">
+        <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="group.sportCases">
+            <ion-select-option v-for="sC in sportCasesValues">
+                {{ sC }}
+            </ion-select-option>
+        </ion-select>
+        </div>
+
+        <ion-button @click="saveToDb()" >Save</ion-button>
+        <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
+    </ion-content>
+    </ion-page>
+</template>
+<script setup lang="ts">
+import { IonPage, IonContent, IonTitle, 
+IonHeader, IonToolbar, IonBackButton, IonButtons,
+IonInput, IonTextarea, IonSelect, IonSelectOption, IonButton, 
+IonLoading, onIonViewDidEnter, onIonViewWillEnter } from '@ionic/vue';
+import { useRouter } from 'vue-router';
+import type { Group } from '@/model/Group';
+import { reactive, ref } from 'vue';
+import profilesFirebase from '@/composables/profilesFirebase'
+import { routesNames } from '@/router/routesNames';
+
+import {onUnmounted} from 'vue'
+import {useCase, useCasesValues, workCases, workCasesValues, SportCases, sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
+
+const router = useRouter()
+
+/*const delay = ms => new Promise(res => setTimeout(res, ms));
+
+async function waitAndSetfalse(){
+  loading.value = true
+  await delay(2000);
+  loading.value = false
+} */
+
+var userID = localStorage.getItem("userID")
+if (userID == null){
+  userID = ""
+}
+
+
+const group: Group = reactive({
+    userId: userID,
+    name:"",
+    maxMembers: 2,
+    currentMembers: 1,
+    description: "",
+    useCase: useCase.Work,
+    workCases: workCases.Other,
+    sportCases: SportCases.Other,
+    membersIDs: [] ,
+    color: colorsCases.Blue
+})
+
+// ukaze se page a pak az se provede
+/*onIonViewDidEnter(() => { 
+    clearGroup()
+}) */
+
+onIonViewWillEnter(()=>{
+    clearGroup()
+})
+
+
+const rangeNumbers = []
+
+for (let i = 2; i <= 30; i++) {
+    rangeNumbers.push(i)
+}
+
+const loading = ref(false)
+
+async function saveToDb() {
+    loading.value = true
+    clean()
+    await profilesFirebase().createGroup(group)
+    loading.value = false
+    navigateToGroupScreen()
+}
+
+function navigateToGroupScreen(){
+    router.push({name: routesNames.Groups})
+}
+
+function clean(){
+    if (group.useCase == useCase.Friendship){
+        group.sportCases = ""
+        group.workCases = ""
+    }
+    if (group.useCase == useCase.Relationship){
+        group.sportCases = ""
+        group.workCases = ""
+    }
+    if (group.useCase == useCase.Sport){
+        group.workCases = ""
+    }
+
+    if (group.useCase == useCase.Work){
+        group.sportCases = ""
+    }
+}
+
+function clearGroup(){
+    if (userID == null){
+        userID = ""
+    }
+    group.userId = userID,
+    group.name = "",
+    group.maxMembers = 2,
+    group.currentMembers = 1,
+    group.description = "",
+    group.useCase = useCase.Work,
+    group.workCases = workCases.Other,
+    group.sportCases = SportCases.Other,
+    group.membersIDs = [],
+    group.color = colorsCases.Blue
+}
+
+</script>
+
+<style scoped>
+</style>
