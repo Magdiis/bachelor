@@ -5,8 +5,8 @@ export interface Group {
     currentMembers: number,
     description: string,
     useCase: string,
-    workCases:string ,
-    sportCases:string ,
+    workCase:string ,
+    sportCase:string ,
     membersIDs: string[],
     color: string
 }

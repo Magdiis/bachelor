@@ -33,7 +33,7 @@
         </ion-select>
 
         <div v-if="group.useCase == useCase.Work">
-            <ion-select interface="popover" label="Kategorie" v-model="group.workCases">
+            <ion-select interface="popover" label="Kategorie" v-model="group.workCase">
             <ion-select-option v-for="wC in workCasesValues">
                 {{ wC }}
             </ion-select-option>
@@ -41,7 +41,7 @@
         </div>
 
         <div v-if="group.useCase == useCase.Sport">
-        <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="group.sportCases">
+        <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="group.sportCase">
             <ion-select-option v-for="sC in sportCasesValues">
                 {{ sC }}
             </ion-select-option>
@@ -61,7 +61,7 @@ IonLoading, onIonViewDidEnter, onIonViewWillEnter } from '@ionic/vue';
 import { useRouter } from 'vue-router';
 import type { Group } from '@/model/Group';
 import { reactive, ref } from 'vue';
-import profilesFirebase from '@/composables/profilesFirebase'
+import savingToFirestore from '@/composables/savingToFirestore'
 import { routesNames } from '@/router/routesNames';
 
 import {onUnmounted} from 'vue'
@@ -90,8 +90,8 @@ const group: Group = reactive({
     currentMembers: 1,
     description: "",
     useCase: useCase.Work,
-    workCases: workCases.Other,
-    sportCases: SportCases.Other,
+    workCase: workCases.Other,
+    sportCase: SportCases.Other,
     membersIDs: [] ,
     color: colorsCases.Blue
 })
@@ -117,7 +117,7 @@ const loading = ref(false)
 async function saveToDb() {
     loading.value = true
     clean()
-    await profilesFirebase().createGroup(group)
+    await savingToFirestore().createGroup(group)
     loading.value = false
     navigateToGroupScreen()
 }
@@ -128,19 +128,19 @@ function navigateToGroupScreen(){
 
 function clean(){
     if (group.useCase == useCase.Friendship){
-        group.sportCases = ""
-        group.workCases = ""
+        group.sportCase = ""
+        group.workCase = ""
     }
     if (group.useCase == useCase.Relationship){
-        group.sportCases = ""
-        group.workCases = ""
+        group.sportCase = ""
+        group.workCase = ""
     }
     if (group.useCase == useCase.Sport){
-        group.workCases = ""
+        group.workCase = ""
     }
 
     if (group.useCase == useCase.Work){
-        group.sportCases = ""
+        group.sportCase = ""
     }
 }
 
@@ -154,8 +154,8 @@ function clearGroup(){
     group.currentMembers = 1,
     group.description = "",
     group.useCase = useCase.Work,
-    group.workCases = workCases.Other,
-    group.sportCases = SportCases.Other,
+    group.workCase = workCases.Other,
+    group.sportCase = SportCases.Other,
     group.membersIDs = [],
     group.color = colorsCases.Blue
 }

@@ -3,6 +3,10 @@ import type {User} from '@/model/User'
 import { FirestoreDataConverter, getDocs,query, where } from "firebase/firestore";
 import { groups_collection, profiles_collection, users_collection } from '@/firebase-service';
 import {  toRefs } from 'vue';
+import {useCase, useCasesValues, workCases, workCasesValues, SportCases, 
+    sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
+import {convertCategory} from '@/composables/categoryConvertor'
+
 export default function fetchingFirebase() {
 
 
@@ -17,6 +21,7 @@ export default function fetchingFirebase() {
                 return groups
             } else {
                 groupsRef.forEach((doc) => {
+                    const {sportCaseThis, workCaseThis} = convertCategory(doc.data().useCase, doc.data().category)
                     groups.push({
                         userId: doc.data().userId,
                         name:doc.data().name,
@@ -24,8 +29,8 @@ export default function fetchingFirebase() {
                         currentMembers: doc.data().currentMembers,
                         description: doc.data().description,
                         useCase: doc.data().useCase,
-                        workCases:doc.data().workCases ,
-                        sportCases:doc.data().sportCases ,
+                        workCase: workCaseThis ,
+                        sportCase: sportCaseThis ,
                         membersIDs: doc.data().membersIDs,
                         color: doc.data().color
                     })
@@ -52,12 +57,13 @@ export default function fetchingFirebase() {
             } else {
         
                 usersRef.forEach((doc) => {
+                    const {sportCaseThis, workCaseThis} = convertCategory(doc.data().useCase, doc.data().category)
                     users.push({
                         userId:  doc.data().userId,
                         name:doc.data().name,
                         useCase: doc.data().useCase,
-                        workCases:doc.data().workCases,
-                        sportCases:doc.data().sportCases,
+                        workCase: workCaseThis,
+                        sportCase: sportCaseThis,
                         color:doc.data().color,
                         groupId:doc.data().groupId
                     })
@@ -72,6 +78,8 @@ export default function fetchingFirebase() {
 
     }
 
+
+
     // GETTING USERS FOR THE USE CASE (CATEGORY)
     async function getOthersUsers(userID: string, useCase: string, workCases:string, sportCases:string): Promise<User[]> {
         const q = query(users_collection, where("userId","!=",userID),where("userId","!=",userID),where("useCase","==",useCase), 
@@ -85,12 +93,13 @@ export default function fetchingFirebase() {
             } else {
         
                 usersRef.forEach((doc) => {
+                    const {sportCaseThis, workCaseThis} = convertCategory(doc.data().useCase, doc.data().category)
                     users.push({
                         userId:  doc.data().userId,
                         name:doc.data().name,
                         useCase: doc.data().useCase,
-                        workCases:doc.data().workCases,
-                        sportCases:doc.data().sportCases,
+                        workCase: workCaseThis,
+                        sportCase: sportCaseThis,
                         color:doc.data().color,
                         groupId:doc.data().groupId
                     })
@@ -117,6 +126,7 @@ export default function fetchingFirebase() {
                 return groups
             } else {
                 groupsRef.forEach((doc) => {
+                    const {sportCaseThis, workCaseThis} = convertCategory(doc.data().useCase, doc.data().category)
                     groups.push({
                         userId: doc.data().userId,
                         name:doc.data().name,
@@ -124,8 +134,8 @@ export default function fetchingFirebase() {
                         currentMembers: doc.data().currentMembers,
                         description: doc.data().description,
                         useCase: doc.data().useCase,
-                        workCases:doc.data().workCases ,
-                        sportCases:doc.data().sportCases ,
+                        workCase: workCaseThis,
+                        sportCase: sportCaseThis,
                         membersIDs: doc.data().membersIDs,
                         color: doc.data().color
                     })
@@ -141,3 +151,5 @@ export default function fetchingFirebase() {
 
     return { getOwnGroups, getOwnUsers, getOthersUsers, getOthersGroups }
 }
+
+

@@ -32,7 +32,7 @@ import {IonPage, IonContent, IonTitle, IonHeader, IonToolbar, IonInput,
 import type { Profile } from '@/model/Profile.ts'
 import { reactive, ref } from "vue";
 //import { format, parseISO } from 'date-fns';
-import profilesFirebase from '@/composables/profilesFirebase'
+import savingToFirestore from '@/composables/savingToFirestore'
 
 
 const profile: Profile = reactive({
@@ -46,7 +46,7 @@ const loading = ref(false)
 
 async function createProfile() {
   loading.value = true
-  await profilesFirebase().createProfile(profile)
+  await savingToFirestore().createProfile(profile)
   clearProfile()
   loading.value = false
 }

@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import ListPage from '../views/ListPage.vue'
-import HomePage from '../views/HomePage.vue'
 import CreateProfile from '../views/profile/CreateProfilePage.vue'
 import GroupsPage from '../views/groups/GroupsPage.vue'
 import BottomNavigation from '@/components/BottomNavigation.vue';
@@ -16,12 +14,6 @@ import UserMatchingPage from '@/views/matching/UserMatchingPage.vue';
 import { routesNames } from './routesNames';
 
 const routes: Array<RouteRecordRaw> = [
-  /*{
-    path: '/',
-    name: 'Home',
-    component: HomePage,
-    //redirect: '/home'
-  }, */
 
   // userID: string, useCase: string, workCases: string, sportCases: string
   {
@@ -49,11 +41,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/searchGroupsAdd',
     name: 'SearchGroupsAdd',
     component: SearchGroupsAddPageVue,
-  },
-  {
-    path: '/list',
-    name: 'List',
-    component: ListPage
   },
   {
     path: '/',

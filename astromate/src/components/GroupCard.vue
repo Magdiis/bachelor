@@ -9,8 +9,7 @@ router.push('/groupMatching/someString')
         </ion-card-title>
     </ion-card-header>
     <ion-card-content>
-        {{ group.workCases }}
-
+        {{ group.description }}
     </ion-card-content>
   </ion-card>
 

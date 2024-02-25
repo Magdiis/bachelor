@@ -4,6 +4,7 @@
           <ion-card-title>
               {{ props.user.name }}
           </ion-card-title>
+          
       </ion-card-header>
     </ion-card>
   

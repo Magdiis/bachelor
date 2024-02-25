@@ -3,6 +3,8 @@ import { collection, getFirestore, getDocs, addDoc } from "firebase/firestore";
 import { groups_collection, profiles_collection, users_collection } from '@/firebase-service';
 import { Group } from '@/model/Group';
 import {Profile} from '@/model/Profile'
+import {useCase, useCasesValues, workCases, workCasesValues, SportCases, 
+    sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
 
 
 export default function profilesFirebase(){
@@ -32,8 +34,7 @@ export default function profilesFirebase(){
                 currentMembers: group.currentMembers,
                 description: group.description,
                 useCase: group.useCase,
-                workCases:group.workCases ,
-                sportCases:group.sportCases ,
+                category: returnCategory(group.useCase, group.workCase, group.sportCase),
                 membersIDs: []
             })
             console.log("saved");
@@ -48,8 +49,7 @@ export default function profilesFirebase(){
                 userId: user.userId,
                 name:user.name,
                 useCase: user.useCase,
-                workCases:user.workCases,
-                sportCases:user.sportCases,
+                category: returnCategory(user.useCase, user.workCase, user.sportCase),
                 color:user.color,
                 groupId:user.groupId
             })
@@ -57,6 +57,17 @@ export default function profilesFirebase(){
             console.log("saved");
         } catch (e) {
             console.error("Error adding document: ", e)
+        }
+    }
+
+
+    function returnCategory(useCaseParam:string, workCaseParam:string, sportCaseParam:string): string {
+        if(useCaseParam == useCase.Work){
+            return workCaseParam
+        } if (useCaseParam == useCase.Sport) {
+            return sportCaseParam
+        } else {
+            return ""
         }
     }
 

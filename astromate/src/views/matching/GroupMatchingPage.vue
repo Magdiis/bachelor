@@ -10,6 +10,9 @@
     </ion-header>
         <ion-content :fullscreen="true">
             {{ currentGroup?.userId }}
+            groups
+            
+            
         </ion-content>
     </ion-page>
     </template>
@@ -20,10 +23,10 @@
     IonButton, IonRow, IonCol, IonGrid, onIonViewDidEnter} from '@ionic/vue';
     import { useRouter } from 'vue-router';
     import { useRoute } from 'vue-router';
-    import fetchingFirebase from '@/composables/fetchingFirebase'
+    import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
     import type { Group } from '@/model/Group';
     import { ref, reactive } from 'vue';
-import { SportCases, workCases } from '@/model/createGroupEnums';
+import { SportCases, useCase, workCases } from '@/model/createGroupEnums';
 import { closeOutline } from 'ionicons/icons';
     
     const router = useRouter()
@@ -36,6 +39,7 @@ import { closeOutline } from 'ionicons/icons';
 
     onIonViewDidEnter(async()=>{
         getGroupFromParams()
+        fetchOthersGroups()
     })
 
     async function fetchOthersGroups() {
@@ -43,7 +47,17 @@ import { closeOutline } from 'ionicons/icons';
         if (userID == null){
             userID = ""
         }
-        //const groupsFromFirebase = await fetchingFirebase().getOthersGroups(userID,)
+        if (currentGroup.value != undefined) {
+            const groupsFromFirebase = await fetchingFromFirestore().getOthersGroups(
+                userID, currentGroup.value.useCase, currentGroup.value.workCase, 
+                currentGroup.value.sportCase)
+                groups.value = []
+                groups.value = groupsFromFirebase
+                groups.value.forEach(group => {
+                    console.log(group + "\n")
+                });
+        }
+        
     }
 
     function getGroupFromParams() {

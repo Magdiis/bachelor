@@ -25,7 +25,7 @@
         </ion-select>
 
         <div v-if="user.useCase == useCase.Work">
-            <ion-select interface="popover" label="Kategorie" v-model="user.workCases">
+            <ion-select interface="popover" label="Kategorie" v-model="user.workCase">
             <ion-select-option v-for="wC in workCasesValues">
                 {{ wC }}
             </ion-select-option>
@@ -33,7 +33,7 @@
         </div>
 
         <div v-if="user.useCase == useCase.Sport">
-        <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="user.sportCases">
+        <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="user.sportCase">
             <ion-select-option v-for="sC in sportCasesValues">
                 {{ sC }}
             </ion-select-option>
@@ -55,7 +55,7 @@ IonLoading, onIonViewDidEnter, onIonViewWillEnter } from '@ionic/vue';
 import { useRouter } from 'vue-router';
 import type { User } from '@/model/User';
 import { reactive, ref } from 'vue';
-import profilesFirebase from '@/composables/profilesFirebase'
+import savingToFirestore from '@/composables/savingToFirestore'
 import { routesNames } from '@/router/routesNames';
 
 import {useCase, useCasesValues, workCases, workCasesValues, SportCases, 
@@ -74,8 +74,8 @@ const user: User = reactive({
     userId: userID,
     name: "",
     useCase: useCase.Work,
-    workCases:workCases.Other,
-    sportCases:SportCases.Other,
+    workCase:workCases.Other,
+    sportCase:SportCases.Other,
     color:colorsCases.Blue,
     groupId: ""
 })
@@ -94,7 +94,7 @@ const loading = ref(false)
 async function saveToDb() {
     loading.value = true
     clean()
-    await profilesFirebase().createUser(user)
+    await savingToFirestore().createUser(user)
     loading.value = false
     navigateToGroupScreen()
 }
@@ -107,19 +107,19 @@ function navigateToGroupScreen(){
 
 function clean(){
     if (user.useCase == useCase.Friendship){
-      user.sportCases = ""
-      user.workCases = ""
+      user.sportCase = ""
+      user.workCase = ""
     }
     if (user.useCase == useCase.Relationship){
-      user.sportCases = ""
-      user.workCases = ""
+      user.sportCase = ""
+      user.workCase = ""
     }
     if (user.useCase == useCase.Sport){
-      user.workCases = ""
+      user.workCase = ""
     }
 
     if (user.useCase == useCase.Work){
-      user.sportCases = ""
+      user.sportCase = ""
     }
 }
 
@@ -130,8 +130,8 @@ function clearUser(){
     user.userId= userID,
     user.name = "",
     user.useCase= useCase.Work,
-    user.workCases=workCases.Other,
-    user.sportCases=SportCases.Other,
+    user.workCase=workCases.Other,
+    user.sportCase=SportCases.Other,
     user.color=colorsCases.Blue,
     user.groupId= ""
 }

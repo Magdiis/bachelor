@@ -35,8 +35,8 @@ import {add} from 'ionicons/icons'
 import { useRouter } from 'vue-router';
 import { routesNames } from '@/router/routesNames';
 import {onMounted, ref, reactive} from 'vue'
-import profilesFirebase from '@/composables/profilesFirebase'
-import fetchingFirebase from '@/composables/fetchingFirebase'
+import savingToFirestore from '@/composables/savingToFirestore'
+import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
 import type { Group } from '@/model/Group';
 import type { User } from '@/model/User'
 import GroupCard from '@/components/GroupCard.vue'
@@ -65,7 +65,7 @@ async function fetchOwnGroups() {
     } 
     console.log("fetchOwnGroups")
     console.log(userID)
-    const groupsFromFirebase = await fetchingFirebase().getOwnGroups(userID)
+    const groupsFromFirebase = await fetchingFromFirestore().getOwnGroups(userID)
    // groups.length = 0 // clear
     //groups.push(...groupsFromFirebase) //push
     groups.value = []
@@ -78,7 +78,7 @@ async function fetchOwnUsers() {
     if (userID == null){
         userID = ""
     } 
-    const usersFromFirebase = await fetchingFirebase().getOwnUsers(userID)
+    const usersFromFirebase = await fetchingFromFirestore().getOwnUsers(userID)
     users.value = []
     users.value.push(...usersFromFirebase)
     
