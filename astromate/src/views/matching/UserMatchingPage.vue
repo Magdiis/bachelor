@@ -9,7 +9,10 @@
       </ion-toolbar>
     </ion-header>
         <ion-content :fullscreen="true">
-          {{ currentUser?.userId }}
+          {{ groupsFilter?.userId }}
+          <div v-for="u in users">
+            {{ u.name }}
+          </div>
         </ion-content>
     </ion-page>
     </template>
@@ -21,19 +24,25 @@
     import { onIonViewDidEnter } from '@ionic/vue';
     import { ref } from 'vue';
     import type { User } from '@/model/User';
+    import { GroupsFilter } from '@/model/GroupsFilter';
+    import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
+
     
     const router = useRouter()
     const route = useRoute()
 
-    const currentUser = ref<User>()
+    const groupsFilter = ref<GroupsFilter>()
+
+    const users =  ref<Array<User>>([])
 
     onIonViewDidEnter(()=>{
-      getUserFromParams()
+      getGroupsFilterFromParams()
+      fetchOthersUsers()
     })
 
-    function getUserFromParams() {
-      const userParam = route.params.user
-      currentUser.value = JSON.parse(userParam.toString())
+    function getGroupsFilterFromParams() {
+        const groupsFilterParam = route.params.groupsFilter 
+        groupsFilter.value = JSON.parse(groupsFilterParam.toString())
     }
 
     </script>

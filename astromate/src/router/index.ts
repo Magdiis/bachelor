@@ -17,12 +17,12 @@ const routes: Array<RouteRecordRaw> = [
 
   // userID: string, useCase: string, workCases: string, sportCases: string
   {
-    path: '/groupMatching/:group',
+    path: '/groupMatching/:groupsFilter',
     name: routesNames.GroupMatching,
     component: GroupMatchingPage
   }, 
   {
-    path: '/userMatching/:user',
+    path: '/userMatching/:groupsFilter',
     name: routesNames.UserMatching,
     component: UserMatchingPage
   }, 
