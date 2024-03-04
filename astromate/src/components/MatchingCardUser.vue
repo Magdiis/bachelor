@@ -1,5 +1,5 @@
 <template>
-    <ion-card @click="router.push({name: routesNames.GroupMatching, params:{groupsFilter:groupsFilterString}})">
+    <ion-card>
       <ion-card-header>
           <ion-card-title>
               {{ props.user.name }}
@@ -26,17 +26,7 @@ import { returnCategory } from '@/composables/categoryConvertor';
     user: User
   }>()
 
-  var groupsFilterString: string = ""
-
   onMounted(()=>{
-    var groupsFilter: GroupsFilter = {
-      userId: props.user.userId,
-    useCase: props.user.useCase,
-    category: returnCategory(props.user.useCase,
-    props.user.workCase, 
-    props.user.sportCase)
-    }
-    groupsFilterString = JSON.stringify(groupsFilter)
   })
   
   </script>

@@ -2,7 +2,7 @@
 router.push('/groupMatching/someString')
 -->
 <template>
-  <ion-card @click="router.push({name: routesNames.GroupMatching, params:{group:groupJSON}}) " >
+  <ion-card @click="router.push({name: routesNames.UserMatching, params:{groupsFilter:groupsFilterString}}) " >
     <ion-card-header>
         <ion-card-title>
             {{ props.group.name }}
@@ -23,6 +23,8 @@ import { routesNames } from '@/router/routesNames';
 import { useRouter } from 'vue-router';
 import {onMounted} from "vue"
 import { SportCases, workCases } from '@/model/createGroupEnums';
+import { GroupsFilter } from '@/model/GroupsFilter';
+import { returnCategory } from '@/composables/categoryConvertor';
 
 const router = useRouter()
 
@@ -32,11 +34,16 @@ const props = defineProps<{
 
 
 // cely objekt .. parsovani
-var groupJSON: string = ""
+var groupsFilterString: string = ""
 
 
 onMounted(()=>{
-    groupJSON = JSON.stringify(props.group)
+  var groupsFilter: GroupsFilter = {
+    userId: props.group.userId,
+    useCase: props.group.useCase,
+    category: returnCategory(props.group.useCase,props.group.workCase, props.group.sportCase)
+  }
+  groupsFilterString = JSON.stringify(groupsFilter)
 })
 
 </script>
