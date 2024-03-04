@@ -36,6 +36,7 @@ import savingToFirestore from '@/composables/savingToFirestore'
 
 
 const profile: Profile = reactive({
+    id:"",
     name: "",
     description: "",
     date: "",
