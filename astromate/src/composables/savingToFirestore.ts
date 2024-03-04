@@ -1,24 +1,30 @@
 import type {User} from '@/model/User'
-import { collection, getFirestore, getDocs, addDoc } from "firebase/firestore";
-import { groups_collection, profiles_collection, users_collection } from '@/firebase-service';
-import { Group } from '@/model/Group';
+import {collection, getFirestore, getDocs, addDoc, Timestamp} from "firebase/firestore";
+import {decision_collection, groups_collection, profiles_collection, users_collection} from '@/firebase-service';
+import {Group} from '@/model/Group';
 import {Profile} from '@/model/Profile'
-import {useCase, useCasesValues, workCases, workCasesValues, SportCases, 
-    sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
+import {
+    useCase, useCasesValues, workCases, workCasesValues, SportCases,
+    sportCasesValues, colorsCases, colorsCasesValues
+} from '@/model/createGroupEnums'
+import {returnCategory} from '@/composables/categoryConvertor'
+import {Decision} from "@/model/Decision";
 
 
-export default function profilesFirebase(){
+export default function savingToFirestore() {
 
-    async function createProfile(profile:Profile) {
+    async function createProfile(profile: Profile) {
+
         try {
             const docRef = await addDoc(profiles_collection, {
                 name: profile.name,
                 description: profile.description,
                 date: profile.date,
-                place: profile.place
+                place: profile.place,
             })
+
             localStorage.setItem("userID", docRef.id)
-            console.log("saved");
+
         } catch (e) {
             console.error("Error adding document: ", e)
         }
@@ -29,47 +35,49 @@ export default function profilesFirebase(){
             const docRef = await addDoc(groups_collection, {
                 userId: group.userId,
                 color: group.color,
-                name:group.name,
+                name: group.name,
                 maxMembers: group.maxMembers,
                 currentMembers: group.currentMembers,
                 description: group.description,
                 useCase: group.useCase,
                 category: returnCategory(group.useCase, group.workCase, group.sportCase),
-                membersIDs: []
+                membersIDs: [],
+                wasSeenBy: [group.userId]
             })
-            console.log("saved");
         } catch (e) {
             console.error("Error adding document: ", e)
         }
     }
 
-    async function createUser(user:User) {
+    async function createUser(user: User) {
+
         try {
             const docRef = await addDoc(users_collection, {
                 userId: user.userId,
-                name:user.name,
+                name: user.name,
                 useCase: user.useCase,
                 category: returnCategory(user.useCase, user.workCase, user.sportCase),
-                color:user.color,
-                groupId:user.groupId
+                color: user.color,
+                groupId: user.groupId,
+                wasSeenBy: [user.userId]
             })
-            
-            console.log("saved");
+
         } catch (e) {
             console.error("Error adding document: ", e)
         }
     }
 
-
-    function returnCategory(useCaseParam:string, workCaseParam:string, sportCaseParam:string): string {
-        if(useCaseParam == useCase.Work){
-            return workCaseParam
-        } if (useCaseParam == useCase.Sport) {
-            return sportCaseParam
-        } else {
-            return ""
+    async function createDecision(decision: Decision){
+        try {
+            const docRef = await addDoc(decision_collection,{
+                like: decision.like,
+                decidedAt: decision.decidedAt,
+                groupOrProfileID: decision.groupOrProfileID
+            })
+        } catch (e) {
+            console.error("Error adding document: ", e)
         }
     }
 
-    return {createProfile, createGroup, createUser}
+    return {createProfile, createGroup, createUser, createDecision}
 }
