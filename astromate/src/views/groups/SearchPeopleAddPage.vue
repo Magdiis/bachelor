@@ -77,14 +77,10 @@ async function waitAndSetfalse(){
   loading.value = false
 } */
 
-var userID = localStorage.getItem("userID")
-if (userID == null){
-  userID = ""
-}
-
 
 const group: Group = reactive({
-    userId: userID,
+    id: "", 
+    userId: "",
     name:"",
     maxMembers: 2,
     currentMembers: 1,
@@ -103,10 +99,11 @@ const group: Group = reactive({
 
 onIonViewWillEnter(()=>{
     clearGroup()
+    group.userId = loadUserID()
 })
 
 
-const rangeNumbers = []
+const rangeNumbers: number[] = []
 
 for (let i = 2; i <= 30; i++) {
     rangeNumbers.push(i)
@@ -145,10 +142,7 @@ function clean(){
 }
 
 function clearGroup(){
-    if (userID == null){
-        userID = ""
-    }
-    group.userId = userID,
+    group.userId = "",
     group.name = "",
     group.maxMembers = 2,
     group.currentMembers = 1,
@@ -158,6 +152,14 @@ function clearGroup(){
     group.sportCase = SportCases.Other,
     group.membersIDs = [],
     group.color = colorsCases.Blue
+}
+function loadUserID(): string {
+  const userID = localStorage.getItem("userID")
+  if(userID == null){
+    return ""
+  } else {
+    return userID
+  }
 }
 
 </script>

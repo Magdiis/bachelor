@@ -65,13 +65,10 @@ import {useCase, useCasesValues, workCases, workCasesValues, SportCases,
 
 const router = useRouter()
 
-var userID = localStorage.getItem("userID")
-if (userID == null){
-  userID = ""
-}
 
 const user: User = reactive({
-    userId: userID,
+    id:"",
+    userId: "",
     name: "",
     useCase: useCase.Work,
     workCase:workCases.Other,
@@ -87,6 +84,7 @@ onIonViewDidEnter(() => {
 
 onIonViewWillEnter(()=> {
   clearUser()
+  user.userId = loadUserID()
 })
 
 const loading = ref(false)
@@ -124,18 +122,23 @@ function clean(){
 }
 
 function clearUser(){
-  if (userID == null){
-        userID = ""
-    }
-    user.userId= userID,
-    user.name = "",
-    user.useCase= useCase.Work,
-    user.workCase=workCases.Other,
-    user.sportCase=SportCases.Other,
-    user.color=colorsCases.Blue,
-    user.groupId= ""
+  user.userId= ""
+  user.name = ""
+  user.useCase= useCase.Work
+  user.workCase=workCases.Other
+  user.sportCase=SportCases.Other
+  user.color=colorsCases.Blue
+  user.groupId=""
 }
 
+function loadUserID(): string {
+  const userID = localStorage.getItem("userID")
+  if(userID == null){
+    return ""
+  } else {
+    return userID
+  }
+}
 
 </script>
 
