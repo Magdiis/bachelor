@@ -74,6 +74,14 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
+
+  /** MY COLORS **/
+  --ion-color-blue:#005091;
+  --ion-color-darkRed:#BE1A0D;
+  --ion-color-green:#007B60;
+  --ion-color-orange:#E47F00;
+  
+
 }
 
 /* ONLY LIGHT MODE */ 
@@ -242,3 +250,21 @@ html {
   https://ionicframework.com/docs/layout/dynamic-font-scaling */
   --ion-dynamic-font: var(--ion-default-dynamic-font);
 }
+
+
+
+
+/** CLASS COLORS **/
+.custom-blue {
+  color: var(--ion-color-blue);
+}
+.custom-dark-red {
+  color: var(--ion-color-darkRed);
+}
+.custom-green {
+  color: var(--ion-color-green);
+}
+.custom-orange {
+  color: var(--ion-color-orange);
+}
+
