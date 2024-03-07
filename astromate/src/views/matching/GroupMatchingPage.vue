@@ -12,8 +12,9 @@
         <matching-card-group
             @like="makeDecision(true, currentGroup)"
             @dislike="makeDecision(false, currentGroup)"
-            v-if="currentGroup!=undefined"
-            :group="currentGroup">
+            v-if="currentGroup!=undefined && currentMembers.length>0"
+            :group="currentGroup"
+            :profiles="currentMembers">
         </matching-card-group>
         </ion-content>
     </ion-page>
@@ -37,18 +38,28 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import {Decision} from "@/model/Decision";
     import {Timestamp} from "firebase/firestore";
     import updateInFirestore from "@/composables/updateInFirestore";
+    import fetchingMatchingBackend from "@/composables/matchingBackendController/fetchingMatchingBackend";
+    import {Profile} from "@/model/Profile";
     
     const router = useRouter()
     const route = useRoute()
 
     const groups = ref<Array<Group>>([])
     
+    const groupsFilter = ref<GroupsFilter>()
+
     const currentGroup = ref<Group>()
+
+    const currentMembers = ref<Array<Profile>>([])
+
+    const isEmpty = ref(false) // for placeholder 
     
 
     onIonViewDidEnter(async()=>{
-        getGroupFromParams()
-        fetchOthersGroups()
+        getGroupsFilterFromParams()
+        await fetchOthersGroups()
+        //currrentGroup.value = groups.value[0]
+        //nextGroup.value = groups.value[1]
     })
 
     async function fetchOthersGroups() {
@@ -56,17 +67,27 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
         if (userID == null){
             userID = ""
         }
-        if (currentGroup.value != undefined) {
-            const groupsFromFirebase = await fetchingFromFirestore().getOthersGroups(
-                userID, currentGroup.value.useCase, currentGroup.value.workCase, 
-                currentGroup.value.sportCase)
-                groups.value = []
-                groups.value = groupsFromFirebase
-                groups.value.forEach(group => {
-                    console.log(group + "\n")
-                });
+        if (groupsFilter.value != undefined){
+          const groupsFromFirebase = await fetchingMatchingBackend().getOtherGroups(groupsFilter.value)
+          console.log("fetched groups: " )
+          groupsFromFirebase.forEach((g)=>{
+            console.log(g)
+          })
+          groups.value = []
+          groups.value.push(...groupsFromFirebase)
+          if(groups.value.length > 0){
+            currentGroup.value = groups.value[0]
+            console.log("current group value name "+currentGroup.value?.name)
+            await fetchMembers(currentGroup.value?.membersIDs)
+          }
+
         }
         
+    }
+
+    async function fetchMembers(membersIDs: string[]){
+        const profilesFromFirebase = await fetchingFromFirestore().fetchMembersProfiles(membersIDs)
+        currentMembers.value.push(...profilesFromFirebase)
     }
 
 
@@ -85,7 +106,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
       // Add to seen groups field
       if (currentGroup.value?.id != null){
-        await addToSeenGroups(currentGroup.value.id)
+        await addGroupsSeenBy(currentGroup.value.id)
       }
       // change current group to next one
       nextGroup()
@@ -103,17 +124,19 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
      // groups.value.shift()  //remove first element
       groups.value = groups.value.slice(1)
       currentGroup.value = groups.value[0]
+      fetchMembers(currentGroup.value?.membersIDs)
     }
 
-    async function addToSeenGroups(groupID: string){
+    async function addGroupsSeenBy(groupID: string){
       var userID = localStorage.getItem("userID")
       if (userID == null){
         userID = ""
       }
-        await updateInFirestore().addToSeenGroups(userID,groupID)
+        await updateInFirestore().addGroupsSeenBy(groupID,userID)
     }
+
     </script>
     
     <style scoped>
-    
+
     </style>

@@ -30,7 +30,8 @@
 <script setup lang="ts">
 import { IonPage, IonContent, IonTitle, IonIcon,
 IonHeader, IonToolbar, IonButton,  IonButtons, IonLoading,
-IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, onIonViewWillEnter, onIonViewDidEnter} from '@ionic/vue';
+IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle,  onIonViewWillEnter,
+ onIonViewDidEnter, IonList, IonListHeader, IonItem} from '@ionic/vue';
 import {add} from 'ionicons/icons'
 import { useRouter } from 'vue-router';
 import { routesNames } from '@/router/routesNames';
@@ -50,7 +51,6 @@ const users = ref<Array<User>>([])
 
 
   onIonViewDidEnter(async()=>{
-  console.log("Home page did enter")
   loading.value = true
   await fetchOwnGroups()
   await fetchOwnUsers()
@@ -63,8 +63,7 @@ async function fetchOwnGroups() {
     if (userID == null){
         userID = ""
     } 
-    console.log("fetchOwnGroups")
-    console.log(userID)
+
     const groupsFromFirebase = await fetchingFromFirestore().getOwnGroups(userID)
    // groups.length = 0 // clear
     //groups.push(...groupsFromFirebase) //push

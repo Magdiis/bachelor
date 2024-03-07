@@ -6,6 +6,12 @@
           </ion-card-title>
       </ion-card-header>
       <ion-card-content>
+        <ion-list>
+          <ion-item v-for="profile in props.profiles">
+              {{ profile.name }}
+          </ion-item>
+        </ion-list>
+
         <ion-button fill="outline" @click="dislike()">
             Dislike
         </ion-button>
@@ -19,21 +25,16 @@
   
   <script setup lang="ts">
   import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, onIonViewDidEnter,
-IonGrid, IonRow, IonCol, IonButton, createAnimation  } from '@ionic/vue';
+IonGrid, IonRow, IonCol, IonButton, createAnimation,IonList, IonItem  } from '@ionic/vue';
   import type { Group } from '@/model/Group';
-  import { routesNames } from '@/router/routesNames';
   import { useRouter } from 'vue-router';
-  import {onMounted} from "vue"
-  import { SportCases, workCases } from '@/model/createGroupEnums';
-  import { GroupsFilter } from '@/model/GroupsFilter';
-  import { returnCategory } from '@/composables/categoryConvertor';
-  import {ref} from 'vue'
-  import type { Animation } from '@ionic/vue';
+  import {Profile} from "@/model/Profile";
   
   const router = useRouter()
   
   const props = defineProps<{
-    group: Group
+    group: Group,
+    profiles: Profile[]
   }>()
 
   const emit = defineEmits(['like','dislike'])

@@ -100,6 +100,7 @@ const group: Group = reactive({
 onIonViewWillEnter(()=>{
     clearGroup()
     group.userId = loadUserID()
+    group.membersIDs.push(loadUserID())
 })
 
 
