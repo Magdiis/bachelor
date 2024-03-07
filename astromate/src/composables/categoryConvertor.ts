@@ -32,10 +32,13 @@ export function returnCategory(useCaseParam:string, workCaseParam:string, sportC
     switch (useCaseParam) {
         case useCase.Work:
             return workCaseParam
+
         case useCase.Sport:
             return sportCaseParam
+
         case useCase.Friendship:
             return useCase.Friendship
+
         case useCase.Relationship:
             return useCase.Relationship
         default:

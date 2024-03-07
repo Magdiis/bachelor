@@ -1,10 +1,14 @@
-export interface User {
+
+export interface UsersResponse {
+    users: UserResponse[]
+}
+
+interface UserResponse{
     id:string,
     userId: string,
     name:string,
     useCase: string,
-    workCase:string,
-    sportCase:string,
+    category:string,
     color:string,
     groupId:string,
     wasSeenBy: string[]

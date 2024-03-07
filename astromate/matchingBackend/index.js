@@ -35,6 +35,20 @@ app.get("/getOtherGroups/:userId/:useCase/:category", (req, res) => {
     })
 })
 
+app.get("/getOtherUsers/:userId/:useCase/:category",(req, res) => {
+    var body = {
+        users: []
+    }
+    fetchingFromFirestore.getOtherUsersFromFirestore(req.params.userId, req.params.useCase, req.params.category).then(querySnapshot => {
+        if (querySnapshot.size === 0){
+            res.json(body)
+        } else {
+            body.users = fetchingFromFirestore.filterUsers(req.params.userId, querySnapshot)
+            res.json(body)
+        }
+    })
+})
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

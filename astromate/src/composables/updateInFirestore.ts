@@ -10,5 +10,12 @@ export default function updateInFirestore() {
         })
     }
 
-    return {addGroupsSeenBy}
+    async function addUsersSeenBy(userID:string, profileID:string){
+        const userRef = doc(db, "users",userID)
+        await updateDoc(userRef,{
+            wasSeenBy: arrayUnion(profileID)
+        })
+    }
+
+    return {addGroupsSeenBy, addUsersSeenBy}
 }

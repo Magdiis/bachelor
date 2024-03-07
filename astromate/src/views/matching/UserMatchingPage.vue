@@ -9,25 +9,40 @@
       </ion-toolbar>
     </ion-header>
         <ion-content :fullscreen="true">
-          {{ groupsFilter?.userId }}
-          <div v-for="u in users">
-            {{ u.name }}
-          </div>
+          <matching-card-user
+              v-if="currentUser != undefined && currentProfile != undefined"
+              @like="makeDecision(true,currentUser)"
+              @dislike="makeDecision(false,currentUser)"
+              :profile="currentProfile"
+              :user="currentUser"></matching-card-user>
         </ion-content>
     </ion-page>
     </template>
     
     <script setup lang="ts">
-    import { IonPage, IonContent, IonTitle, 
-    IonHeader, IonToolbar,IonButtons, IonBackButton, IonButton, IonRow, IonCol, IonGrid} from '@ionic/vue';
-    import { useRouter, useRoute } from 'vue-router';
-    import { onIonViewDidEnter } from '@ionic/vue';
-    import { ref } from 'vue';
-    import type { User } from '@/model/User';
-    import { GroupsFilter } from '@/model/GroupsFilter';
+    import {
+      IonBackButton,
+      IonButtons,
+      IonContent,
+      IonHeader,
+      IonPage,
+      IonTitle,
+      IonToolbar,
+      onIonViewDidEnter
+    } from '@ionic/vue';
+    import {useRoute, useRouter} from 'vue-router';
+    import {ref} from 'vue';
+    import type {User} from '@/model/User';
+    import {GroupsFilter} from '@/model/GroupsFilter';
     import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
+    import MatchingCardUser from "@/components/MatchingCardUser.vue";
+    import {Profile} from "@/model/Profile";
+    import fetchingMatchingBackend from "@/composables/matchingBackendController/fetchingMatchingBackend";
+    import {Decision} from "@/model/Decision";
+    import {Timestamp} from "firebase/firestore";
+    import savingToFirestore from "@/composables/savingToFirestore";
+    import updateInFirestore from "@/composables/updateInFirestore";
 
-    
     const router = useRouter()
     const route = useRoute()
 
@@ -35,15 +50,75 @@
 
     const users =  ref<Array<User>>([])
 
-    onIonViewDidEnter(()=>{
+    const currentUser = ref<User>()
+    const currentProfile = ref<Profile>()
+
+    onIonViewDidEnter(async ()=>{
       getGroupsFilterFromParams()
-      fetchOthersUsers()
+      await fetchOthersUsers()
     })
 
     function getGroupsFilterFromParams() {
         const groupsFilterParam = route.params.groupsFilter 
         groupsFilter.value = JSON.parse(groupsFilterParam.toString())
     }
+    async function fetchOthersUsers() {
+      var userID = localStorage.getItem("userID")
+      if (userID == null){
+        userID = ""
+      }
+      if (groupsFilter.value != undefined){
+        const usersFromFirebase = await fetchingMatchingBackend().getOtherUsers(groupsFilter.value)
+        users.value = []
+        users.value.push(...usersFromFirebase)
+        if(users.value.length > 0){
+          currentUser.value = users.value[0]
+          await fetchProfile(currentUser.value?.userId)
+        }
+
+      }
+    }
+    async function fetchProfile(profileID: string){
+      currentProfile.value = await fetchingFromFirestore().fetchProfile(profileID)
+    }
+
+    async function makeDecision(like:boolean, user:User) {
+      // Save decision
+      await saveDecisionToDB(like, user.id)
+      // Make notification and send
+
+      // Add to seen by field
+      if (currentUser.value?.id != null){
+        await addUsersSeenBy(currentUser.value.id)
+      }
+
+      // change current user to next one
+      nextUser()
+    }
+
+    async function saveDecisionToDB(like: boolean, groupOrProfileID: string){
+      const decision: Decision = {
+        decidedAt: Timestamp.now(), groupOrProfileID: groupOrProfileID, like: like, id: ""
+      }
+      await savingToFirestore().createDecision(decision)
+    }
+
+    async function addUsersSeenBy(userId: string){
+      var userID = localStorage.getItem("userID")
+      if (userID == null){
+        userID = ""
+      }
+      await updateInFirestore().addUsersSeenBy(userId,userID)
+    }
+
+    function nextUser(){
+      users.value = users.value.slice(1)
+      currentUser.value =  users.value[0]
+      if(currentUser.value != undefined){
+        fetchProfile(currentUser.value.userId)
+      }
+    }
+
 
     </script>
     

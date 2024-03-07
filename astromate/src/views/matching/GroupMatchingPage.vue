@@ -82,7 +82,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
           }
 
         }
-        
+
     }
 
     async function fetchMembers(membersIDs: string[]){
@@ -104,13 +104,13 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
       await saveDecisionToDB(like, group.id)
       // Make notification and send
 
-      // Add to seen groups field
+      // Add to seen by field
       if (currentGroup.value?.id != null){
         await addGroupsSeenBy(currentGroup.value.id)
       }
-      // change current group to next one
+      // change current group to next one and remove
       nextGroup()
-      // remove from group from groups
+
     }
 
     async function saveDecisionToDB(like: boolean, groupOrProfileID: string){
@@ -124,7 +124,9 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
      // groups.value.shift()  //remove first element
       groups.value = groups.value.slice(1)
       currentGroup.value = groups.value[0]
-      fetchMembers(currentGroup.value?.membersIDs)
+      if(currentGroup.value != undefined){
+        fetchMembers(currentGroup.value?.membersIDs)
+      }
     }
 
     async function addGroupsSeenBy(groupID: string){
