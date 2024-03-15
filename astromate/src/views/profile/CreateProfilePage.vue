@@ -30,7 +30,7 @@
 import {
   IonPage, IonContent, IonTitle, IonHeader, IonToolbar, IonInput,
   IonItem, IonLabel, IonList, IonTextarea, IonDatetime, IonButton,
-  IonLoading, IonAlert, onIonViewDidEnter
+  IonLoading, IonAlert,IonText, onIonViewDidEnter
 } from '@ionic/vue';
 import type { Profile } from '@/model/Profile.ts'
 import { reactive, ref } from "vue";

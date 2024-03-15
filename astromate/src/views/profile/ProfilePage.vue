@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import {IonContent, IonHeader, IonItem, IonPage, IonTitle, IonToolbar, onIonViewWillEnter} from "@ionic/vue";
+import {IonContent, IonHeader, IonText, IonPage, IonTitle, IonToolbar, onIonViewWillEnter} from "@ionic/vue";
 import {ref} from "vue";
 import {auth} from "@/firebase-service";
 
