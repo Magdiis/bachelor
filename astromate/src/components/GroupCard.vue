@@ -41,7 +41,9 @@ onMounted(()=>{
   var groupsFilter: GroupsFilter = {
     userId: props.group.userId,
     useCase: props.group.useCase,
-    category: returnCategory(props.group.useCase,props.group.workCase, props.group.sportCase)
+    category: returnCategory(props.group.useCase,props.group.workCase, props.group.sportCase),
+    name: props.group.name,
+    userOrGroupID_card: props.group.id
   }
   groupsFilterString = JSON.stringify(groupsFilter)
 })

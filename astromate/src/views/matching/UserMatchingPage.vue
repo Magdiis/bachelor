@@ -96,8 +96,15 @@
       // Save decision
       await saveDecisionToDB(like, user.id)
       // Make notification and send
-      if(id.value != undefined){
-        await makeNotification(id.value, user.userId)
+      if(id.value != undefined && groupsFilter.value != undefined){
+        await makeNotification("","","","","","")
+        await makeNotification(
+            id.value,
+            user.userId,
+            groupsFilter.value?.name,
+            "name from pinia",
+            groupsFilter.value?.userOrGroupID_card,
+            user.id)
       }
 
       // Add to seen by field
@@ -135,8 +142,11 @@
       }
     }
 
-    async function makeNotification(sender:string, receiver:string,){
+    async function makeNotification(sender:string, receiver:string,groupName: string, senderName: string,
+                                    groupDocumentID:string, userDocumentID: string){
       const newNotification: NotificationMessage = {
+        groupDocumentID: groupDocumentID, userDocumentID: userDocumentID,
+        groupName: groupName, senderName: senderName,
         id: "", read: false, receiver: receiver,
         sender: sender, sentAt: Timestamp.now(),
         text: notificationText.UserWantsUserToHisGroup

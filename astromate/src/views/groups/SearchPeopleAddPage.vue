@@ -69,7 +69,7 @@ import {useCase, useCasesValues, workCases, workCasesValues, SportCases, sportCa
 import {auth} from "@/firebase-service";
 
 const router = useRouter()
-
+const id = ref<string|null>()
 /*const delay = ms => new Promise(res => setTimeout(res, ms));
 
 async function waitAndSetfalse(){
@@ -99,12 +99,15 @@ const group: Group = reactive({
 }) */
 
 onIonViewWillEnter(()=>{
-    clearGroup()
-  if(auth.currentUser != null){
-    group.userId = auth.currentUser.uid
-    group.membersIDs.push(auth.currentUser.uid)
-  }
+  id.value = auth.currentUser?.uid
+})
 
+onIonViewDidEnter(()=>{
+  clearGroup()
+  if(id.value != null){
+    group.userId = id.value
+    group.membersIDs = [id.value]
+  }
 })
 
 
@@ -158,14 +161,7 @@ function clearGroup(){
     group.membersIDs = [],
     group.color = colorsCases.Blue
 }
-// function loadUserID(): string {
-//   const userID = localStorage.getItem("userID")
-//   if(userID == null){
-//     return ""
-//   } else {
-//     return userID
-//   }
-// }
+
 
 </script>
 

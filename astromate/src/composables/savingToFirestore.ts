@@ -47,7 +47,7 @@ export default function savingToFirestore() {
                 description: group.description,
                 useCase: group.useCase,
                 category: returnCategory(group.useCase, group.workCase, group.sportCase),
-                membersIDs: [],
+                membersIDs: group.membersIDs,
                 wasSeenBy: [group.userId]
             })
         } catch (e) {
@@ -92,7 +92,11 @@ export default function savingToFirestore() {
                 read: notification.read,
                 sentAt: notification.sentAt,
                 receiver: notification.receiver,
-                sender: notification.sender
+                sender: notification.sender,
+                senderName: notification.senderName,
+                groupName: notification.groupName,
+                groupDocumentID: notification.groupDocumentID,
+                userDocumentID: notification.userDocumentID
             })
         } catch (e) {
             console.error("Error adding document: ", e)

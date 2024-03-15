@@ -103,8 +103,16 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
       // Save decision
       await saveDecisionToDB(like, group.id)
       // Make notification and send
-      if(id.value !== undefined){
-        await makeNotification(id.value,group.userId)
+      if(id.value !== undefined && groupsFilter.value != undefined){
+        await makeNotification(
+            id.value,
+            group.userId,
+            group.name,
+            "name from profile:pinia",
+            group.id,
+            groupsFilter.value?.userOrGroupID_card)
+
+       // await makeNotification("","","","","","")
       }
 
       // Add to seen by field
@@ -143,8 +151,11 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
     }
 
-    async function makeNotification(sender:string, receiver:string,){
+    async function makeNotification(sender:string, receiver:string, groupName: string,
+                                    senderName: string,groupDocumentID:string, userDocumentID: string){
       const newNotification: NotificationMessage = {
+        groupDocumentID: groupDocumentID, userDocumentID: userDocumentID,
+        groupName: groupName, senderName: senderName,
         id: "", read: false, receiver: receiver,
         sender: sender, sentAt: Timestamp.now(),
         text: notificationText.UserWantsToUsersGroup

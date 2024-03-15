@@ -30,11 +30,13 @@ import { returnCategory } from '@/composables/categoryConvertor';
 
   onMounted(()=>{
     var groupsFilter: GroupsFilter = {
+      userOrGroupID_card: props.user.id,
       userId: props.user.userId,
     useCase: props.user.useCase,
     category: returnCategory(props.user.useCase,
     props.user.workCase, 
-    props.user.sportCase)
+    props.user.sportCase),
+      name: props.user.name
     }
     groupsFilterString = JSON.stringify(groupsFilter)
   })
