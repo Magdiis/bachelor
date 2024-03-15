@@ -8,7 +8,7 @@
         <ion-title>User matching</ion-title>
       </ion-toolbar>
     </ion-header>
-        <ion-content :fullscreen="true">
+        <ion-content :fullscreen="true" >
           <matching-card-user
               v-if="currentUser != undefined && currentProfile != undefined"
               @like="makeDecision(true,currentUser)"
@@ -42,6 +42,8 @@
     import {Timestamp} from "firebase/firestore";
     import savingToFirestore from "@/composables/savingToFirestore";
     import updateInFirestore from "@/composables/updateInFirestore";
+    import {NotificationMessage, notificationText} from "@/model/NotificationMessage";
+    import {auth} from "@/firebase-service";
 
     const router = useRouter()
     const route = useRoute()
@@ -53,7 +55,10 @@
     const currentUser = ref<User>()
     const currentProfile = ref<Profile>()
 
+    const id = ref<string|undefined>()
+
     onIonViewDidEnter(async ()=>{
+      id.value = auth.currentUser?.uid
       getGroupsFilterFromParams()
       await fetchOthersUsers()
     })
@@ -63,10 +68,10 @@
         groupsFilter.value = JSON.parse(groupsFilterParam.toString())
     }
     async function fetchOthersUsers() {
-      var userID = localStorage.getItem("userID")
-      if (userID == null){
-        userID = ""
-      }
+      // var userID = localStorage.getItem("userID")
+      // if (userID == null){
+      //   userID = ""
+      // }
       if (groupsFilter.value != undefined){
         const usersFromFirebase = await fetchingMatchingBackend().getOtherUsers(groupsFilter.value)
         users.value = []
@@ -83,9 +88,17 @@
     }
 
     async function makeDecision(like:boolean, user:User) {
+      // var userID = localStorage.getItem("userID")
+      // if (userID == null){
+      //   userID = ""
+      // }
+
       // Save decision
       await saveDecisionToDB(like, user.id)
       // Make notification and send
+      if(id.value != undefined){
+        await makeNotification(id.value, user.userId)
+      }
 
       // Add to seen by field
       if (currentUser.value?.id != null){
@@ -104,11 +117,14 @@
     }
 
     async function addUsersSeenBy(userId: string){
-      var userID = localStorage.getItem("userID")
-      if (userID == null){
-        userID = ""
+      // var userID = localStorage.getItem("userID")
+      // if (userID == null){
+      //   userID = ""
+      // }
+      if(id.value != undefined){
+        await updateInFirestore().addUsersSeenBy(userId,id.value)
       }
-      await updateInFirestore().addUsersSeenBy(userId,userID)
+
     }
 
     function nextUser(){
@@ -117,6 +133,15 @@
       if(currentUser.value != undefined){
         fetchProfile(currentUser.value.userId)
       }
+    }
+
+    async function makeNotification(sender:string, receiver:string,){
+      const newNotification: NotificationMessage = {
+        id: "", read: false, receiver: receiver,
+        sender: sender, sentAt: Timestamp.now(),
+        text: notificationText.UserWantsUserToHisGroup
+      }
+      await (savingToFirestore().createNotification(newNotification))
     }
 
 

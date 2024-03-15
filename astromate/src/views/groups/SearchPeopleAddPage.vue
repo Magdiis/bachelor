@@ -66,6 +66,7 @@ import { routesNames } from '@/router/routesNames';
 
 import {onUnmounted} from 'vue'
 import {useCase, useCasesValues, workCases, workCasesValues, SportCases, sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
+import {auth} from "@/firebase-service";
 
 const router = useRouter()
 
@@ -99,8 +100,11 @@ const group: Group = reactive({
 
 onIonViewWillEnter(()=>{
     clearGroup()
-    group.userId = loadUserID()
-    group.membersIDs.push(loadUserID())
+  if(auth.currentUser != null){
+    group.userId = auth.currentUser.uid
+    group.membersIDs.push(auth.currentUser.uid)
+  }
+
 })
 
 
@@ -154,14 +158,14 @@ function clearGroup(){
     group.membersIDs = [],
     group.color = colorsCases.Blue
 }
-function loadUserID(): string {
-  const userID = localStorage.getItem("userID")
-  if(userID == null){
-    return ""
-  } else {
-    return userID
-  }
-}
+// function loadUserID(): string {
+//   const userID = localStorage.getItem("userID")
+//   if(userID == null){
+//     return ""
+//   } else {
+//     return userID
+//   }
+// }
 
 </script>
 

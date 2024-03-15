@@ -60,6 +60,7 @@ import { routesNames } from '@/router/routesNames';
 
 import {useCase, useCasesValues, workCases, workCasesValues, SportCases, 
   sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
+import {auth} from "@/firebase-service";
 
 
 
@@ -84,7 +85,10 @@ onIonViewDidEnter(() => {
 
 onIonViewWillEnter(()=> {
   clearUser()
-  user.userId = loadUserID()
+  if(auth.currentUser != null){
+    user.userId = auth.currentUser.uid
+  }
+
 })
 
 const loading = ref(false)
@@ -131,14 +135,14 @@ function clearUser(){
   user.groupId=""
 }
 
-function loadUserID(): string {
-  const userID = localStorage.getItem("userID")
-  if(userID == null){
-    return ""
-  } else {
-    return userID
-  }
-}
+// function loadUserID(): string {
+//   const userID = localStorage.getItem("userID")
+//   if(userID == null){
+//     return ""
+//   } else {
+//     return userID
+//   }
+// }
 
 </script>
 

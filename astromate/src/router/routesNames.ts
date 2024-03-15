@@ -7,6 +7,10 @@ export enum routesNames{
     Chat = "Chat",
     Notification = "Notification",
     GroupMatching = "GroupMatching",
-    UserMatching = "UserMatching"
+    UserMatching = "UserMatching",
+    Login = "Login",
+    Registration = "Registration",
+    EditProfile = "EditProfile",
+    Profile = "Profile"
   }
   

@@ -1,7 +1,13 @@
 import { Group } from '@/model/Group';
 import type {User} from '@/model/User'
-import {FirestoreDataConverter, Query, getDocs, query, where, doc} from "firebase/firestore";
-import { groups_collection, profiles_collection, users_collection } from '@/firebase-service';
+import {FirestoreDataConverter,orderBy,getDoc , Query, getDocs, query,onSnapshot , where, doc} from "firebase/firestore";
+import {
+    db,
+    groups_collection,
+    notification_collection,
+    profiles_collection,
+    users_collection
+} from '@/firebase-service';
 import {  toRefs } from 'vue';
 import {useCase, useCasesValues, workCases, workCasesValues, SportCases, 
     sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
@@ -11,6 +17,7 @@ import {Profile} from "@/model/Profile";
 //import firebase from "firebase/compat";
 import firebase from 'firebase/app';
 import 'firebase/firestore';
+import { NotificationMessage} from "@/model/NotificationMessage";
 
 export default function fetchingFirebase() {
 
@@ -117,25 +124,20 @@ export default function fetchingFirebase() {
     }
 
     async function fetchProfile(profileID: string): Promise<Profile | undefined> {
-        const q: Query = query(profiles_collection, where('__name__','==',profileID))
         try {
-            const profileRef = await getDocs(q)
-            if (profileRef.empty){
+            const docRef = doc(db,"profiles", profileID)
+            const docSnap = await getDoc(docRef)
+            if (!docSnap.exists()){
                 console.log("empty")
                 return undefined
             } else {
-                var profiles: Profile[] = []
-                profileRef.forEach((doc)=>{
-                    console.log(doc.data().name)
-                    profiles.push({
-                        date: doc.data().date,
-                        description: doc.data().description,
-                        id: doc.data().id,
-                        name: doc.data().name,
-                        place: doc.data().place
-                    })
-                })
-                return profiles[0]
+                return {
+                    date: docSnap.data().date,
+                    description: docSnap.data().description,
+                    id: docSnap.data().id,
+                    name: docSnap.data().name,
+                    place: docSnap.data().place
+                }
             }
 
         }catch (e) {
@@ -144,7 +146,23 @@ export default function fetchingFirebase() {
         }
     }
 
-    return { getOwnGroups, getOwnUsers , fetchMembersProfiles, fetchProfile}
+    async function isProfileExist(profileID: string):Promise<boolean>{
+        try {
+            const docRef = doc(db,"profiles", profileID)
+            const docSnap = await getDoc(docRef)
+            if(docSnap.exists()){
+                console.log("data", docSnap.data())
+            }
+            console.log("dokument exists() ",docSnap.exists())
+            return docSnap.exists()
+        }catch (e) {
+            console.error("Error ", e)
+            throw new Error("Error")
+        }
+
+    }
+
+    return { getOwnGroups, getOwnUsers , fetchMembersProfiles, fetchProfile, isProfileExist }
 }
 
 

@@ -42,15 +42,17 @@ import type { Group } from '@/model/Group';
 import type { User } from '@/model/User'
 import GroupCard from '@/components/GroupCard.vue'
 import UserCard from '@/components/UserCard.vue'
+import {auth} from "@/firebase-service";
 
 const router = useRouter()
 const loading = ref(false)
 //const groups = reactive<Array<Group>>([])
 const groups = ref<Array<Group>>([])
 const users = ref<Array<User>>([])
+const id = ref<string|undefined>()
 
-
-  onIonViewDidEnter(async()=>{
+onIonViewDidEnter(async()=>{
+  id.value = auth.currentUser?.uid
   loading.value = true
   await fetchOwnGroups()
   await fetchOwnUsers()
@@ -59,27 +61,31 @@ const users = ref<Array<User>>([])
 
 
 async function fetchOwnGroups() {
-    var userID = localStorage.getItem("userID")
-    if (userID == null){
-        userID = ""
-    } 
-
-    const groupsFromFirebase = await fetchingFromFirestore().getOwnGroups(userID)
-   // groups.length = 0 // clear
-    //groups.push(...groupsFromFirebase) //push
-    groups.value = []
-    groups.value.push(...groupsFromFirebase)
-    
+    // var userID = localStorage.getItem("userID")
+    // if (userID == null){
+    //     userID = ""
+    // }
+    if(id.value != undefined){
+      const groupsFromFirebase = await fetchingFromFirestore().getOwnGroups(id.value)
+      // groups.length = 0 // clear
+      //groups.push(...groupsFromFirebase) //push
+      groups.value = []
+      groups.value.push(...groupsFromFirebase)
+    }
 }
 
 async function fetchOwnUsers() {
-  var userID = localStorage.getItem("userID")
-    if (userID == null){
-        userID = ""
-    } 
-    const usersFromFirebase = await fetchingFromFirestore().getOwnUsers(userID)
-    users.value = []
-    users.value.push(...usersFromFirebase)
+  // var userID = localStorage.getItem("userID")
+  //   if (userID == null){
+  //       userID = ""
+  //   }
+
+    if(id.value != undefined){
+      const usersFromFirebase = await fetchingFromFirestore().getOwnUsers(id.value)
+      users.value = []
+      users.value.push(...usersFromFirebase)
+    }
+
     
 }
 

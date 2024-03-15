@@ -1,6 +1,13 @@
 import type {User} from '@/model/User'
-import {collection, getFirestore, getDocs, addDoc, Timestamp} from "firebase/firestore";
-import {decision_collection, groups_collection, profiles_collection, users_collection} from '@/firebase-service';
+import {collection, getFirestore, getDocs, addDoc, setDoc, Timestamp, doc} from "firebase/firestore";
+import {
+    db,
+    decision_collection,
+    groups_collection,
+    notification_collection,
+    profiles_collection,
+    users_collection
+} from '@/firebase-service';
 import {Group} from '@/model/Group';
 import {Profile} from '@/model/Profile'
 import {
@@ -9,24 +16,23 @@ import {
 } from '@/model/createGroupEnums'
 import {returnCategory} from '@/composables/categoryConvertor'
 import {Decision} from "@/model/Decision";
+import {NotificationMessage} from "@/model/NotificationMessage";
 
 
 export default function savingToFirestore() {
 
-    async function createProfile(profile: Profile) {
-
+    async function createProfile(profile: Profile):Promise<boolean> {
         try {
-            const docRef = await addDoc(profiles_collection, {
+            await setDoc(doc(db,"profiles",profile.id),{
                 name: profile.name,
                 description: profile.description,
                 date: profile.date,
                 place: profile.place,
             })
-
-            localStorage.setItem("userID", docRef.id)
-
+            return true
         } catch (e) {
             console.error("Error adding document: ", e)
+            throw new Error("Error with create profile")
         }
     }
 
@@ -79,5 +85,19 @@ export default function savingToFirestore() {
         }
     }
 
-    return {createProfile, createGroup, createUser, createDecision}
+    async function createNotification(notification: NotificationMessage){
+        try {
+            const docRef = await addDoc(notification_collection,{
+                text:notification.text,
+                read: notification.read,
+                sentAt: notification.sentAt,
+                receiver: notification.receiver,
+                sender: notification.sender
+            })
+        } catch (e) {
+            console.error("Error adding document: ", e)
+        }
+    }
+
+    return {createProfile, createGroup, createUser, createDecision,createNotification}
 }

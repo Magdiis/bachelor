@@ -21,9 +21,11 @@
     </template>
     
     <script setup lang="ts">
-    import { IonPage, IonContent, IonTitle, 
-    IonHeader, IonToolbar,IonButtons, IonBackButton, 
-    IonButton, IonRow, IonCol, IonGrid, onIonViewDidEnter} from '@ionic/vue';
+    import {
+      IonPage, IonContent, IonTitle,
+      IonHeader, IonToolbar, IonButtons, IonBackButton,
+      IonButton, IonRow, IonCol, IonGrid, onIonViewDidEnter, onIonViewWillEnter
+    } from '@ionic/vue';
     import { useRouter } from 'vue-router';
     import { useRoute } from 'vue-router';
     import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
@@ -40,6 +42,8 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import updateInFirestore from "@/composables/updateInFirestore";
     import fetchingMatchingBackend from "@/composables/matchingBackendController/fetchingMatchingBackend";
     import {Profile} from "@/model/Profile";
+    import {NotificationMessage, notificationText} from "@/model/NotificationMessage";
+    import {auth} from "@/firebase-service";
     
     const router = useRouter()
     const route = useRoute()
@@ -52,10 +56,11 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
     const currentMembers = ref<Array<Profile>>([])
 
-    const isEmpty = ref(false) // for placeholder 
-    
+    const isEmpty = ref(false) // for placeholder
+    const id = ref<string|undefined>()
 
     onIonViewDidEnter(async()=>{
+        id.value = auth.currentUser?.uid
         getGroupsFilterFromParams()
         await fetchOthersGroups()
         //currrentGroup.value = groups.value[0]
@@ -63,21 +68,12 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     })
 
     async function fetchOthersGroups() {
-        var userID = localStorage.getItem("userID")
-        if (userID == null){
-            userID = ""
-        }
         if (groupsFilter.value != undefined){
-          const groupsFromFirebase = await fetchingMatchingBackend().getOtherGroups(groupsFilter.value)
-          console.log("fetched groups: " )
-          groupsFromFirebase.forEach((g)=>{
-            console.log(g)
-          })
+          const groupsFromFirebase = await (fetchingMatchingBackend().getOtherGroups(groupsFilter.value))
           groups.value = []
           groups.value.push(...groupsFromFirebase)
           if(groups.value.length > 0){
             currentGroup.value = groups.value[0]
-            console.log("current group value name "+currentGroup.value?.name)
             await fetchMembers(currentGroup.value?.membersIDs)
           }
 
@@ -86,7 +82,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     }
 
     async function fetchMembers(membersIDs: string[]){
-        const profilesFromFirebase = await fetchingFromFirestore().fetchMembersProfiles(membersIDs)
+        const profilesFromFirebase = await (fetchingFromFirestore().fetchMembersProfiles(membersIDs))
         currentMembers.value.push(...profilesFromFirebase)
     }
 
@@ -99,10 +95,17 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     }
 
     async function makeDecision(like:boolean, group: Group){
+      // var userID = localStorage.getItem("userID")
+      // if (userID == null){
+      //   userID = ""
+      // }
       console.log(like)
       // Save decision
       await saveDecisionToDB(like, group.id)
       // Make notification and send
+      if(id.value !== undefined){
+        await makeNotification(id.value,group.userId)
+      }
 
       // Add to seen by field
       if (currentGroup.value?.id != null){
@@ -130,11 +133,23 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     }
 
     async function addGroupsSeenBy(groupID: string){
-      var userID = localStorage.getItem("userID")
-      if (userID == null){
-        userID = ""
+      // var userID = localStorage.getItem("userID")
+      // if (userID == null){
+      //   userID = ""
+      // }
+      if(id.value !== undefined){
+        await updateInFirestore().addGroupsSeenBy(groupID,id.value)
       }
-        await updateInFirestore().addGroupsSeenBy(groupID,userID)
+
+    }
+
+    async function makeNotification(sender:string, receiver:string,){
+      const newNotification: NotificationMessage = {
+        id: "", read: false, receiver: receiver,
+        sender: sender, sentAt: Timestamp.now(),
+        text: notificationText.UserWantsToUsersGroup
+      }
+      await (savingToFirestore().createNotification(newNotification))
     }
 
     </script>
