@@ -62,8 +62,10 @@ import {useRouter} from "vue-router";
 import authentication from "@/composables/authentication/authentication";
 import {routesNames} from "@/router/routesNames";
 import {AuthResponse} from "@/model/auth/AuthResponse";
+import {useProfileStore} from "@/composables/store/profileStore";
 
 const router = useRouter()
+const profileStore = useProfileStore()
 
 const isPasswordLongEnough = ref(true)
 const loading = ref<boolean>(false)
@@ -108,6 +110,7 @@ async function register(loginInfo: Login){
     authResponse.value = await (authentication().createProfile(loginInfo.email,loginInfo.password))
     loading.value = false
     if (authResponse.value.user != null){
+      profileStore.setId(authResponse.value.user.user.uid)
       navigate()
     }
   }

@@ -44,6 +44,7 @@
     import updateInFirestore from "@/composables/updateInFirestore";
     import {NotificationMessage, notificationText} from "@/model/NotificationMessage";
     import {auth} from "@/firebase-service";
+    import {globalProfile} from "@/composables/store/profileStore";
 
     const router = useRouter()
     const route = useRoute()
@@ -55,10 +56,7 @@
     const currentUser = ref<User>()
     const currentProfile = ref<Profile>()
 
-    const id = ref<string|undefined>()
-
     onIonViewDidEnter(async ()=>{
-      id.value = auth.currentUser?.uid
       getGroupsFilterFromParams()
       await fetchOthersUsers()
     })
@@ -68,10 +66,6 @@
         groupsFilter.value = JSON.parse(groupsFilterParam.toString())
     }
     async function fetchOthersUsers() {
-      // var userID = localStorage.getItem("userID")
-      // if (userID == null){
-      //   userID = ""
-      // }
       if (groupsFilter.value != undefined){
         const usersFromFirebase = await fetchingMatchingBackend().getOtherUsers(groupsFilter.value)
         users.value = []
@@ -88,18 +82,13 @@
     }
 
     async function makeDecision(like:boolean, user:User) {
-      // var userID = localStorage.getItem("userID")
-      // if (userID == null){
-      //   userID = ""
-      // }
-
       // Save decision
       await saveDecisionToDB(like, user.id)
       // Make notification and send
-      if(id.value != undefined && groupsFilter.value != undefined){
+      if(groupsFilter.value != undefined){
         await makeNotification("","","","","","")
         await makeNotification(
-            id.value,
+            globalProfile.id,
             user.userId,
             groupsFilter.value?.name,
             "name from pinia",
@@ -124,14 +113,7 @@
     }
 
     async function addUsersSeenBy(userId: string){
-      // var userID = localStorage.getItem("userID")
-      // if (userID == null){
-      //   userID = ""
-      // }
-      if(id.value != undefined){
-        await updateInFirestore().addUsersSeenBy(userId,id.value)
-      }
-
+        await updateInFirestore().addUsersSeenBy(userId,globalProfile.id)
     }
 
     function nextUser(){

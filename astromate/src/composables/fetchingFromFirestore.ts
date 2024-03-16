@@ -18,6 +18,7 @@ import {Profile} from "@/model/Profile";
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { NotificationMessage} from "@/model/NotificationMessage";
+import {useProfileStore} from "@/composables/store/profileStore";
 
 export default function fetchingFirebase() {
 
@@ -152,6 +153,13 @@ export default function fetchingFirebase() {
             const docSnap = await getDoc(docRef)
             if(docSnap.exists()){
                 console.log("data", docSnap.data())
+                const foundedProfile: Profile = {
+                    date: docSnap.data().date, description: docSnap.data().description,
+                    id: profileID, name: docSnap.data().name, place: docSnap.data().place
+                }
+
+                //TODO: condition if we want to save to profile store
+                useProfileStore().setProfile(foundedProfile)
             }
             console.log("dokument exists() ",docSnap.exists())
             return docSnap.exists()
@@ -161,6 +169,9 @@ export default function fetchingFirebase() {
         }
 
     }
+
+    async function getChats(){}
+
 
     return { getOwnGroups, getOwnUsers , fetchMembersProfiles, fetchProfile, isProfileExist }
 }

@@ -44,6 +44,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import {Profile} from "@/model/Profile";
     import {NotificationMessage, notificationText} from "@/model/NotificationMessage";
     import {auth} from "@/firebase-service";
+    import {globalProfile} from "@/composables/store/profileStore";
     
     const router = useRouter()
     const route = useRoute()
@@ -57,10 +58,8 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     const currentMembers = ref<Array<Profile>>([])
 
     const isEmpty = ref(false) // for placeholder
-    const id = ref<string|undefined>()
 
     onIonViewDidEnter(async()=>{
-        id.value = auth.currentUser?.uid
         getGroupsFilterFromParams()
         await fetchOthersGroups()
         //currrentGroup.value = groups.value[0]
@@ -95,24 +94,19 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     }
 
     async function makeDecision(like:boolean, group: Group){
-      // var userID = localStorage.getItem("userID")
-      // if (userID == null){
-      //   userID = ""
-      // }
       console.log(like)
       // Save decision
       await saveDecisionToDB(like, group.id)
       // Make notification and send
-      if(id.value !== undefined && groupsFilter.value != undefined){
+      if(groupsFilter.value != undefined){
         await makeNotification(
-            id.value,
+            globalProfile.id,
             group.userId,
             group.name,
             "name from profile:pinia",
             group.id,
             groupsFilter.value?.userOrGroupID_card)
 
-       // await makeNotification("","","","","","")
       }
 
       // Add to seen by field
@@ -141,13 +135,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     }
 
     async function addGroupsSeenBy(groupID: string){
-      // var userID = localStorage.getItem("userID")
-      // if (userID == null){
-      //   userID = ""
-      // }
-      if(id.value !== undefined){
-        await updateInFirestore().addGroupsSeenBy(groupID,id.value)
-      }
+        await updateInFirestore().addGroupsSeenBy(groupID,globalProfile.id)
 
     }
 

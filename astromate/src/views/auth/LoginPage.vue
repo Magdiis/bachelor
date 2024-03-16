@@ -69,8 +69,11 @@ import {useRouter} from "vue-router";
 import {AuthResponse} from "@/model/auth/AuthResponse";
 import {auth} from "@/firebase-service";
 import fetchingFirebase from "@/composables/fetchingFromFirestore";
+import {globalProfile, useProfileStore} from "@/composables/store/profileStore";
+
 
 const router = useRouter()
+const profileStore = useProfileStore()
 
 const input = ref(null)
 const isEmptyProm = ref(false)
@@ -94,8 +97,9 @@ async function LogIn(loginInfo: Login){
     loading.value = true
     authResponse.value = await (authentication().signIn(loginInfo.email, loginInfo.password))
     if (authResponse.value.user != null){
+      profileStore.setId(authResponse.value.user.user.uid)
       console.log(authResponse.value.user.user.uid)
-      await navigate(authResponse.value.user.user.uid)
+      await navigate(globalProfile.id)
     }
     loading.value = false
   }
@@ -115,13 +119,9 @@ function isEmpty(loginInfo: Login){
 }
 
 async function navigate(profileID:string){
-  console.log("in navigate id",profileID)
   if(await (fetchingFirebase().isProfileExist(profileID))){
-    saveToPinia()
-    console.log("push to groups")
     await router.push({name: routesNames.Groups})
   } else {
-    console.log("push to create profile")
     await router.push({name: routesNames.CreateProfile})
   }
 }

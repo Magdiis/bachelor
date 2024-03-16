@@ -18,8 +18,6 @@
      ></ion-datetime>
     <ion-input placeholder="Místo"></ion-input>
     <ion-button @click ='createProfile()'> Save </ion-button>
-      <ion-button @click ='showUser()'> showUser </ion-button>
-      <ion-text>{{userID}}</ion-text>
     <ion-loading :is-open="loading" message="Ukládání" spinner="bubbles" ></ion-loading>
       
     </ion-content>
@@ -39,21 +37,11 @@ import savingToFirestore from '@/composables/savingToFirestore'
 import {auth} from "@/firebase-service";
 import {useRouter} from "vue-router";
 import {routesNames} from "@/router/routesNames";
+import {globalProfile, useProfileStore} from "@/composables/store/profileStore";
 
 const router = useRouter()
+const profileStore = useProfileStore()
 
-const userID = ref("")
-
-
-onIonViewDidEnter(()=>{
-
-})
-
-function showUser(){
-  if(auth.currentUser){
-    userID.value = auth.currentUser.uid
-  }
-}
 const profile: Profile = reactive({
     id:"",
     name: "",
@@ -66,15 +54,12 @@ const loading = ref(false)
 
 async function createProfile() {
   loading.value = true
-  if(auth.currentUser){
-    profile.id = auth.currentUser.uid
+  if(globalProfile.id != ""){
+    profile.id = globalProfile.id
     const answer = await (savingToFirestore().createProfile(profile))
     if(answer){
-      saveToPinia()
       navigate()
     }
-  } else {
-    console.error("Je to v pici neni ID")
   }
   clearProfile()
   loading.value = false
@@ -85,10 +70,6 @@ function clearProfile() {
   profile.name = "",
   profile.description = "",
   profile.place = ""
-}
-
-function saveToPinia(){
-
 }
 
 function navigate(){

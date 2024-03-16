@@ -7,8 +7,8 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-    <ion-text>{{id}}</ion-text>
-
+    <ion-text>{{profile.id}}</ion-text>
+      <ion-text>{{profile.name}}</ion-text>
     </ion-content>
   </ion-page>
 
@@ -18,15 +18,14 @@
 import {IonContent, IonHeader, IonText, IonPage, IonTitle, IonToolbar, onIonViewWillEnter} from "@ionic/vue";
 import {ref} from "vue";
 import {auth} from "@/firebase-service";
+import {globalProfile} from "@/composables/store/profileStore";
+
 
 
 // TODO: get info about user from Pinia
 
-const id = ref()
+const profile = globalProfile
 
-onIonViewWillEnter(()=>{
-  id.value = auth.currentUser?.uid
-})
 </script>
 
 

@@ -67,9 +67,9 @@ import { routesNames } from '@/router/routesNames';
 import {onUnmounted} from 'vue'
 import {useCase, useCasesValues, workCases, workCasesValues, SportCases, sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
 import {auth} from "@/firebase-service";
+import {globalProfile} from "@/composables/store/profileStore";
 
 const router = useRouter()
-const id = ref<string|null>()
 /*const delay = ms => new Promise(res => setTimeout(res, ms));
 
 async function waitAndSetfalse(){
@@ -98,16 +98,11 @@ const group: Group = reactive({
     clearGroup()
 }) */
 
-onIonViewWillEnter(()=>{
-  id.value = auth.currentUser?.uid
-})
 
 onIonViewDidEnter(()=>{
   clearGroup()
-  if(id.value != null){
-    group.userId = id.value
-    group.membersIDs = [id.value]
-  }
+    group.userId = globalProfile.id
+    group.membersIDs = [globalProfile.id]
 })
 
 

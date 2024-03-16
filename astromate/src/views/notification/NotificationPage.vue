@@ -24,6 +24,7 @@ import {NotificationMessage} from "@/model/NotificationMessage";
 import {onSnapshot, orderBy, query, Query, where} from "firebase/firestore";
 import {auth, notification_collection} from "@/firebase-service";
 import NotificationRow from "@/components/notifications/NotificationRow.vue";
+import {globalProfile} from "@/composables/store/profileStore";
 
 
 const notifications = ref<Array<NotificationMessage>>([])
@@ -33,10 +34,7 @@ const notifications = ref<Array<NotificationMessage>>([])
 // }
 
 onIonViewWillEnter(()=>{
-  const a = auth.currentUser?.uid
-  console.log(a)
-  if(a != undefined){
-    const q : Query = query(notification_collection,where("receiver","==", a))
+    const q : Query = query(notification_collection,where("receiver","==", globalProfile.id))
     onSnapshot(q,
         (querySnapshot)=>{
           // processNotifications(querySnapshot)
@@ -58,7 +56,6 @@ onIonViewWillEnter(()=>{
         }, (error) => {
           console.error("Error fetching notifications: ",error)
         })
-  }
 })
 
 

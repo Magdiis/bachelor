@@ -43,16 +43,15 @@ import type { User } from '@/model/User'
 import GroupCard from '@/components/GroupCard.vue'
 import UserCard from '@/components/UserCard.vue'
 import {auth} from "@/firebase-service";
+import {globalProfile} from "@/composables/store/profileStore";
 
 const router = useRouter()
 const loading = ref(false)
 //const groups = reactive<Array<Group>>([])
 const groups = ref<Array<Group>>([])
 const users = ref<Array<User>>([])
-const id = ref<string|undefined>()
 
 onIonViewDidEnter(async()=>{
-  id.value = auth.currentUser?.uid
   loading.value = true
   await fetchOwnGroups()
   await fetchOwnUsers()
@@ -61,32 +60,18 @@ onIonViewDidEnter(async()=>{
 
 
 async function fetchOwnGroups() {
-    // var userID = localStorage.getItem("userID")
-    // if (userID == null){
-    //     userID = ""
-    // }
-    if(id.value != undefined){
-      const groupsFromFirebase = await fetchingFromFirestore().getOwnGroups(id.value)
+
+      const groupsFromFirebase = await fetchingFromFirestore().getOwnGroups(globalProfile.id)
       // groups.length = 0 // clear
       //groups.push(...groupsFromFirebase) //push
       groups.value = []
       groups.value.push(...groupsFromFirebase)
-    }
 }
 
 async function fetchOwnUsers() {
-  // var userID = localStorage.getItem("userID")
-  //   if (userID == null){
-  //       userID = ""
-  //   }
-
-    if(id.value != undefined){
-      const usersFromFirebase = await fetchingFromFirestore().getOwnUsers(id.value)
+      const usersFromFirebase = await fetchingFromFirestore().getOwnUsers(globalProfile.id)
       users.value = []
       users.value.push(...usersFromFirebase)
-    }
-
-    
 }
 
 

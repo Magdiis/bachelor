@@ -17,6 +17,7 @@ import {
 import {returnCategory} from '@/composables/categoryConvertor'
 import {Decision} from "@/model/Decision";
 import {NotificationMessage} from "@/model/NotificationMessage";
+import {useProfileStore} from "@/composables/store/profileStore";
 
 
 export default function savingToFirestore() {
@@ -29,6 +30,7 @@ export default function savingToFirestore() {
                 date: profile.date,
                 place: profile.place,
             })
+            useProfileStore().setProfile(profile)
             return true
         } catch (e) {
             console.error("Error adding document: ", e)
