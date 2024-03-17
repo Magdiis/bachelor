@@ -3,7 +3,7 @@ import { RouteRecordRaw } from 'vue-router';
 import CreateProfile from '../views/profile/CreateProfilePage.vue'
 import GroupsPage from '../views/groups/GroupsPage.vue'
 import BottomNavigation from '@/components/BottomNavigation.vue';
-import ChatPage from '../views/chat/ChatPage.vue'
+import GroupChatsPage from '../views/chat/GroupChatsPage.vue'
 import NotificationPage from '../views/notification/NotificationPage.vue'
 import AddGroup from '@/views/groups/AddGroupPage.vue';
 import SearchPeopleAddPage from '@/views/groups/SearchPeopleAddPage.vue';
@@ -13,6 +13,7 @@ import UserMatchingPage from '@/views/matching/UserMatchingPage.vue';
 import LoginPage from "@/views/auth/LoginPage.vue";
 import RegistrationPage from "@/views/auth/RegistrationPage.vue";
 import ProfilePage from "@/views/profile/ProfilePage.vue";
+import ChatPage from "@/views/chat/ChatPage.vue";
 
 import { routesNames } from './routesNames';
 import authentication from "@/composables/authentication/authentication";
@@ -48,6 +49,14 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/chat/:chatParams',
+    name: routesNames.ChatPage,
+    component: ChatPage,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/createProfile',
     name: routesNames.CreateProfile,
     component: CreateProfilePage,
@@ -65,7 +74,7 @@ const routes: Array<RouteRecordRaw> = [
   }, 
   {
     path: '/searchPeopleAdd',
-    name: 'SearchPeopleAdd',
+    name: routesNames.SearchPeopleAdd,
     component: SearchPeopleAddPage,
     meta: {
       requiresAuth: true
@@ -73,7 +82,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/searchGroupsAdd',
-    name: 'SearchGroupsAdd',
+    name: routesNames.SearchGroupsAdd,
     component: SearchGroupsAddPageVue,
     meta: {
       requiresAuth: true
@@ -97,23 +106,23 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: '/groups',
-        name: 'Groups',
+        name: routesNames.Groups,
         component: GroupsPage,
         meta: {
           requiresAuth: true
         }
       }, 
       {
-        path: '/chat',
-        name: 'Chat',
-        component: ChatPage,
+        path: '/groupChats',
+        name: routesNames.GroupChats,
+        component: GroupChatsPage,
         meta: {
           requiresAuth: true
         }
       }, 
       {
         path: '/notification',
-        name: 'Notification',
+        name: routesNames.Notification,
         component: NotificationPage,
         meta: {
           requiresAuth: true

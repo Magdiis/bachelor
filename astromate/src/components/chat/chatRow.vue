@@ -1,26 +1,25 @@
 <template>
-   
-        <ion-row class="row ion-align-items-center ion-nowrap">
+        <ion-row class="row ion-align-items-center ion-nowrap" @click="navigateToChatPage(props.groupChat.id, props.groupChat.name)">
         <ion-col size="auto">
             <span class="dot" >
-                <ion-icon :icon="isOneProfile? personOutline : peopleOutline" 
+                <ion-icon :icon="isPerson ? personOutline : peopleOutline"
                 :class="returnColorClass +' '+ returnIconClass"  >
             </ion-icon></span>
         </ion-col>
         
         <ion-col class="right">
             <ion-row style="display: flex;">
-                <h3 class="ion-no-margin text" :class="returnColorClass">Heading aefaefcaec e  sefsefsef</h3>
+                <h3 class="ion-no-margin text" :class="returnColorClass">
+                  {{returnHeadlineName}}
+                </h3>
             </ion-row>
             <ion-row>
                 <ion-label class="ion-margin-top text">
-                    adadwadwawdd dawdawdawdawd awd awd awd awd awdaw
+                  {{returnNames}}
                 </ion-label>
             </ion-row>
         </ion-col>
         </ion-row>
-
-  
 </template>
 
 <script setup lang="ts">
@@ -28,19 +27,22 @@ import { colorsCases } from '@/model/createGroupEnums';
 import {IonIcon, IonText,IonLabel, IonCol, IonGrid, IonRow, onIonViewDidEnter } from '@ionic/vue';
 import {personOutline, peopleOutline, personRemoveSharp} from 'ionicons/icons'
 import {computed } from 'vue'
+import {ChatParams, GroupChat} from "@/model/Chat";
+import {globalProfile} from "@/composables/store/profileStore";
+import router from "@/router";
+import {routesNames} from "@/router/routesNames";
 
+
+//TODO: in props - GroupChat, isOwner?
  const props = defineProps<{
-    isOneProfile: boolean,
-    //nameOfGroup: string, 
-    //namesOfProfiles: string[],
-    color: colorsCases
+    groupChat: GroupChat
 }>() 
 
 /* style="position: absolute; left: 1em; top: 3em;" */
 
 
  const returnColorClass = computed(() => {
-    switch(props.color) { 
+    switch(props.groupChat.color) {
    case colorsCases.Blue: { 
       return "custom-blue"
    } 
@@ -60,14 +62,32 @@ import {computed } from 'vue'
 } 
 })
  const returnIconClass = computed(()=>{
-    if(props.isOneProfile){
+    if(props.groupChat.isPairs){
         return "isOneProfile"
     } else {
         return "isMoreProfiles"
     }
  })
 
+const returnNames = computed(()=>{
+  var names = ""
+  var namesArray = []
+  namesArray = props.groupChat.membersNames.filter((name)=> {return name !== globalProfile.name })
 
+  namesArray.forEach((name)=>{
+    names += name + ", "
+  })
+  names = names.slice(0,-2)
+  return names
+})
+
+const returnHeadlineName = computed(()=>{
+  return props.groupChat.name
+})
+
+const isPerson = computed(()=>{
+  return props.groupChat.isPairs
+})
 //const headingColor = computed<string>(() => {
 //    return "text-magdik-blue"
 //})
@@ -77,6 +97,18 @@ import {computed } from 'vue'
 //         color: "var(--ion-color-blue)"
 //     }
 // })
+
+function navigateToChatPage(id: string, name: string){
+  var chatParams: ChatParams = {
+    id: id, name: name
+  }
+  var chatParamsString = JSON.stringify(chatParams)
+
+  router.push({name: routesNames.ChatPage, params:{
+    chatParams: chatParamsString
+    }})
+}
+
 </script>
 
 <style scoped>

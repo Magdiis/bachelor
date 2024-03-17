@@ -17,7 +17,8 @@ import {
 import {returnCategory} from '@/composables/categoryConvertor'
 import {Decision} from "@/model/Decision";
 import {NotificationMessage} from "@/model/NotificationMessage";
-import {useProfileStore} from "@/composables/store/profileStore";
+import {globalProfile, useProfileStore} from "@/composables/store/profileStore";
+import {GroupChat, TextMessage} from "@/model/Chat";
 
 
 export default function savingToFirestore() {
@@ -52,9 +53,23 @@ export default function savingToFirestore() {
                 membersIDs: group.membersIDs,
                 wasSeenBy: [group.userId]
             })
+
+            // creating group chat with the same id as the group
+            const newGroupChat: GroupChat = {
+                name: group.name,
+                color: group.color, isPairs: isPairs(group.maxMembers),
+                countMembers:1 , id: docRef.id,
+                membersIDs: [globalProfile.id], membersNames: [globalProfile.name],
+                ownerID: globalProfile.id
+            }
+            await createGroupChat(newGroupChat)
         } catch (e) {
             console.error("Error adding document: ", e)
         }
+    }
+
+    function isPairs(maxMembers: number){
+        return maxMembers == 2;
     }
 
     async function createUser(user: User) {
@@ -105,5 +120,36 @@ export default function savingToFirestore() {
         }
     }
 
-    return {createProfile, createGroup, createUser, createDecision,createNotification}
+    async function createGroupChat(groupChat: GroupChat){
+        try {
+            await setDoc(doc(db,"groupChat",groupChat.id),{
+                ownerID: groupChat.ownerID,
+                countMembers: groupChat.countMembers,
+                membersIDs: groupChat.membersIDs,
+                membersNames: groupChat.membersNames,
+                color: groupChat.color,
+                isPairs: groupChat.isPairs,
+                name: groupChat.name
+            })
+        } catch (e) {
+            console.error("Error adding document: ", e)
+        }
+    }
+
+    async function createTextMessage(textMessage: TextMessage, chatId: string){
+        try {
+            //const path = "chats/"+"nejakyDocumentID"+'/messages'
+            const path = "chats/"+chatId+'/messages'
+            const docRef = await addDoc(collection(db, path),{
+                messageText:  textMessage.messageText,
+                sentAt: textMessage.sentAt,
+                sentById: textMessage.sentById,
+                sentByName: textMessage.sentByName
+            })
+        } catch (e) {
+            console.error("Error adding document: ", e)
+        }
+    }
+
+    return {createProfile, createGroup, createUser, createDecision,createNotification, createTextMessage}
 }

@@ -42,5 +42,18 @@ export default function updateInFirestore() {
         }
 
     }
-    return {addGroupsSeenBy, addUsersSeenBy, addMemberToGroup, setGroupId}
+
+    async function addMemberToGroupChat(groupChatId: string,memberId: string, memberName: string){
+        try {
+            const groupChatDoc = doc(db, "groupChat", groupChatId)
+            await updateDoc(groupChatDoc,{
+                countMembers: increment(1),
+                membersIDs: arrayUnion(memberId),
+                membersNames: arrayUnion(memberName)
+            })
+        } catch (e) {
+            console.error("Error updating user document: ", e)
+        }
+    }
+    return {addGroupsSeenBy, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
 }

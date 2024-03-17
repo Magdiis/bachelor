@@ -135,14 +135,6 @@ function clearUser(){
   user.groupId=""
 }
 
-// function loadUserID(): string {
-//   const userID = localStorage.getItem("userID")
-//   if(userID == null){
-//     return ""
-//   } else {
-//     return userID
-//   }
-// }
 
 </script>
 

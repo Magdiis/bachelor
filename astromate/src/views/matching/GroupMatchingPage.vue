@@ -103,7 +103,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
             globalProfile.id,
             group.userId,
             group.name,
-            "name from profile:pinia",
+            globalProfile.name,
             group.id,
             groupsFilter.value?.userOrGroupID_card)
 

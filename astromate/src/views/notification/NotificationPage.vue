@@ -35,8 +35,7 @@ const notifications = ref<Array<NotificationMessage>>([])
 
 onIonViewWillEnter(()=>{
     const q : Query = query(notification_collection,where("receiver","==", globalProfile.id))
-    onSnapshot(q,
-        (querySnapshot)=>{
+    onSnapshot(q, (querySnapshot)=>{
           // processNotifications(querySnapshot)
           notifications.value = []
           querySnapshot.forEach((doc) => {

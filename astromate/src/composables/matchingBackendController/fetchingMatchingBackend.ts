@@ -7,16 +7,20 @@ import {User} from "@/model/User";
 import {UsersResponse} from "@/model/UsersResponse";
 export default function fetchingMatchingBackend(){
     const URI = "http://localhost:3000/"
+    //const URI = "https://9623-83-240-62-210.ngrok-free.app/"
     async function getOtherGroups(groupsFilter:GroupsFilter): Promise<Group[]>{
         var groups: Group[] = []
+        console.log("Before axios")
         await axios
             .get<GroupsResponse>(URI+"getOtherGroups/"
                 +groupsFilter.userId+"/"
                 +groupsFilter.useCase+"/"
-                +groupsFilter.category)
+                +groupsFilter.category /*,{headers:{"ngrok-skip-browser-warning":"1"}}*/)
             .then(response => {
+                console.log("I am in getOtherGroups then")
+                console.log("response data: ", JSON.stringify(response.data))
                 if(response.data.groups.length > 0){
-                        console.log(response.data)
+                         console.log("data:",response.data)
                         response.data.groups.forEach((group)=>{
                             const {sportCaseThis, workCaseThis} = convertCategory(group.useCase,group.category)
                             groups.push({
@@ -37,10 +41,9 @@ export default function fetchingMatchingBackend(){
                 } else {
                     return groups
                 }
-
             })
             .catch(error => {
-                console.log(error)
+                console.log("error:", error.message, JSON.stringify(error))
             })
         return groups
     }

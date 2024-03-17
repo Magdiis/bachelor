@@ -1,3 +1,5 @@
+import ChatPage from "@/views/chat/ChatPage.vue";
+
 export enum routesNames{
     AddGroup = "AddGroup",
     SearchPeopleAdd = "SearchPeopleAdd",
@@ -11,6 +13,8 @@ export enum routesNames{
     Login = "Login",
     Registration = "Registration",
     EditProfile = "EditProfile",
-    Profile = "Profile"
+    Profile = "Profile",
+    GroupChats="GroupChats",
+    ChatPage = "Chat"
   }
   

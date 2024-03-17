@@ -2,7 +2,7 @@ import { Group } from '@/model/Group';
 import type {User} from '@/model/User'
 import {FirestoreDataConverter,orderBy,getDoc , Query, getDocs, query,onSnapshot , where, doc} from "firebase/firestore";
 import {
-    db,
+    db, groups_chat_collection,
     groups_collection,
     notification_collection,
     profiles_collection,
@@ -19,6 +19,7 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import { NotificationMessage} from "@/model/NotificationMessage";
 import {useProfileStore} from "@/composables/store/profileStore";
+import {GroupChat} from "@/model/Chat";
 
 export default function fetchingFirebase() {
 
@@ -135,7 +136,7 @@ export default function fetchingFirebase() {
                 return {
                     date: docSnap.data().date,
                     description: docSnap.data().description,
-                    id: docSnap.data().id,
+                    id: docSnap.id,
                     name: docSnap.data().name,
                     place: docSnap.data().place
                 }
@@ -170,10 +171,38 @@ export default function fetchingFirebase() {
 
     }
 
-    async function getChats(){}
+    async function fetchGroupChats(profileId: string):Promise<GroupChat[]>{
+        var groupChats: GroupChat[] = []
+        try {
+            const q: Query = query(groups_chat_collection, where('membersIDs', "array-contains" ,profileId),
+                where('countMembers','>',1))
+            const groupChatsRef = await getDocs(q)
+            if(groupChatsRef.empty){
+                return groupChats
+            } else {
+                groupChatsRef.forEach((doc)=>{
+                    groupChats.push({
+                        color: doc.data().color,
+                        countMembers: doc.data().countMembers,
+                        id: doc.id,
+                        isPairs: doc.data().isPairs,
+                        membersIDs: doc.data().membersIDs,
+                        membersNames: doc.data().membersNames,
+                        ownerID: doc.data().ownerID,
+                        name: doc.data().name
+                    })
+                })
+                console.log("inside fetchGroupChats: ", groupChats)
+                return groupChats
+            }
+        } catch (e){
+            console.error("Error ", e)
+            throw new Error("Error")
+        }
+    }
 
 
-    return { getOwnGroups, getOwnUsers , fetchMembersProfiles, fetchProfile, isProfileExist }
+    return { getOwnGroups, getOwnUsers , fetchMembersProfiles, fetchProfile, isProfileExist,fetchGroupChats }
 }
 
 

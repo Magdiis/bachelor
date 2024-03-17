@@ -14,7 +14,7 @@
             </ion-tab-button>
 
 
-            <ion-tab-button tab="chat" href="/chat">
+            <ion-tab-button tab="chat" href="/groupChats">
             <ion-icon :icon="chatbubbles" />
             <ion-label>Chat</ion-label>
             </ion-tab-button>

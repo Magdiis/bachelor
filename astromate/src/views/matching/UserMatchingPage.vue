@@ -91,7 +91,7 @@
             globalProfile.id,
             user.userId,
             groupsFilter.value?.name,
-            "name from pinia",
+            globalProfile.name,
             groupsFilter.value?.userOrGroupID_card,
             user.id)
       }
