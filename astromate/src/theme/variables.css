@@ -80,8 +80,13 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-darkRed:#BE1A0D;
   --ion-color-green:#007B60;
   --ion-color-orange:#E47F00;
-  
 
+
+  /** MY COLORS - light version for chat **/
+  --ion-color-blue-light: #e9f7ff;
+  --ion-color-darkRed-light: #fde8e7;
+  --ion-color-green-light: #e3fff0;
+  --ion-color-orange-light: #fff4e1;
 }
 
 /* ONLY LIGHT MODE */ 

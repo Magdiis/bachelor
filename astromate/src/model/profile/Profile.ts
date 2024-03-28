@@ -1,4 +1,4 @@
-import type { Decision } from "./Decision"
+
 
 export interface Profile {
     id:string,

@@ -1,4 +1,5 @@
 import {Timestamp} from "firebase/firestore";
+import {colorsCases} from "@/model/group/createGroupEnums";
 
 
 
@@ -31,5 +32,6 @@ export interface TextMessage {
 
 export interface ChatParams {
     id: string,
-    name: string
+    name: string,
+    color: string
 }

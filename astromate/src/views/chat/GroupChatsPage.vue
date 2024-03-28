@@ -40,10 +40,10 @@ import {
   onIonViewWillEnter
 } from '@ionic/vue';
 import chatRow from '@/components/chat/chatRow.vue'
-import {colorsCases} from '@/model/createGroupEnums';
+import {colorsCases} from '@/model/group/createGroupEnums';
 import {personOutline, peopleOutline, personRemoveSharp} from 'ionicons/icons'
 import {ref} from "vue";
-import {ChatParams, GroupChat} from "@/model/Chat";
+import {ChatParams, GroupChat} from "@/model/chat/Chat";
 import fetchingFirebase from "@/composables/fetchingFromFirestore";
 import {globalProfile} from "@/composables/store/profileStore";
 import router from "@/router";

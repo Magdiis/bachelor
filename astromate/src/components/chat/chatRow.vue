@@ -1,5 +1,6 @@
 <template>
-        <ion-row class="row ion-align-items-center ion-nowrap" @click="navigateToChatPage(props.groupChat.id, props.groupChat.name)">
+        <ion-row class="row ion-align-items-center ion-nowrap"
+                 @click="navigateToChatPage(props.groupChat.id, props.groupChat.name, props.groupChat.color)">
         <ion-col size="auto">
             <span class="dot" >
                 <ion-icon :icon="isPerson ? personOutline : peopleOutline"
@@ -23,11 +24,11 @@
 </template>
 
 <script setup lang="ts">
-import { colorsCases } from '@/model/createGroupEnums';
+import { colorsCases } from '@/model/group/createGroupEnums';
 import {IonIcon, IonText,IonLabel, IonCol, IonGrid, IonRow, onIonViewDidEnter } from '@ionic/vue';
 import {personOutline, peopleOutline, personRemoveSharp} from 'ionicons/icons'
 import {computed } from 'vue'
-import {ChatParams, GroupChat} from "@/model/Chat";
+import {ChatParams, GroupChat} from "@/model/chat/Chat";
 import {globalProfile} from "@/composables/store/profileStore";
 import router from "@/router";
 import {routesNames} from "@/router/routesNames";
@@ -98,9 +99,9 @@ const isPerson = computed(()=>{
 //     }
 // })
 
-function navigateToChatPage(id: string, name: string){
+function navigateToChatPage(id: string, name: string, color: string){
   var chatParams: ChatParams = {
-    id: id, name: name
+    id: id, name: name, color: color
   }
   var chatParamsString = JSON.stringify(chatParams)
 

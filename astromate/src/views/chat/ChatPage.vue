@@ -3,16 +3,17 @@
     <ion-header>
       <ion-toolbar>
                 <ion-buttons slot="start">
-                  <ion-back-button default-href="#" @click="router.back"></ion-back-button>
+                  <ion-back-button :class="returnColorClass" default-href="#" @click="router.back"></ion-back-button>
                 </ion-buttons>
         <ion-title>{{ chatParams.name }}</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" ref="content" :scroll-events="true" >
       <ion-list>
-        <ion-item v-for="message in textMessages">
-          {{message.sentByName}}: {{message.messageText}}
-        </ion-item>
+        <div v-for="message in textMessages">
+          <own-message-row v-if="message.sentById == globalProfile.id" :text-message="message" :color="chatParams.color"></own-message-row>
+          <foreign-message-row v-else :text-message="message" :color="chatParams.color"></foreign-message-row>
+        </div>
       </ion-list>
     </ion-content>
 
@@ -26,7 +27,7 @@
                 sentAt: Timestamp.now() ,
                 sentById: globalProfile.id,
                 sentByName: globalProfile.name},chatParams.id)">
-              <ion-icon slot="icon-only" :icon="send"></ion-icon>
+              <ion-icon :class="returnColorClass" slot="icon-only" :icon="send"></ion-icon>
             </ion-button>
         </ion-toolbar>
     </ion-footer>
@@ -47,21 +48,26 @@ import {
 } from "@ionic/vue";
 import {useRoute, useRouter} from "vue-router";
 import {routesNames} from "@/router/routesNames";
-import {ChatParams, TextMessage} from "@/model/Chat";
-import {reactive, ref} from "vue";
+import {ChatParams, TextMessage} from "@/model/chat/Chat";
+import {computed, reactive, ref} from "vue";
 import {collection, getDocs, onSnapshot, query, Query, Timestamp, where, orderBy} from "firebase/firestore";
 import {db, groups_chat_collection} from "@/firebase-service";
 import savingToFirestore from "@/composables/savingToFirestore";
 import {send } from 'ionicons/icons'
 import {globalProfile} from "@/composables/store/profileStore";
+import OwnMessageRow from "@/components/chat/ownMessageRow.vue";
+import ForeignMessageRow from "@/components/chat/foreignMessageRow.vue";
+import {colorsCases} from "@/model/group/createGroupEnums";
 
 const router = useRouter()
 const route = useRoute()
 
 const content = ref(null as any | null)
 
-let chatParams = reactive<ChatParams>({
-  id: "", name: ""
+const chatParams = reactive<ChatParams>({
+  id: "",
+  name: "",
+  color: ""
 })
 
 const messageText = ref("")
@@ -93,7 +99,8 @@ onIonViewWillEnter(async ()=>{
 function getChatParamsFromRoute(){
   const chatParamsString = route.params.chatParams
   const params: ChatParams = JSON.parse(chatParamsString.toString())
-  chatParams = params
+  Object.assign(chatParams, params)
+  console.log("params changed", params)
 }
 
 async function createMessage(textMessage: TextMessage, chatId: string){
@@ -107,13 +114,33 @@ function ScrollToBottom() {
   content.value?.$el.scrollToBottom();
 }
 
+
+// COMPUTED CSS CLASSES
+const returnColorClass = computed(() => {
+    switch(chatParams.color) {
+      case colorsCases.Blue: {
+        return "custom-blue"
+      }
+      case colorsCases.Green: {
+        return "custom-green"
+      }
+      case colorsCases.Orange: {
+        return "custom-orange"
+      }
+      case colorsCases.Red: {
+        return "custom-dark-red"
+      }
+      default: {
+        return "custom-dark-red"
+      }
+    }
+})
+
 </script>
 
 <style scoped>
 .ion-padding{
   padding: 8px
 }
-
-
 
 </style>

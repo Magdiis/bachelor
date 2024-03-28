@@ -1,4 +1,4 @@
-import {Group} from "@/model/Group";
+import {Group} from "@/model/group/Group";
 
 
 export interface GroupsResponse {
