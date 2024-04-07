@@ -48,7 +48,9 @@ import fetchingFirebase from "@/composables/fetchingFromFirestore";
 import {globalProfile} from "@/composables/store/profileStore";
 import router from "@/router";
 import {routesNames} from "@/router/routesNames";
+import {globalGroupChats, useGroupChatStore} from "@/composables/store/useGroupChatStore";
 
+const groupChatStore = useGroupChatStore()
 
 const myGroupChats = ref<Array<GroupChat>>([])
 const otherGroupChats = ref<Array<GroupChat>>([])
@@ -58,6 +60,7 @@ const loading = ref(false)
 onIonViewWillEnter(async () => {
   loading.value = true
   const groupsFromFirebase = await fetchGroupChats()
+  groupChatStore.setGroupChats(groupsFromFirebase)
   filterMyAndOthersGroupChats(groupsFromFirebase)
   loading.value = false
 })
@@ -67,6 +70,7 @@ async function fetchGroupChats(): Promise<GroupChat[]> {
 }
 
 function filterMyAndOthersGroupChats(groupsChat: GroupChat[]) {
+
   myGroupChats.value = []
   otherGroupChats.value = []
   groupsChat.forEach((chat) => {

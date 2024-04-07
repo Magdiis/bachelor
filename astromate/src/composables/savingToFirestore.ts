@@ -1,4 +1,4 @@
-import type {User} from '@/model/User'
+import type {User} from '@/model/group/User'
 import {collection, getFirestore, getDocs, addDoc, setDoc, Timestamp, doc} from "firebase/firestore";
 import {
     db,
@@ -8,7 +8,6 @@ import {
     profiles_collection,
     users_collection
 } from '@/firebase-service';
-import {Group} from '@/model/Group';
 import {Group} from '@/model/group/Group';
 import {Profile} from '@/model/profile/Profile'
 import {
@@ -57,11 +56,13 @@ export default function savingToFirestore() {
 
             // creating group chat with the same id as the group
             const newGroupChat: GroupChat = {
+                membersNamesAndIDs: [globalProfile.name + ";"+globalProfile.id],
                 name: group.name,
                 color: group.color, isPairs: isPairs(group.maxMembers),
                 countMembers:1 , id: docRef.id,
-                membersIDs: [globalProfile.id], membersNames: [globalProfile.name],
-                ownerID: globalProfile.id
+                membersIDs: [globalProfile.id],
+                membersNames: [globalProfile.name],
+                ownerID: globalProfile.id,
             }
             await createGroupChat(newGroupChat)
         } catch (e) {
@@ -130,7 +131,8 @@ export default function savingToFirestore() {
                 membersNames: groupChat.membersNames,
                 color: groupChat.color,
                 isPairs: groupChat.isPairs,
-                name: groupChat.name
+                name: groupChat.name,
+                membersNamesAndIDs: groupChat.membersNamesAndIDs,
             })
         } catch (e) {
             console.error("Error adding document: ", e)

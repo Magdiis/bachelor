@@ -10,9 +10,10 @@ export interface GroupChat {  //collection
     countMembers: number,
     membersIDs: [string],
     membersNames: [string],
+    membersNamesAndIDs: [string],
     color: string,
     isPairs: boolean,
-    name: string
+    name: string,
 }
 
 // This will be in ChatDetailPage.vue
@@ -33,5 +34,7 @@ export interface TextMessage {
 export interface ChatParams {
     id: string,
     name: string,
-    color: string
+    color: string,
+    isAdmin: boolean,
+
 }

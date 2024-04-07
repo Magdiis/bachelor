@@ -99,9 +99,13 @@ const isPerson = computed(()=>{
 //     }
 // })
 
+function isAdmin(): boolean{
+   return props.groupChat.ownerID === globalProfile.id
+}
+
 function navigateToChatPage(id: string, name: string, color: string){
   var chatParams: ChatParams = {
-    id: id, name: name, color: color
+    id: id, name: name, color: color, isAdmin: isAdmin()
   }
   var chatParamsString = JSON.stringify(chatParams)
 
