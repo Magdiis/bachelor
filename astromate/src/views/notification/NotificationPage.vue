@@ -20,7 +20,7 @@ IonHeader, IonToolbar, IonItem, IonRow, IonCol, IonGrid,onIonViewWillEnter} from
 
 import {ref} from "vue";
 
-import {NotificationMessage} from "@/model/NotificationMessage";
+import {NotificationMessage} from "@/model/notification/NotificationMessage";
 import {onSnapshot, orderBy, query, Query, where} from "firebase/firestore";
 import {auth, notification_collection} from "@/firebase-service";
 import NotificationRow from "@/components/notifications/NotificationRow.vue";

@@ -1,5 +1,5 @@
 import {reactive} from "vue";
-import {Profile} from "@/model/Profile";
+import {Profile} from "@/model/profile/Profile";
 
 
 export const globalProfile = reactive<Profile>({

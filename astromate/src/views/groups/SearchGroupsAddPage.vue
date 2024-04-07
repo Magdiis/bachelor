@@ -53,13 +53,13 @@ IonHeader, IonToolbar, IonBackButton, IonButtons,
 IonInput, IonTextarea, IonSelect, IonSelectOption, IonButton, 
 IonLoading, onIonViewDidEnter, onIonViewWillEnter } from '@ionic/vue';
 import { useRouter } from 'vue-router';
-import type { User } from '@/model/User';
+import type { User } from '@/model/group/User';
 import { reactive, ref } from 'vue';
 import savingToFirestore from '@/composables/savingToFirestore'
 import { routesNames } from '@/router/routesNames';
 
 import {useCase, useCasesValues, workCases, workCasesValues, SportCases, 
-  sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
+  sportCasesValues, colorsCases, colorsCasesValues} from '@/model/group/createGroupEnums'
 import {auth} from "@/firebase-service";
 
 

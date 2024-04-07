@@ -26,9 +26,9 @@
   <script setup lang="ts">
   import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, onIonViewDidEnter,
 IonGrid, IonRow, IonCol, IonButton, createAnimation,IonList, IonItem  } from '@ionic/vue';
-  import type { Group } from '@/model/Group';
+  import type { Group } from '@/model/group/Group';
   import { useRouter } from 'vue-router';
-  import {Profile} from "@/model/Profile";
+  import {Profile} from "@/model/profile/Profile";
   
   const router = useRouter()
   

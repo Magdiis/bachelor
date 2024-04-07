@@ -29,20 +29,20 @@
     import { useRouter } from 'vue-router';
     import { useRoute } from 'vue-router';
     import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
-    import type { Group } from '@/model/Group';
+    import type { Group } from '@/model/group/Group';
     import { ref, reactive } from 'vue';
-import { SportCases, useCase, workCases } from '@/model/createGroupEnums';
+import { SportCases, useCase, workCases } from '@/model/group/createGroupEnums';
 import { closeOutline } from 'ionicons/icons';
 import {returnCategory} from '@/composables/categoryConvertor'
-import { GroupsFilter } from '@/model/GroupsFilter';
+import { GroupsFilter } from '@/model/group/GroupsFilter';
 import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import savingToFirestore from "@/composables/savingToFirestore";
     import {Decision} from "@/model/Decision";
     import {Timestamp} from "firebase/firestore";
     import updateInFirestore from "@/composables/updateInFirestore";
     import fetchingMatchingBackend from "@/composables/matchingBackendController/fetchingMatchingBackend";
-    import {Profile} from "@/model/Profile";
-    import {NotificationMessage, notificationText} from "@/model/NotificationMessage";
+    import {Profile} from "@/model/profile/Profile";
+    import {NotificationMessage, notificationText} from "@/model/notification/NotificationMessage";
     import {auth} from "@/firebase-service";
     import {globalProfile} from "@/composables/store/profileStore";
     

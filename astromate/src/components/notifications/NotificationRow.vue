@@ -27,7 +27,7 @@
 <script setup lang="ts">
 
 import {onIonViewWillEnter, IonRow,IonButton, IonGrid,IonLabel} from "@ionic/vue";
-import {NotificationMessage, notificationNames, notificationText} from "@/model/NotificationMessage";
+import {NotificationMessage, notificationNames, notificationText} from "@/model/notification/NotificationMessage";
 import {onMounted, ref} from "vue";
 import updateInFirestore from "@/composables/updateInFirestore";
 import {globalProfile} from "@/composables/store/profileStore";

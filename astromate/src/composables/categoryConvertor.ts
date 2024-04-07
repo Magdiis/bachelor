@@ -1,5 +1,5 @@
 import {useCase, useCasesValues, workCases, workCasesValues, SportCases, 
-    sportCasesValues, colorsCases, colorsCasesValues} from '@/model/createGroupEnums'
+    sportCasesValues, colorsCases, colorsCasesValues} from '@/model/group/createGroupEnums'
 import {ref} from 'vue'
 
 export function convertCategory(useCaseParam: string, categoryParam: string) {

@@ -18,12 +18,12 @@ router.push('/groupMatching/someString')
 
 <script setup lang="ts">
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, onIonViewDidEnter } from '@ionic/vue';
-import type { Group } from '@/model/Group';
+import type { Group } from '@/model/group/Group';
 import { routesNames } from '@/router/routesNames';
 import { useRouter } from 'vue-router';
 import {onMounted} from "vue"
-import { SportCases, workCases } from '@/model/createGroupEnums';
-import { GroupsFilter } from '@/model/GroupsFilter';
+import { SportCases, workCases } from '@/model/group/createGroupEnums';
+import { GroupsFilter } from '@/model/group/GroupsFilter';
 import { returnCategory } from '@/composables/categoryConvertor';
 
 const router = useRouter()

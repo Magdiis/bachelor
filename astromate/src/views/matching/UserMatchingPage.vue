@@ -32,17 +32,17 @@
     } from '@ionic/vue';
     import {useRoute, useRouter} from 'vue-router';
     import {ref} from 'vue';
-    import type {User} from '@/model/User';
-    import {GroupsFilter} from '@/model/GroupsFilter';
+    import type {User} from '@/model/group/User';
+    import {GroupsFilter} from '@/model/group/GroupsFilter';
     import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
     import MatchingCardUser from "@/components/MatchingCardUser.vue";
-    import {Profile} from "@/model/Profile";
+    import {Profile} from "@/model/profile/Profile";
     import fetchingMatchingBackend from "@/composables/matchingBackendController/fetchingMatchingBackend";
     import {Decision} from "@/model/Decision";
     import {Timestamp} from "firebase/firestore";
     import savingToFirestore from "@/composables/savingToFirestore";
     import updateInFirestore from "@/composables/updateInFirestore";
-    import {NotificationMessage, notificationText} from "@/model/NotificationMessage";
+    import {NotificationMessage, notificationText} from "@/model/notification/NotificationMessage";
     import {auth} from "@/firebase-service";
     import {globalProfile} from "@/composables/store/profileStore";
 

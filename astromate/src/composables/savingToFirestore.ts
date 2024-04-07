@@ -9,16 +9,17 @@ import {
     users_collection
 } from '@/firebase-service';
 import {Group} from '@/model/Group';
-import {Profile} from '@/model/Profile'
+import {Group} from '@/model/group/Group';
+import {Profile} from '@/model/profile/Profile'
 import {
     useCase, useCasesValues, workCases, workCasesValues, SportCases,
     sportCasesValues, colorsCases, colorsCasesValues
-} from '@/model/createGroupEnums'
+} from '@/model/group/createGroupEnums'
 import {returnCategory} from '@/composables/categoryConvertor'
 import {Decision} from "@/model/Decision";
-import {NotificationMessage} from "@/model/NotificationMessage";
+import {NotificationMessage} from "@/model/notification/NotificationMessage";
 import {globalProfile, useProfileStore} from "@/composables/store/profileStore";
-import {GroupChat, TextMessage} from "@/model/Chat";
+import {GroupChat, TextMessage} from "@/model/chat/Chat";
 
 
 export default function savingToFirestore() {

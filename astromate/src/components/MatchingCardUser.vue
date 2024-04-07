@@ -21,13 +21,13 @@
   
   <script setup lang="ts">
   import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonButton} from '@ionic/vue';
-  import type { User } from '@/model/User';
+  import type { User } from '@/model/group/User';
   import { routesNames } from '@/router/routesNames';
   import { useRouter } from 'vue-router';
   import {onMounted} from 'vue'
-import { GroupsFilter } from '@/model/GroupsFilter';
+import { GroupsFilter } from '@/model/group/GroupsFilter';
 import { returnCategory } from '@/composables/categoryConvertor';
-  import {Profile} from "@/model/Profile";
+  import {Profile} from "@/model/profile/Profile";
 
   const router = useRouter()
   
