@@ -5,7 +5,8 @@ const config: CapacitorConfig = {
   appName: 'astromate',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+   // hostname: 'localhost:8100',
   }
 };
 

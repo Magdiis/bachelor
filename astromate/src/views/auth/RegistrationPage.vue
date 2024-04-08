@@ -5,7 +5,7 @@
         <ion-buttons slot="start">
           <ion-back-button default-href="#" @click="router.back"></ion-back-button>
         </ion-buttons>
-        <ion-title>Přihlášení</ion-title>
+        <ion-title>Registrace</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -57,7 +57,7 @@ import {
   IonToolbar, onIonViewWillLeave
 } from "@ionic/vue";
 import {reactive, ref} from "vue";
-import {Login} from "@/model/Login";
+import {Login} from "@/model/auth/Login";
 import {useRouter} from "vue-router";
 import authentication from "@/composables/authentication/authentication";
 import {routesNames} from "@/router/routesNames";

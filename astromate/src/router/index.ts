@@ -14,6 +14,7 @@ import LoginPage from "@/views/auth/LoginPage.vue";
 import RegistrationPage from "@/views/auth/RegistrationPage.vue";
 import ProfilePage from "@/views/profile/ProfilePage.vue";
 import ChatPage from "@/views/chat/ChatPage.vue";
+import EditProfile from "@/views/profile/EditProfilePage.vue";
 
 import { routesNames } from './routesNames';
 import authentication from "@/composables/authentication/authentication";
@@ -60,9 +61,17 @@ const routes: Array<RouteRecordRaw> = [
     path: '/createProfile',
     name: routesNames.CreateProfile,
     component: CreateProfilePage,
-    meta: {
-      requiresAuth: true
-    }
+    // meta: {
+    //   requiresAuth: true
+    // }
+  },
+  {
+    path: '/editProfile',
+    name: routesNames.EditProfile,
+    component: EditProfile,
+    // meta: {
+    //   requiresAuth: true
+    // }
   },
   {
     path: '/addGroup',

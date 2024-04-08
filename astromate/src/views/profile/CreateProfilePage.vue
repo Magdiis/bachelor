@@ -17,9 +17,14 @@
      size="sized"
      ></ion-datetime>
     <ion-input placeholder="Místo"></ion-input>
-    <ion-button @click ='createProfile()'> Save </ion-button>
+
+      <ion-button @click ='takePhoto()'> Fotka </ion-button>
+
+    <ion-button @click ='createProfile()'> Uložit </ion-button>
     <ion-loading :is-open="loading" message="Ukládání" spinner="bubbles" ></ion-loading>
-      
+
+      <ion-img v-if="photo != undefined" :src="photo.webviewPath"></ion-img>
+
     </ion-content>
 </ion-page>
 </template>
@@ -28,9 +33,9 @@
 import {
   IonPage, IonContent, IonTitle, IonHeader, IonToolbar, IonInput,
   IonItem, IonLabel, IonList, IonTextarea, IonDatetime, IonButton,
-  IonLoading, IonAlert,IonText, onIonViewDidEnter
+  IonLoading, IonAlert,IonText, onIonViewDidEnter, IonImg
 } from '@ionic/vue';
-import type { Profile } from '@/model/Profile.ts'
+import type { Profile } from '@/model/profile/Profile.ts'
 import { reactive, ref } from "vue";
 //import { format, parseISO } from 'date-fns';
 import savingToFirestore from '@/composables/savingToFirestore'
@@ -38,9 +43,13 @@ import {auth} from "@/firebase-service";
 import {useRouter} from "vue-router";
 import {routesNames} from "@/router/routesNames";
 import {globalProfile, useProfileStore} from "@/composables/store/profileStore";
+import {savePicture, usePhotoGallery} from "@/composables/photos/usePhotoGallery";
 
 const router = useRouter()
 const profileStore = useProfileStore()
+const { takePhoto, photo } = usePhotoGallery();
+
+
 
 const profile: Profile = reactive({
     id:"",
@@ -58,6 +67,9 @@ async function createProfile() {
     profile.id = globalProfile.id
     const answer = await (savingToFirestore().createProfile(profile))
     if(answer){
+      if (photo.value != undefined){
+        await savePicture(photo.value)
+      }
       navigate()
     }
   }

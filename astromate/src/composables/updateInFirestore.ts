@@ -4,6 +4,7 @@ import fetchingMatchingBackend from "@/composables/matchingBackendController/fet
 import {globalProfile} from "@/composables/store/profileStore";
 import {GroupChat} from "@/model/chat/Chat";
 import {Group} from "@/model/group/Group";
+import {Profile} from "@/model/profile/Profile";
 
 
 
@@ -134,5 +135,19 @@ export default function updateInFirestore() {
         }
     }
 
-    return {removeUserFromGroup,setGroupIdEmpty,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
+    async function updateProfile(updatedProfile: Profile){
+        try{
+            const profileDoc = doc(db, "profiles", updatedProfile.id)
+            await updateDoc(profileDoc, {
+                date: updatedProfile.date,
+                description: updatedProfile.description,
+                name: updatedProfile.name,
+                place: updatedProfile.place
+            })
+        } catch (e) {
+            console.error("Error updating profile document: ", e)
+        }
+    }
+
+    return {updateProfile,removeUserFromGroup,setGroupIdEmpty,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
 }

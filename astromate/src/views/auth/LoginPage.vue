@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 
-import {colorsCases} from "@/model/createGroupEnums";
+import {colorsCases} from "@/model/group/createGroupEnums";
 import {
   IonContent,
   IonHeader,
@@ -61,8 +61,8 @@ import {
   IonLoading, onIonViewWillLeave, onIonViewWillEnter,
 } from "@ionic/vue";
 import {reactive, ref, UnwrapNestedRefs} from "vue";
-import {Login} from "@/model/Login";
-import type {Profile} from "@/model/Profile";
+import {Login} from "@/model/auth/Login";
+import type {Profile} from "@/model/profile/Profile";
 import authentication from "@/composables/authentication/authentication";
 import {routesNames} from "@/router/routesNames";
 import {useRouter} from "vue-router";
