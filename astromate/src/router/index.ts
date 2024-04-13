@@ -15,6 +15,8 @@ import RegistrationPage from "@/views/auth/RegistrationPage.vue";
 import ProfilePage from "@/views/profile/ProfilePage.vue";
 import ChatPage from "@/views/chat/ChatPage.vue";
 import EditProfile from "@/views/profile/EditProfilePage.vue";
+import SearchPeopleEditPage from "@/views/groups/SearchPeopleEditPage.vue";
+import SearchGroupsEditPage from "@/views/groups/SearchGroupsEditPage.vue";
 
 import { routesNames } from './routesNames';
 import authentication from "@/composables/authentication/authentication";
@@ -42,7 +44,7 @@ const routes: Array<RouteRecordRaw> = [
     }
   }, 
   {
-    path: '/userMatching/:groupsFilter',
+    path: '/userMatching',
     name: routesNames.UserMatching,
     component: UserMatchingPage,
     meta: {
@@ -98,6 +100,22 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/searchPeopleEdit',
+    name: routesNames.SearchPeopleEdit,
+    component: SearchPeopleEditPage,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/searchGroupsEdit',
+    name: routesNames.SearchGroupsEdit,
+    component: SearchGroupsEditPage,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/',
     redirect: '/groups'
   },
@@ -147,17 +165,17 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  const isAuthRequired = to.matched.some((record) => record.meta.requiresAuth)
-
-
-  if (isAuthRequired && !authentication().isUserLoggedIn()) {
-    next({ name: routesNames.Login })
-  // } else if (isGuestRequired && authStore.isUserLoggedIn) {
-  //   next({ name: "books"})
-  } else {
-    next()
-  }
-})
+// router.beforeEach((to, from, next) => {
+//   const isAuthRequired = to.matched.some((record) => record.meta.requiresAuth)
+//
+//
+//   if (isAuthRequired && !authentication().isUserLoggedIn()) {
+//     next({ name: routesNames.Login })
+//   // } else if (isGuestRequired && authStore.isUserLoggedIn) {
+//   //   next({ name: "books"})
+//   } else {
+//     next()
+//   }
+// })
 
 export default router

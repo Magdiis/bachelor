@@ -86,7 +86,6 @@ export default function fetchingFirebase() {
                 usersRef.forEach((doc) => {
                     const {sportCaseThis, workCaseThis} = convertCategory(doc.data().useCase, doc.data().category)
                     users.push({
-                        wasSeenBy: doc.data().wasSeenBy,
                         id: doc.id,
                         userId: doc.data().userId,
                         name: doc.data().name,

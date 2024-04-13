@@ -1,5 +1,5 @@
 <template>
-    <ion-card @click="router.push({name: routesNames.GroupMatching, params:{groupsFilter:groupsFilterString}})">
+    <ion-card @click="setSelectedSearchedGroup()">
       <ion-card-header>
           <ion-card-title>
               {{ props.user.name }}
@@ -19,6 +19,7 @@
   import {onMounted} from 'vue'
 import { GroupsFilter } from '@/model/group/GroupsFilter';
 import { returnCategory } from '@/composables/categoryConvertor';
+  import {globalSelectedSearchedGroup} from "@/composables/store/useGroupStore";
 
   const router = useRouter()
   
@@ -40,7 +41,13 @@ import { returnCategory } from '@/composables/categoryConvertor';
     }
     groupsFilterString = JSON.stringify(groupsFilter)
   })
-  
+
+  function setSelectedSearchedGroup(){
+    router.push({name: routesNames.GroupMatching, params:{groupsFilter:groupsFilterString}})
+    Object.assign(globalSelectedSearchedGroup, props.user)
+    console.log("setting global ", globalSelectedSearchedGroup)
+  }
+
   </script>
   
   <style scoped>

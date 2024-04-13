@@ -6,6 +6,5 @@ export interface User {
     workCase:string,
     sportCase:string,
     color:string,
-    groupId:string,
-    wasSeenBy: string[]
+    groupId:string
 }

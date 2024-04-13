@@ -4,6 +4,8 @@ export enum routesNames{
     AddGroup = "AddGroup",
     SearchPeopleAdd = "SearchPeopleAdd",
     SearchGroupsAdd = "SearchGroupsAdd",
+    SearchPeopleEdit = "SearchPeopleEdit",
+    SearchGroupsEdit = "SearchGroupsEdit",
     CreateProfile = "CreateProfile",
     Groups = "Groups",
     Chat = "Chat",
@@ -15,6 +17,7 @@ export enum routesNames{
     EditProfile = "EditProfile",
     Profile = "Profile",
     GroupChats="GroupChats",
-    ChatPage = "Chat"
+    ChatPage = "Chat",
+
   }
   

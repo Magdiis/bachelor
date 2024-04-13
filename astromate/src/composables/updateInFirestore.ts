@@ -5,6 +5,7 @@ import {globalProfile} from "@/composables/store/profileStore";
 import {GroupChat} from "@/model/chat/Chat";
 import {Group} from "@/model/group/Group";
 import {Profile} from "@/model/profile/Profile";
+import {returnCategory} from "@/composables/categoryConvertor";
 
 
 
@@ -71,24 +72,40 @@ export default function updateInFirestore() {
             return id !== profileId
         })
     }
-    async function setGroupIdEmpty(groupId: string){
+
+    // WHEN ADMIN REMOVE USER FROM GROUP CHAT
+    async function removeGroupFromSearchedGroup(groupId: string, userId: string){
+        const q = query(collection(db, "users"),
+            where("groupId", "==", groupId),where("userId","==",userId));
+        try {
+            const querySnapshot = await getDocs(q);
+            if (querySnapshot.size > 0) {
+                const  searchedGroupId = querySnapshot.docs[0].id;
+                const searchedGroupRef = doc(db, "users", searchedGroupId)
+                await updateDoc(searchedGroupRef,{
+                    groupId: ""
+                })
+            } else {
+                console.error("wrong group id ", groupId, " or user id", userId)
+            }
+        } catch (e) {
+            console.error("Error fetching searched group document: ", e)
+        }
+    }
+
+    // WHEN ADMIN DELETE GROUP
+    async function setGroupIdEmptyInGroups(groupId: string){
         const q = query(collection(db, "users"),
             where("groupId", "==", groupId));
         try {
             const querySnapshot = await getDocs(q);
-            if (querySnapshot.size > 0) {
-                const searchedGroupId = querySnapshot.docs[0].id
-                const searchedGroupRef = doc(db, "users", searchedGroupId)
-                try {
-                     await updateDoc(searchedGroupRef,{
-                         groupId: ""
-                     })
-                } catch (e) {
-                    console.error("Error updating searhed group document", e)
+                for (const group of querySnapshot.docs) {
+                        const searchedGroupRef = doc(db, "users", group.id)
+                        await updateDoc(searchedGroupRef,{
+                            groupId: ""
+                        })
+                        console.log("seting group id = '' with id ", group.id)
                 }
-            } else {
-                console.error("wrong groupId, ", groupId)
-            }
         } catch (e) {
             console.error("Error fetching searched group document: ", e)
         }
@@ -149,5 +166,21 @@ export default function updateInFirestore() {
         }
     }
 
-    return {updateProfile,removeUserFromGroup,setGroupIdEmpty,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
+    async function updateGroup(updatedGroup: Group){
+        try{
+            const groupDoc = doc(db,"groups", updatedGroup.id)
+            await updateDoc(groupDoc,{
+                category: returnCategory(updatedGroup.useCase,updatedGroup.workCase,updatedGroup.sportCase),
+                color: updatedGroup.color,
+                description: updatedGroup.description,
+                maxMembers: updatedGroup.maxMembers,
+                name: updatedGroup.name,
+                useCase: updatedGroup.useCase
+            })
+        } catch (e) {
+            console.error("Error updating group document: ", e)
+        }
+    }
+
+    return {updateGroup,removeGroupFromSearchedGroup,updateProfile,removeUserFromGroup,setGroupIdEmptyInGroups,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
 }

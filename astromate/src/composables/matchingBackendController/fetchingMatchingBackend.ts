@@ -64,7 +64,6 @@ export default function fetchingMatchingBackend(){
                             color: user.color,
                             id: user.id,
                             groupId: user.groupId,
-                            wasSeenBy: user.wasSeenBy,
                             name: user.name,
                             sportCase: sportCaseThis,
                             useCase: user.useCase,
