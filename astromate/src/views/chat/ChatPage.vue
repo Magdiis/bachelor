@@ -218,7 +218,8 @@ async function leaveGroup() {
   // THIS GROUP IS NOT IN STORE - REMOVE FROM MEMBERS
   await (updateInFirestore().removeFromGroup(chatParams.id, globalProfile.id))
 
-  // send notification
+  // SEND NOTIFICATION
+
   await router.push({name: routesNames.GroupChats})
   loading.value = false
 }
@@ -253,17 +254,18 @@ function leaveChatGroup(groupChat: GroupChat): GroupChat {
 async function removeUser(name: string){
   loading.value = true
   const findedGroupChat: GroupChat = groupChatStore.getGroupChat(chatParams.id)
-  const updatedGroupChat: GroupChat = removeUserFromGroupChat(findedGroupChat, name)
+  const removingId:string = returnUserId(findedGroupChat, name)
+  const updatedGroupChat: GroupChat = removeUserFromGroupChat(findedGroupChat, name, removingId)
 
   // remove from groupChat
   await (updateInFirestore().leaveGroupChat(updatedGroupChat))
 
   // not in store - set groupId = ""
-  await (updateInFirestore().setGroupIdEmpty(findedGroupChat.id))
+  await (updateInFirestore().removeGroupFromSearchedGroup(findedGroupChat.id,removingId))
 
   // from store - remove from group members
   const findedGroup: Group = groupStore.getGroup(findedGroupChat.id)
-  await (updateInFirestore().removeUserFromGroup(removeUserFromGroup(findedGroup,name,findedGroupChat)))
+  await (updateInFirestore().removeUserFromGroup(removeUserFromGroup(findedGroup,removingId)))
 
   // AFTER ALL UPDATES
   groupChatStore.updateCurrentGroupChat(updatedGroupChat)
@@ -273,13 +275,7 @@ async function removeUser(name: string){
 
 
 
-function removeUserFromGroupChat(groupChat: GroupChat ,removingName: string): GroupChat{
-  const removingIds: string[] = groupChat.membersNamesAndIDs.filter((m) => {
-    return m.includes(removingName + ";")
-  })
-
-  const removingId: string = removingIds[0].substring(removingIds[0].indexOf(";")+1)
-
+function removeUserFromGroupChat(groupChat: GroupChat ,removingName: string, removingId: string): GroupChat{
   const updatedMembersIds = groupChat.membersIDs.filter((g) => {
     return g !== removingId
   })
@@ -305,13 +301,14 @@ function removeUserFromGroupChat(groupChat: GroupChat ,removingName: string): Gr
 
 }
 
-function removeUserFromGroup(group: Group,removingName: string, groupChat: GroupChat): Group{
+function returnUserId(groupChat: GroupChat, removingName: string): string {
   const removingIds: string[] = groupChat.membersNamesAndIDs.filter((m) => {
     return m.includes(removingName + ";")
   })
+  return removingIds[0].substring(removingIds[0].indexOf(";")+1)
+}
 
-  const removingId: string = removingIds[0].substring(removingIds[0].indexOf(";")+1)
-
+function removeUserFromGroup(group: Group, removingId: string): Group{
   const updatedMembersIds =  group.membersIDs.filter((id: string) => {
       return id !== removingId
   })
