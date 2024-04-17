@@ -9,35 +9,34 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true">
-      <ion-grid>
-        <ion-col>
-          <ion-input
-              ref="input"
-              type="email"
-              fill="solid"
-              label="Email"
-              label-placement="floating"
-              error-text="Invalid email"
-              v-model="loginInfo.email"
-          >
-            <div v-if="isEmptyProm" slot="label"> <ion-text color="danger">Povinné</ion-text></div>
-          </ion-input>
+    <ion-content :fullscreen="true" >
 
 
-          <ion-input fill="solid" label="Password" label-placement="floating" type="password" value="password" v-model="loginInfo.password">
-            <div v-if="isEmptyProm" slot="label"> <ion-text color="danger">Povinné</ion-text></div>
-          </ion-input>
+      <div class="center ion-padding">
+        <ion-img style="height: 144px" src="/register-user-icon.svg"></ion-img>
+      </div>
 
-          <ion-text v-if="emailFormat.length > 0"> {{emailFormat}} </ion-text>
-          <ion-text v-if="loginInfo.errorMessage.length > 0"> {{ loginInfo.errorMessage}}</ion-text>
-          <ion-text v-if="authResponse.errorMessage.length > 0"> {{ authResponse.errorMessage}}</ion-text>
-          <ion-button @click="register(loginInfo)">Registrovat</ion-button>
-        </ion-col>
-        <ion-loading :is-open="loading" spinner="lines-small" ></ion-loading>
-      </ion-grid>
+      <div class="ion-padding-horizontal">
+        <ion-input ref="input" type="email" fill="solid" label="Email" label-placement="floating"
+                   error-text="Špatný email" v-model="loginInfo.email">
+          <div v-if="isEmptyProm" slot="label"> <ion-text color="danger">Povinné</ion-text></div>
+        </ion-input>
+        <ion-input class="ion-margin-top"  fill="solid" label="Heslo" label-placement="floating" type="password" value="heslo" error-text="Špatné heslo" v-model="loginInfo.password">
+          <div v-if="isEmptyProm" slot="label"> <ion-text color="danger">Povinné</ion-text></div>
+        </ion-input>
+      </div>
 
+      <div class="ion-padding">
+        <ion-button expand="block" shape="round" @click="register(loginInfo)">Registrovat</ion-button>
+      </div>
 
+      <div class="ion-padding">
+        <ion-text color="danger"  v-if="emailFormat.length > 0"> {{emailFormat}} </ion-text>
+        <ion-text color="danger"   v-if="loginInfo.errorMessage.length > 0"> {{ loginInfo.errorMessage}}</ion-text>
+        <ion-text color="danger"  v-if="authResponse.errorMessage.length > 0"> {{ authResponse.errorMessage}}</ion-text>
+      </div>
+
+      <ion-loading :is-open="loading" spinner="lines-small" ></ion-loading>
 
     </ion-content>
   </ion-page>
@@ -49,7 +48,7 @@ import {
   IonBackButton, IonButton,
   IonButtons, IonCol,
   IonContent, IonGrid,
-  IonHeader,
+  IonHeader, IonIcon,
   IonInput, IonLoading,
   IonPage,
   IonText,
@@ -127,6 +126,12 @@ onIonViewWillLeave(()=>{
 </script>
 <style scoped>
 
-
+.center {
+  display: flex;
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
+  flex-direction: column; /* Align items in a column */
+  text-align: center; /* Center text horizontally */
+}
 
 </style>
