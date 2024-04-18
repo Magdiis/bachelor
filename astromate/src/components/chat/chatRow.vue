@@ -7,12 +7,12 @@
                 :class="returnColorClass +' '+ returnIconClass"  >
             </ion-icon></span>
         </ion-col>
-        
+
         <ion-col class="right">
             <ion-row style="display: flex;">
-                <h3 class="ion-no-margin text" :class="returnColorClass">
+                <h5 class="ion-no-margin text" :class="returnColorClass">
                   {{returnHeadlineName}}
-                </h3>
+                </h5>
             </ion-row>
             <ion-row>
                 <ion-label class="ion-margin-top text">
@@ -118,8 +118,8 @@ function navigateToChatPage(id: string, name: string, color: string){
 
 <style scoped>
 .dot {
-  height: 4em;
-  width: 4em;
+  height: 2.8em;
+  width: 2.8em;
   background-color: #fff;
   border-radius: 50%;
   border-style: solid;
@@ -131,12 +131,12 @@ function navigateToChatPage(id: string, name: string, color: string){
 }
 
 ion-icon.isOneProfile{
-  font-size: 1.8em;
+  font-size: 1.4em;
   --ionicon-stroke-width: 32px;
 }
 
 ion-icon.isMoreProfiles{
-    font-size: 2.4em;
+    font-size: 1.9em;
     --ionicon-stroke-width: 26px;
 }
 

@@ -9,7 +9,7 @@
     <ion-content :fullscreen="true">
       <ion-list v-if="myGroupChats.length > 0">
         <ion-list-header>
-          <h3>Moje vytvořené skupiny</h3>
+          <h4>Moje vytvořené skupiny</h4>
         </ion-list-header>
         <ion-item v-for="chat in myGroupChats" >
           <chat-row :group-chat="chat"></chat-row>
@@ -17,7 +17,7 @@
       </ion-list>
       <ion-list v-if="otherGroupChats.length > 0">
         <ion-list-header>
-          <h3>Ostatní</h3>
+          <h4>Ostatní</h4>
         </ion-list-header>
         <ion-item v-for="chat in otherGroupChats">
           <chat-row :group-chat="chat" ></chat-row>
