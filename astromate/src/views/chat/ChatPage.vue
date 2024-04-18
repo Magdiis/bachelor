@@ -6,7 +6,7 @@
           <ion-back-button :class="returnColorClass" default-href="#" @click="router.back"></ion-back-button>
         </ion-buttons>
         <ion-buttons slot="primary">
-          <ion-button id="auto-trigger">
+          <ion-button id="trigger-popover-edit-users">
             <ion-icon slot="icon-only" :ios="ellipsisHorizontal" :md="ellipsisVertical"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -16,7 +16,7 @@
     <ion-content :fullscreen="true" ref="content" :scroll-events="true">
 
 
-      <ion-popover trigger="auto-trigger" size="auto" :dismiss-on-select="true">
+      <ion-popover trigger="trigger-popover-edit-users" size="auto" :dismiss-on-select="true">
         <ion-content v-if="chatParams.isAdmin">
           <ion-list lines="none">
             <ion-item @click="isModalOpen=true">
@@ -27,13 +27,13 @@
         </ion-content>
         <ion-content v-else>
           <ion-list lines="none">
-            <ion-item :button="true" :detail="false" id="present-alert">
+            <ion-item :button="true" :detail="false" id="present-alert-delete-chat">
               <ion-icon size="large" :icon="logOutOutline" class="ion-padding-end"></ion-icon>
               Opustit skupinu
             </ion-item>
           </ion-list>
           <ion-alert
-              trigger="present-alert"
+              trigger="present-alert-delete-chat"
               header="Opravdu chcete opustit tuto skupinu?"
               :buttons="cancelOrConfirmButtons"
           >
