@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import CreateProfile from '../views/profile/CreateProfilePage.vue'
 import GroupsPage from '../views/groups/GroupsPage.vue'
 import BottomNavigation from '@/components/BottomNavigation.vue';
 import GroupChatsPage from '../views/chat/GroupChatsPage.vue'
@@ -36,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
     component: RegistrationPage
   },
   {
-    path: '/groupMatching/:groupsFilter',
+    path: '/groupMatching',
     name: routesNames.GroupMatching,
     component: GroupMatchingPage,
     meta: {
@@ -117,14 +116,26 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/',
-    redirect: '/groups'
+    redirect: '/login'
   },
   {
-    path: '/',
+    path: '/tabs/',
     component: BottomNavigation,
     children:[
       {
-        path: '/profile',
+        path:'',
+        redirect: '/tabs/groups'
+      },
+      {
+        path: 'groups',
+        name: routesNames.Groups,
+        component: GroupsPage,
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
+        path: 'profile',
         name: routesNames.Profile,
         component: ProfilePage,
         meta: {
@@ -132,15 +143,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: '/groups',
-        name: routesNames.Groups,
-        component: GroupsPage,
-        meta: {
-          requiresAuth: true
-        }
-      }, 
-      {
-        path: '/groupChats',
+        path: 'groupChats',
         name: routesNames.GroupChats,
         component: GroupChatsPage,
         meta: {
@@ -148,7 +151,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       }, 
       {
-        path: '/notification',
+        path: 'notification',
         name: routesNames.Notification,
         component: NotificationPage,
         meta: {
