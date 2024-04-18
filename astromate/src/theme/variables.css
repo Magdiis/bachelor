@@ -4,28 +4,28 @@ http://ionicframework.com/docs/theming/ */
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
-  --ion-color-primary: #3880ff;
-  --ion-color-primary-rgb: 56, 128, 255;
+  --ion-color-primary: #005091;
+  --ion-color-primary-rgb: 0,80,145;
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #3171e0;
-  --ion-color-primary-tint: #4c8dff;
+  --ion-color-primary-contrast-rgb: 255,255,255;
+  --ion-color-primary-shade: #004680;
+  --ion-color-primary-tint: #1a629c;
 
   /** secondary **/
-  --ion-color-secondary: #3dc2ff;
-  --ion-color-secondary-rgb: 61, 194, 255;
+  --ion-color-secondary: #410091;
+  --ion-color-secondary-rgb: 65,0,145;
   --ion-color-secondary-contrast: #ffffff;
-  --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #36abe0;
-  --ion-color-secondary-tint: #50c8ff;
+  --ion-color-secondary-contrast-rgb: 255,255,255;
+  --ion-color-secondary-shade: #390080;
+  --ion-color-secondary-tint: #541a9c;
 
   /** tertiary **/
-  --ion-color-tertiary: #5260ff;
-  --ion-color-tertiary-rgb: 82, 96, 255;
+  --ion-color-tertiary: #910050;
+  --ion-color-tertiary-rgb: 145,0,80;
   --ion-color-tertiary-contrast: #ffffff;
-  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
-  --ion-color-tertiary-shade: #4854e0;
-  --ion-color-tertiary-tint: #6370ff;
+  --ion-color-tertiary-contrast-rgb: 255,255,255;
+  --ion-color-tertiary-shade: #800046;
+  --ion-color-tertiary-tint: #9c1a62;
 
   /** success **/
   --ion-color-success: #2dd36f;
@@ -81,6 +81,11 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-green:#007B60;
   --ion-color-orange:#E47F00;
 
+  /** MY COLOR - light version for matching **/
+  --ion-color-blue-lighter: #2A83CC;
+  --ion-color-darkRed-lighter: #EE2110;
+  --ion-color-green-lighter: #29A88F;
+  --ion-color-orange-lighter: #F1AE2C;
 
   /** MY COLORS - light version for chat **/
   --ion-color-blue-light: #e9f7ff;
@@ -254,6 +259,7 @@ html {
   /* For more information on dynamic font scaling, visit the documentation: 
   https://ionicframework.com/docs/layout/dynamic-font-scaling */
   --ion-dynamic-font: var(--ion-default-dynamic-font);
+  /*--ion-font-family: 'Roboto'; */
 }
 
 
@@ -272,4 +278,15 @@ html {
 .custom-orange {
   color: var(--ion-color-orange);
 }
+
+
+/** CUSTOM PADDINGS **/
+.ion-padding-half {
+  padding: 8px;
+}
+.ion-padding-top-half {
+  padding-top: 8px;
+}
+
+
 

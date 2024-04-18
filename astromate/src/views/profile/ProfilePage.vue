@@ -29,13 +29,17 @@
       <div :style="imgStyle"  v-if="imgStyle.background != '' "></div>
       <ion-skeleton-text :animated="true" style="height: 100vw" v-else></ion-skeleton-text>
 
-            <ion-row>
-              <ion-col>
-                <h3>{{profile.name}}, {{countAge(profile.date)}}</h3>
-                <h6>{{profile.description}}</h6>
+      <div class="ion-padding-horizontal">
+        <h3 style="color: var(--ion-color-blue)">{{profile.name}}, {{countAge(profile.date)}}</h3>
+        <h6 style="background-color: var(--ion-color-blue-light);padding: 1em; border-radius: 12px">{{profile.description}}</h6>
+      </div>
+      <ion-row style="padding-left: 9px" class="ion-align-items-center">
+        <ion-icon style="padding: 0; margin: 0" size="large" color="primary" :icon="locationOutline"></ion-icon>
+        <p>lat: {{profile.place.latitude}}, lon: {{profile.place.longitude}}</p>
+      </ion-row>
 
-              </ion-col>
-            </ion-row>
+
+      <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
 
 
     </ion-content>
@@ -61,19 +65,19 @@ import {
   IonButtons,
   IonButton,
   onIonViewWillEnter,
-  IonImg
+  IonImg, IonLoading
 } from "@ionic/vue";
 import {computed, ref} from "vue";
 import {auth, storage} from "@/firebase-service";
 import {globalProfile, globalProfilePhotoURl, useProfileStore} from "@/composables/store/profileStore";
-import {ellipsisHorizontal, ellipsisVertical, logOutOutline, personRemoveOutline, pencilOutline} from "ionicons/icons";
+import {locationOutline,ellipsisHorizontal, ellipsisVertical, logOutOutline, personRemoveOutline, pencilOutline} from "ionicons/icons";
 import authentication from "@/composables/authentication/authentication";
 import {useRouter} from "vue-router";
 import {routesNames} from "@/router/routesNames";
 import {useGroupChatStore} from "@/composables/store/useGroupChatStore";
 import {useGroupStore} from "@/composables/store/useGroupStore";
 import { getDownloadURL , ref as storageRef } from "firebase/storage";
-import getFromStorage from "@/composables/firebaseStorage/getFromStorage";
+import useStorage from "@/composables/firebaseStorage/useStorage";
 import {colorsCases} from "@/model/group/createGroupEnums";
 import {Timestamp} from "firebase/firestore";
 
@@ -83,7 +87,10 @@ const router = useRouter()
 const profileStore = useProfileStore()
 const groupChatStore = useGroupChatStore()
 const groupStore = useGroupStore()
-const getStorage = getFromStorage()
+const firebaseStorage = useStorage()
+
+const loading = ref(false)
+
 
 const imgStyle = ref<Partial<CSSStyleDeclaration>>({
   background: "",
@@ -92,27 +99,30 @@ const imgStyle = ref<Partial<CSSStyleDeclaration>>({
   backgroundPosition: 'center'
 })
 onIonViewWillEnter(async ()=>{
-  console.log("haloo")
   await getPhoto()
 })
 function logout(){
+  loading.value = true
   authentication().logout()
   clearStores()
   navigate()
+  loading.value = false
 }
 
 function navigate(){
-  router.push({name: routesNames.Login})
+  router.replace({name: routesNames.Login})
 }
 
 function clearStores(){
   profileStore.clearProfile()
   groupChatStore.clear()
   groupStore.clear()
+  profileStore.clearURL()
+  imgStyle.value.background = ''
 }
 
 async function getPhoto(){
-  const response = await getStorage.getPhoto(globalProfile.id)
+  const response = await firebaseStorage.getPhoto(globalProfile.id)
   if (response.URL != undefined){
       imgStyle.value.background = `url("${response.URL}")`
       if(globalProfilePhotoURl.value === ""){
@@ -140,9 +150,14 @@ function navigateToEditProfile(){
     name:routesNames.EditProfile
   })
 }
+
+
 </script>
 
 
 <style scoped>
-
+ion-skeleton-text {
+  margin-top: 0;
+  margin-bottom: 0;
+}
 </style>
