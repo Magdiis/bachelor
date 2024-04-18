@@ -40,7 +40,7 @@
         </ion-select>
         </div>
 
-        <ion-button @click="saveToDb()" >Save</ion-button>
+        <ion-button @click="saveToDb()" >Uložit</ion-button>
         <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
 
       
