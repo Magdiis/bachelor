@@ -32,6 +32,11 @@ export const useGroupStore = () => {
         globalGroups.push(...addedOwnGroups)
     }
 
+    const setOwnSearchedGroups = (addedOwnSearchedGroups: User[]) => {
+        globalSearchedGroups.splice(0)
+        globalSearchedGroups.push(...addedOwnSearchedGroups)
+    }
+
     const setSearchedGroups = (addedSearchedGroups: User[])=>{
         globalSearchedGroups.splice(0)
         globalSearchedGroups.push(...addedSearchedGroups)
@@ -97,6 +102,6 @@ export const useGroupStore = () => {
     }
 
 
-    return {clear,setOwnGroups, setSearchedGroups,getSearchedGroupByGroupId, getGroup,
+    return {setOwnSearchedGroups,clear,setOwnGroups, setSearchedGroups,getSearchedGroupByGroupId, getGroup,
         setEditingSearchedGroup, setEditingGroup, clearEditing, getSearchedGroupById}
 }
