@@ -10,7 +10,7 @@ export interface responseStorage {
     error: string | undefined
 }
 
-export default function getFromStorage() {
+export default function useStorage() {
 
     async function getPhoto(profileId: string): Promise<responseStorage>{
         const pathReference = storageRef(storage, profileId+'.png')

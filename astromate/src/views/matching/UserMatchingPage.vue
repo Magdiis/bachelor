@@ -16,7 +16,7 @@
         <ion-title>Hledání uživatelů</ion-title>
       </ion-toolbar>
     </ion-header>
-        <ion-content :fullscreen="true" >
+        <ion-content :fullscreen="true" :class="contentColor">
           <ion-popover trigger="popover-edit-group" size="auto" :dismiss-on-select="true">
             <ion-content>
               <ion-list lines="none">
@@ -24,13 +24,13 @@
                   <ion-icon size="large" :icon="pencilOutline" class="ion-padding-end"></ion-icon>
                   Upravit
                 </ion-item>
-                <ion-item :button="true" id="present-alert">
+                <ion-item :button="true" id="present-alert-delete-group">
                   <ion-icon size="large" :icon="trashOutline" class="ion-padding-end"></ion-icon>
                   Smazat
                 </ion-item>
               </ion-list>
               <ion-alert
-                  trigger="present-alert"
+                  trigger="present-alert-delete-group"
                   header="Opravdu chcete smazat vyhledávání uživatelů? Bude smazán i  případný chat."
                   :buttons="cancelOrConfirmButtons"
               >
@@ -38,14 +38,20 @@
             </ion-content>
           </ion-popover>
 
+          <ion-loading :is-open="loading" spinner="lines-small"></ion-loading>
+          <no-available v-if="isEmpty" :color="globalSelectedGroup.color" :no-groups-available="false"></no-available>
           <matching-card-user
-              v-if="currentUser != undefined && currentProfile != undefined"
+              v-if="currentUser != undefined && currentProfile != undefined && currentProfilePhotoUrl!=undefined"
               @like="makeDecision(true,currentUser)"
               @dislike="makeDecision(false,currentUser)"
               :profile="currentProfile"
-              :user="currentUser"></matching-card-user>
+              :user="currentUser"
+              :url="currentProfilePhotoUrl"
+              :color="globalSelectedGroup.color">
 
-          <ion-loading :is-open="loading" spinner="lines-small"></ion-loading>
+          </matching-card-user>
+
+
 
         </ion-content>
 
@@ -63,10 +69,10 @@
       IonPage, IonPopover,
       IonTitle,
       IonToolbar,
-      onIonViewDidEnter, onIonViewWillEnter
+      onIonViewDidEnter, onIonViewDidLeave, onIonViewWillEnter
     } from '@ionic/vue';
     import {useRoute, useRouter} from 'vue-router';
-    import {ref} from 'vue';
+    import {computed, ref} from 'vue';
     import type {User} from '@/model/group/User';
     import {GroupsFilter} from '@/model/group/GroupsFilter';
     import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
@@ -83,15 +89,24 @@
     import {ellipsisHorizontal, ellipsisVertical, pencilOutline, trashOutline} from "ionicons/icons";
     import deletingInFirestore from "@/composables/deletingInForestore";
     import {routesNames} from "@/router/routesNames";
-    import {globalGroupEditing, globalSelectedGroup, useGroupStore} from "@/composables/store/useGroupStore";
+    import {
+      globalGroupEditing,
+      globalSelectedGroup,
+      useGroupStore
+    } from "@/composables/store/useGroupStore";
     import {returnCategory} from "@/composables/categoryConvertor";
+    import NoAvailable from "@/components/placeholders/NoAvailable.vue";
+    import {colorsCases} from "@/model/group/createGroupEnums";
+    import useStorage from "@/composables/firebaseStorage/useStorage";
 
     const router = useRouter()
     const route = useRoute()
     const deleteFirestore = deletingInFirestore()
     const updateFirestore = updateInFirestore()
     const groupStore = useGroupStore()
+    const firebaseStorage = useStorage()
 
+    const isEmpty = ref(false) // for placeholder
 
     const loading = ref(false)
 
@@ -101,13 +116,18 @@
 
     const currentUser = ref<User>()
     const currentProfile = ref<Profile>()
+    const currentProfilePhotoUrl = ref<string>("")
 
     onIonViewWillEnter(async ()=>{
+      console.log("global selected group: ", globalSelectedGroup)
       getGroupsFilter()
       console.log(groupsFilter.value?.userOrGroupID_card)
       await fetchOthersUsers()
     })
 
+    onIonViewDidLeave(()=>{
+      isEmpty.value = false
+    })
     function getGroupsFilter() {
         groupsFilter.value = {
           category: returnCategory(globalSelectedGroup.useCase,
@@ -121,18 +141,32 @@
     }
     async function fetchOthersUsers() {
       if (groupsFilter.value != undefined){
+        loading.value = true
         const usersFromFirebase = await fetchingMatchingBackend().getOtherUsers(groupsFilter.value)
         users.value = []
         users.value.push(...usersFromFirebase)
         if(users.value.length > 0){
           currentUser.value = users.value[0]
           await fetchProfile(currentUser.value?.userId)
+
+          loading.value = false
+        } else {
+          loading.value = false
+          isEmpty.value = true
         }
 
       }
     }
     async function fetchProfile(profileID: string){
       currentProfile.value = await fetchingFromFirestore().fetchProfile(profileID)
+      if(currentProfile.value != undefined){
+        const responseStorage = await firebaseStorage.getPhoto(currentProfile.value.id)
+        if(responseStorage.URL != undefined){
+          currentProfilePhotoUrl.value = responseStorage.URL
+        } else if(responseStorage.error != undefined){
+          currentProfilePhotoUrl.value = 'error'
+        }
+      }
     }
 
     async function makeDecision(like:boolean, user:User) {
@@ -156,7 +190,7 @@
       }
 
       // change current user to next one
-      nextUser()
+      await nextUser()
     }
 
     async function saveDecisionToDB(like: boolean, groupOrProfileID: string){
@@ -170,11 +204,11 @@
         await updateInFirestore().addUsersSeenBy(userId,globalProfile.id)
     }
 
-    function nextUser(){
+    async function nextUser(){
       users.value = users.value.slice(1)
       currentUser.value =  users.value[0]
       if(currentUser.value != undefined){
-        fetchProfile(currentUser.value.userId)
+        await fetchProfile(currentUser.value.userId)
       }
     }
 
@@ -238,8 +272,41 @@
         },
       },
     ];
+
+    // CSS CLASS
+    const contentColor = computed(()=>{
+      switch (globalSelectedGroup.color) {
+        case colorsCases.Blue:
+          return 'ion-content-blue'
+        case colorsCases.Green:
+          return 'ion-content-green'
+        case colorsCases.Red:
+          return 'ion-content-red'
+        case colorsCases.Orange:
+          return 'ion-content-orange'
+      }
+    })
     </script>
     
     <style scoped>
+    .ion-content-green {
+      --ion-background-color:var(--ion-color-green);
+      --color: white
+    }
+
+    .ion-content-blue {
+      --ion-background-color:var(--ion-color-blue);
+      --color: white
+    }
+    .ion-content-red {
+      --ion-background-color:var(--ion-color-darkRed);
+      --color: white
+    }
+    .ion-content-orange {
+      --ion-background-color:var(--ion-color-orange);
+      --color: white
+    }
+
+
     
     </style>

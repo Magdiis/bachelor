@@ -31,5 +31,8 @@ export const useProfileStore = () => {
         globalProfilePhotoURl.value = URL
     }
 
-    return {setProfile, setId, clearProfile, setURL}
+    const clearURL = ()=>{}
+    globalProfilePhotoURl.value = ""
+
+    return {clearURL,setProfile, setId, clearProfile, setURL}
 }
