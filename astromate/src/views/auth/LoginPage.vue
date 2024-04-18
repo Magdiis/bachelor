@@ -14,7 +14,7 @@
       </div>
 
       <div class="ion-padding-horizontal">
-        <ion-input style="margin-top: 8px" ref="input" type="email" fill="solid" label="Email" label-placement="floating"
+        <ion-input style="margin-top: 8px" ref="input" type="email" fill="outline" label="Email" label-placement="floating"
                    error-text="Špatný email" v-model="loginInfo.email"
                    class="padding-half-top">
           <!--            <ion-icon slot="start" :icon="mailOutline" aria-hidden="true"></ion-icon>-->
@@ -23,7 +23,7 @@
           </div>
         </ion-input>
 
-        <ion-input class="ion-margin-top" fill="solid" label="Password" label-placement="floating" type="password"
+        <ion-input class="ion-margin-top" fill="outline" label="Password" label-placement="floating" type="password"
                    error-text="Špatné heslo" value="password" v-model="loginInfo.password">
           <div v-if="isEmptyProm" slot="label">
             <ion-text color="danger">Povinné</ion-text>
@@ -37,7 +37,7 @@
                        @click="router.push({name: routesNames.Registration})">Vytvořit účet
           </ion-button>
 
-<!--        <ion-button shape="round" @click="LoginHardcore()">Login hardcore</ion-button>-->
+
       </div>
 
       <div class="ion-padding">
@@ -47,6 +47,9 @@
 
       <ion-loading :is-open="loading" spinner="lines-small"></ion-loading>
 
+      <!-- delete -->
+<!--      <ion-button @click="router.push({name:routesNames.CreateProfile})"> create profile </ion-button>-->
+      <ion-button shape="round" @click="LoginHardcore()">Login hardcore</ion-button>
     </ion-content>
 
   </ion-page>

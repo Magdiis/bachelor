@@ -17,14 +17,15 @@
       </div>
 
       <div class="ion-padding-horizontal">
-        <ion-input ref="input" type="email" fill="solid" label="Email" label-placement="floating"
+        <ion-input ref="input" type="email" fill="outline" label="Email" label-placement="floating"
                    error-text="Špatný email" v-model="loginInfo.email">
           <div v-if="isEmptyProm" slot="label"> <ion-text color="danger">Povinné</ion-text></div>
         </ion-input>
-        <ion-input class="ion-margin-top"  fill="solid" label="Heslo" label-placement="floating" type="password" value="heslo" error-text="Špatné heslo" v-model="loginInfo.password">
+        <ion-input class="ion-margin-top"  fill="outline" label="Heslo" label-placement="floating" type="password" value="heslo" error-text="Špatné heslo" v-model="loginInfo.password">
           <div v-if="isEmptyProm" slot="label"> <ion-text color="danger">Povinné</ion-text></div>
         </ion-input>
       </div>
+
 
       <div class="ion-padding">
         <ion-button expand="block" shape="round" @click="register(loginInfo)">Registrovat</ion-button>
@@ -37,6 +38,8 @@
       </div>
 
       <ion-loading :is-open="loading" spinner="lines-small" ></ion-loading>
+
+
 
     </ion-content>
   </ion-page>
@@ -53,7 +56,7 @@ import {
   IonPage,
   IonText,
   IonTitle,
-  IonToolbar, onIonViewWillLeave
+  IonToolbar, onIonViewDidEnter, onIonViewWillLeave
 } from "@ionic/vue";
 import {reactive, ref} from "vue";
 import {Login} from "@/model/auth/Login";
@@ -63,12 +66,17 @@ import {routesNames} from "@/router/routesNames";
 import {AuthResponse} from "@/model/auth/AuthResponse";
 import {useProfileStore} from "@/composables/store/profileStore";
 
+
+
 const router = useRouter()
 const profileStore = useProfileStore()
 
 const isPasswordLongEnough = ref(true)
 const loading = ref<boolean>(false)
 const emailFormat = ref("")
+
+
+
 
 const loginInfo: Login = reactive({
   email: "",
