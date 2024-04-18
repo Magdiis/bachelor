@@ -14,14 +14,20 @@
     <ion-content :fullscreen="true">
     <ion-loading :is-open="loading" spinner="lines-small" ></ion-loading>
     <div v-if="!loading">
-      <h4>Hledám lidi</h4>
-    <div v-for="group in globalGroups">
-      <group-card :group="group"></group-card>
-    </div>
-    <h4>Hledám skupiny</h4>
-    <div v-for="user in globalSearchedGroups">
-     <user-card :user="user"></user-card>
-    </div>
+      <ion-list>
+        <ion-list-header  v-if="globalGroups.length > 0">
+            <h4>
+              Hledám lidi
+            </h4>
+        </ion-list-header>
+        <own-group-row v-for="group in globalGroups" :group="group"></own-group-row>
+        <ion-list-header v-if="globalSearchedGroups.length > 0">
+          <h4>
+            Hledám skupiny
+          </h4>
+        </ion-list-header>
+        <own-searched-group-row v-for="user in globalSearchedGroups" :user="user"></own-searched-group-row>
+      </ion-list>
     </div>
 
     </ion-content>
@@ -40,11 +46,12 @@ import savingToFirestore from '@/composables/savingToFirestore'
 import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
 import type { Group } from '@/model/group/Group';
 import type { User } from '@/model/group/User'
-import GroupCard from '@/components/GroupCard.vue'
-import UserCard from '@/components/UserCard.vue'
 import {auth} from "@/firebase-service";
 import {globalProfile} from "@/composables/store/profileStore";
 import {globalGroups, globalSearchedGroups, useGroupStore} from "@/composables/store/useGroupStore";
+import {globalGroupChats} from "@/composables/store/useGroupChatStore";
+import OwnGroupRow from "@/components/search/OwnGroupRow.vue";
+import OwnSearchedGroupRow from "@/components/search/OwnSearchedGroupRow.vue";
 
 const router = useRouter()
 const groupsStore = useGroupStore()
@@ -54,6 +61,9 @@ const loading = ref(false)
 
 
 onIonViewDidEnter(async()=>{
+  console.log("group chats: ",globalGroupChats)
+  console.log("own groups: ", globalGroups)
+  console.log("own searched groups: ", globalSearchedGroups)
   loading.value = true
   await fetchOwnGroups()
   await fetchOwnUsers()
