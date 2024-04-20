@@ -14,7 +14,18 @@
         <ion-title>Hledání skupin</ion-title>
       </ion-toolbar>
     </ion-header>
-        <ion-content :fullscreen="true">
+        <ion-content :fullscreen="true " :class="colors.contentColor">
+
+          <ion-grid v-if="placeholderAfterDecision.isShown" style="height: 100%; width: 100%; align-items: center; align-content: center; z-index: 1000; position: absolute; ">
+            <ion-row style="flex-direction: column;align-content: center;align-items: center">
+              <ion-row>
+                <ion-col>
+                  <ion-icon style="transition-duration: 700ms; transition-property: scale; transition-timing-function: cubic-bezier(0, 0, 0, 1)" :style="placeholderLikeStyle" :icon="placeholderAfterDecision.like ? heart : heartDislike" ></ion-icon>
+                </ion-col>
+              </ion-row>
+            </ion-row>
+          </ion-grid>
+
           <ion-popover trigger="popover-edit-searched-group" size="auto" :dismiss-on-select="true">
             <ion-content>
               <ion-list lines="none">
@@ -36,24 +47,37 @@
             </ion-content>
           </ion-popover>
 
+          <ion-loading :is-open="loading" spinner="lines-small"></ion-loading>
+          <done v-if="isFilled" :user-matching="false"/>
+          <no-available :color="globalSelectedSearchedGroup.color" v-if="isEmpty" :no-groups-available="true"></no-available>
         <matching-card-group
-            @like="makeDecision(true, currentGroup)"
-            @dislike="makeDecision(false, currentGroup)"
             v-if="currentGroup!=undefined && currentMembers.length>0"
             :group="currentGroup"
-            :profiles="currentMembers">
-        </matching-card-group>
+            :profiles="currentMembers"
+            :color="globalSelectedSearchedGroup.color"/>
 
 
-          <ion-loading :is-open="loading" spinner="lines-small"></ion-loading>
-          <no-available v-if="isEmpty" :no-groups-available="true"></no-available>
+
 
         </ion-content>
+      <ion-footer class="ion-no-border" v-if="currentGroup != undefined">
+        <ion-toolbar :class="colors.toolbarBackground">
+          <ion-row>
+            <ion-col>
+              <ion-row  class="ion-justify-content-around">
+                <ion-img @click="makeDecision(false, currentGroup)"  @mousedown="down(false)" :style="buttonStyleLike" :src="colors.dislikeButton" ></ion-img>
+                <ion-img @click="makeDecision(true, currentGroup)" @mousedown="down(true)" :style="buttonStyleDislike" :src="colors.likeButton" ></ion-img>
+              </ion-row>
+            </ion-col>
+          </ion-row>
+        </ion-toolbar>
+      </ion-footer>
     </ion-page>
     </template>
     
     <script setup lang="ts">
     import {
+      IonModal,
       IonPage,
       IonContent,
       IonTitle,
@@ -71,15 +95,23 @@
       IonList,
       IonItem,
       IonPopover,
-      IonAlert, IonLoading
+      IonAlert, IonLoading, IonImg, IonFooter
     } from '@ionic/vue';
     import { useRouter } from 'vue-router';
     import { useRoute } from 'vue-router';
     import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
     import type { Group } from '@/model/group/Group';
-    import { ref, reactive } from 'vue';
-import { SportCases, useCase, workCases } from '@/model/group/createGroupEnums';
-    import {closeOutline, ellipsisHorizontal, ellipsisVertical, logOutOutline, pencilOutline, trashOutline} from 'ionicons/icons';
+    import {ref, reactive, computed} from 'vue';
+    import {colorsCases, SportCases, useCase, workCases} from '@/model/group/createGroupEnums';
+    import {
+      closeOutline,
+      ellipsisHorizontal,
+      ellipsisVertical,
+      heart, heartDislike,
+      logOutOutline,
+      pencilOutline,
+      trashOutline
+    } from 'ionicons/icons';
 import {returnCategory} from '@/composables/categoryConvertor'
 import { GroupsFilter } from '@/model/group/GroupsFilter';
 import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
@@ -92,13 +124,14 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import {NotificationMessage, notificationText} from "@/model/notification/NotificationMessage";
     import {auth} from "@/firebase-service";
     import {globalProfile} from "@/composables/store/profileStore";
-    import {globalSelectedSearchedGroup, useGroupStore} from "@/composables/store/useGroupStore";
+    import {globalSelectedGroup, globalSelectedSearchedGroup, useGroupStore} from "@/composables/store/useGroupStore";
     import {routesNames} from "@/router/routesNames";
     import deletingInFirestore from "@/composables/deletingInForestore";
     import {User} from "@/model/group/User";
     import {useGroupChatStore} from "@/composables/store/useGroupChatStore";
     import {GroupChat} from "@/model/chat/Chat";
     import NoAvailable from "@/components/placeholders/NoAvailable.vue";
+    import Done from "@/components/placeholders/Done.vue";
     
     const router = useRouter()
     const route = useRoute()
@@ -116,12 +149,25 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     const currentMembers = ref<Array<Profile>>([])
 
     const isEmpty = ref(false) // for placeholder
+    const isFilled = ref(false)
 
     const loading = ref(false)
+    const footer = reactive({isVisible: false})
+    const isProfileDetailOpen = ref<boolean>(false)
+
+    const placeholderAfterDecision = reactive({
+      isShown: false,
+      like: false
+    })
 
     onIonViewDidEnter(async()=>{
-      getGroupsFilter()
-      await fetchOthersGroups()
+      if(globalSelectedSearchedGroup.groupId != ""){
+        isFilled.value = true
+      } else {
+        isFilled.value = false
+        getGroupsFilter()
+        await fetchOthersGroups()
+      }
     })
 
     async function fetchOthersGroups() {
@@ -135,7 +181,6 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
             await fetchMembers(currentGroup.value?.membersIDs)
             loading.value = false
           } else {
-            console.log("I am here, loading false, is empty true")
             loading.value = false
             isEmpty.value = true
           }
@@ -144,6 +189,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
     async function fetchMembers(membersIDs: string[]){
         const profilesFromFirebase = await (fetchingFromFirestore().fetchMembersProfiles(membersIDs))
+        currentMembers.value = []
         currentMembers.value.push(...profilesFromFirebase)
     }
 
@@ -152,7 +198,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     function getGroupsFilter() {
         groupsFilter.value = {
           category: returnCategory(globalSelectedSearchedGroup.useCase,globalSelectedSearchedGroup.workCase,globalSelectedSearchedGroup.sportCase),
-          name: globalSelectedSearchedGroup.name,
+          name: globalSelectedSearchedGroup.groupName,
           useCase: globalSelectedSearchedGroup.useCase,
           userId: globalSelectedSearchedGroup.userId,
           userOrGroupID_card: globalSelectedSearchedGroup.id
@@ -160,7 +206,8 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     }
 
     async function makeDecision(like:boolean, group: Group){
-      console.log(like)
+      //animation
+      animateLikePlaceholder(like)
       // Save decision
       await saveDecisionToDB(like, group.id)
       // Make notification and send
@@ -180,7 +227,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
         await addGroupsSeenBy(currentGroup.value.id)
       }
       // change current group to next one and remove
-      nextGroup()
+      await nextGroup()
 
     }
 
@@ -191,12 +238,16 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
       await savingToFirestore().createDecision(decision)
     }
 
-    function nextGroup(){
+    async function nextGroup(){
      // groups.value.shift()  //remove first element
       groups.value = groups.value.slice(1)
       currentGroup.value = groups.value[0]
       if(currentGroup.value != undefined){
-        fetchMembers(currentGroup.value?.membersIDs)
+        await fetchMembers(currentGroup.value?.membersIDs)
+        refreshLikePlaceholder()
+      } else {
+        refreshLikePlaceholder()
+        isEmpty.value = true
       }
     }
 
@@ -289,8 +340,130 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
       },
     ];
 
+
+    // CSS CLASS
+    const colors = computed(()=>{
+      switch (globalSelectedSearchedGroup.color) {
+        case colorsCases.Blue:
+          return {
+            contentColor: 'ion-content-blue',
+            likeButton: 'matching/like-blue.svg',
+            dislikeButton: 'matching/dislike-blue.svg',
+            toolbarBackground: 'toolbar-background-blue'
+          }
+        case colorsCases.Green:
+          return {
+            contentColor:'ion-content-green',
+            likeButton: 'matching/like-green.svg',
+            dislikeButton: 'matching/dislike-green.svg',
+            toolbarBackground: 'toolbar-background-green'
+          }
+        case colorsCases.Red:
+          return{
+            contentColor: 'ion-content-red',
+            likeButton: 'matching/like-red.svg',
+            dislikeButton: 'matching/dislike-red.svg',
+            toolbarBackground: 'toolbar-background-red'
+          }
+        case colorsCases.Orange:
+          return {
+            contentColor: 'ion-content-orange',
+            likeButton: 'matching/like-orange.svg',
+            dislikeButton: 'matching/dislike-orange.svg',
+            toolbarBackground: 'toolbar-background-orange'
+          }
+        default : {
+          return {
+            contentColor: 'ion-content-blue',
+            likeButton: 'matching/like-blue.svg',
+            dislikeButton: 'matching/dislike-blue.svg',
+            toolbarBackground: 'toolbar-background-blue'
+          }
+        }
+      }
+    })
+
+    // CSS
+    // clicking on button
+    const buttonStyleLike = ref<Partial<CSSStyleDeclaration>>({
+      width: '20vw',
+      scale: '1'
+    })
+
+    const buttonStyleDislike = ref<Partial<CSSStyleDeclaration>>({
+      width: '20vw',
+      scale: '1'
+    })
+
+    const down = (like:boolean)=>{
+      if(like){
+        buttonStyleLike.value.scale = '0.9'
+        setTimeout(()=>{
+          buttonStyleLike.value.scale = '1'
+        },70)
+      } else {
+        buttonStyleDislike.value.scale = '0.9'
+        setTimeout(()=>{
+          buttonStyleDislike.value.scale = '1'
+        },70)
+      }
+    }
+
+    // like / dislike
+    const placeholderLikeStyle = ref<Partial<CSSStyleDeclaration>>({
+      fontSize: '1em',
+      scale: '1'
+    })
+
+    // animation
+    function animateLikePlaceholder(like: boolean){
+      placeholderAfterDecision.like = like
+      placeholderAfterDecision.isShown = true
+      setTimeout(()=>{
+        placeholderLikeStyle.value.scale = '20'
+      },0)
+    }
+
+    function refreshLikePlaceholder(){
+      placeholderAfterDecision.isShown = false
+      placeholderLikeStyle.value.fontSize='1em'
+      placeholderLikeStyle.value.scale='1'
+    }
     </script>
     
     <style scoped>
+    .ion-content-green {
+      --ion-background-color:var(--ion-color-green);
+      --color: white
+    }
+
+    .ion-content-blue {
+      --ion-background-color:var(--ion-color-blue);
+      --color: white
+    }
+    .ion-content-red {
+      --ion-background-color:var(--ion-color-darkRed);
+      --color: white
+    }
+    .ion-content-orange {
+      --ion-background-color:var(--ion-color-orange);
+      --color: white
+    }
+
+    .toolbar-background-green {
+      --background: var(--ion-color-green)
+    }
+
+    .toolbar-background-red {
+      --background: var(--ion-color-darkRed)
+    }
+
+
+    .toolbar-background-blue {
+      --background: var(--ion-color-blue)
+    }
+    .toolbar-background-orange {
+      --background: var(--ion-color-orange)
+    }
 
     </style>

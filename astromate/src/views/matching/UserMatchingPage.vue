@@ -16,7 +16,20 @@
         <ion-title>Hledání uživatelů</ion-title>
       </ion-toolbar>
     </ion-header>
+
         <ion-content :fullscreen="true" :class="contentColor">
+
+          <ion-grid v-if="placeholderAfterDecision.isShown" style="height: 100%; width: 100%; align-items: center; align-content: center; z-index: 1000; position: absolute; ">
+            <ion-row style="flex-direction: column;align-content: center;align-items: center">
+              <ion-row>
+                <ion-col>
+                  <ion-icon style="transition-duration: 700ms; transition-property: scale; transition-timing-function: cubic-bezier(0, 0, 0, 1)" :style="placeholderLikeStyle" :icon="placeholderAfterDecision.like ? heart : heartDislike" ></ion-icon>
+                </ion-col>
+              </ion-row>
+            </ion-row>
+          </ion-grid>
+
+
           <ion-popover trigger="popover-edit-group" size="auto" :dismiss-on-select="true">
             <ion-content>
               <ion-list lines="none">
@@ -39,6 +52,7 @@
           </ion-popover>
 
           <ion-loading :is-open="loading" spinner="lines-small"></ion-loading>
+          <done v-if="isFilled" :user-matching="true"/>
           <no-available v-if="isEmpty" :color="globalSelectedGroup.color" :no-groups-available="false"></no-available>
           <matching-card-user
               v-if="currentUser != undefined && currentProfile != undefined && currentProfilePhotoUrl!=undefined"
@@ -72,7 +86,7 @@
       onIonViewDidEnter, onIonViewDidLeave, onIonViewWillEnter
     } from '@ionic/vue';
     import {useRoute, useRouter} from 'vue-router';
-    import {computed, ref} from 'vue';
+    import {computed, reactive, ref} from 'vue';
     import type {User} from '@/model/group/User';
     import {GroupsFilter} from '@/model/group/GroupsFilter';
     import fetchingFromFirestore from '@/composables/fetchingFromFirestore'
@@ -86,7 +100,14 @@
     import {NotificationMessage, notificationText} from "@/model/notification/NotificationMessage";
     import {auth} from "@/firebase-service";
     import {globalProfile} from "@/composables/store/profileStore";
-    import {ellipsisHorizontal, ellipsisVertical, pencilOutline, trashOutline} from "ionicons/icons";
+    import {
+      ellipsisHorizontal,
+      ellipsisVertical,
+      heart,
+      heartDislike,
+      pencilOutline,
+      trashOutline
+    } from "ionicons/icons";
     import deletingInFirestore from "@/composables/deletingInForestore";
     import {routesNames} from "@/router/routesNames";
     import {
@@ -98,6 +119,7 @@
     import NoAvailable from "@/components/placeholders/NoAvailable.vue";
     import {colorsCases} from "@/model/group/createGroupEnums";
     import useStorage from "@/composables/firebaseStorage/useStorage";
+    import Done from "@/components/placeholders/Done.vue";
 
     const router = useRouter()
     const route = useRoute()
@@ -109,7 +131,7 @@
     const isEmpty = ref(false) // for placeholder
 
     const loading = ref(false)
-
+    const isFilled = ref(false)
     const groupsFilter = ref<GroupsFilter>()
 
     const users =  ref<Array<User>>([])
@@ -118,11 +140,26 @@
     const currentProfile = ref<Profile>()
     const currentProfilePhotoUrl = ref<string>("")
 
+
+    const placeholderAfterDecision = reactive({
+      isShown: false,
+      like: false
+    })
+
+    const placeholderLikeStyle = ref<Partial<CSSStyleDeclaration>>({
+      fontSize: '1em',
+      scale: '1'
+    })
+
     onIonViewWillEnter(async ()=>{
-      console.log("global selected group: ", globalSelectedGroup)
+    if(globalSelectedGroup.currentMembers == globalSelectedGroup.maxMembers){
+      isFilled.value = true
+    } else {
+      isFilled.value = false
       getGroupsFilter()
-      console.log(groupsFilter.value?.userOrGroupID_card)
       await fetchOthersUsers()
+    }
+
     })
 
     onIonViewDidLeave(()=>{
@@ -136,8 +173,8 @@
           useCase: globalSelectedGroup.useCase,
           userId: globalSelectedGroup.userId, userOrGroupID_card: globalSelectedGroup.id
         }
-        console.log("user matching page, filter:  ", JSON.stringify(groupsFilter._value,null,2) )
-      console.log("user matching page, global group:  ", JSON.stringify(globalSelectedGroup._value,null,2) )
+
+
     }
     async function fetchOthersUsers() {
       if (groupsFilter.value != undefined){
@@ -148,7 +185,6 @@
         if(users.value.length > 0){
           currentUser.value = users.value[0]
           await fetchProfile(currentUser.value?.userId)
-
           loading.value = false
         } else {
           loading.value = false
@@ -170,6 +206,8 @@
     }
 
     async function makeDecision(like:boolean, user:User) {
+      //animation
+      animateLikePlaceholder(like)
       // Save decision
       await saveDecisionToDB(like, user.id)
       // Make notification and send
@@ -209,8 +247,14 @@
       currentUser.value =  users.value[0]
       if(currentUser.value != undefined){
         await fetchProfile(currentUser.value.userId)
+        refreshLikePlaceholder()
+      } else {
+        refreshLikePlaceholder()
+        isEmpty.value = true
       }
+
     }
+
 
     async function makeNotification(sender:string, receiver:string,groupName: string, senderName: string,
                                     groupDocumentID:string, userDocumentID: string){
@@ -226,7 +270,6 @@
 
     async function deleteOwnGroup(groupId: string){
       loading.value = true
-      console.log("deleting group with id ", groupId)
         // DELETE GROUP
         // DELETE GROUP CHAT ?? -> DELETE MESSAGES AND GROUP CHAT
       await deleteFirestore.deleteGroup(groupId)
@@ -246,7 +289,6 @@
 
     function navigateToEditPage(){
         groupStore.setEditingGroup(globalSelectedGroup)
-        console.log("userMatchingPage setting editingGroup: ", JSON.stringify(globalGroupEditing,null, 2))
         router.push({name:routesNames.SearchPeopleEdit})
     }
 
@@ -273,6 +315,20 @@
       },
     ];
 
+    // ANIMATION
+    function animateLikePlaceholder(like: boolean){
+      placeholderAfterDecision.like = like
+      placeholderAfterDecision.isShown = true
+      setTimeout(()=>{
+        placeholderLikeStyle.value.scale = '20'
+      },0)
+    }
+
+    function refreshLikePlaceholder(){
+      placeholderAfterDecision.isShown = false
+      placeholderLikeStyle.value.fontSize='1em'
+      placeholderLikeStyle.value.scale='1'
+    }
     // CSS CLASS
     const contentColor = computed(()=>{
       switch (globalSelectedGroup.color) {
@@ -307,6 +363,28 @@
       --color: white
     }
 
+    .center {
+      display: flex;
+      justify-content: center; /* Horizontal centering */
+      align-items: center; /* Vertical centering */
+      flex-direction: column; /* Align items in a column */
+      text-align: center; /* Center text horizontally */
+    }
 
+    .container {
+      position: relative;
+      text-align: center;
+    }
+
+    .centered {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
     
     </style>
