@@ -15,19 +15,12 @@
 
       <div class="ion-padding-horizontal">
         <ion-input style="margin-top: 8px" ref="input" type="email" fill="outline" label="Email" label-placement="floating"
-                   error-text="Špatný email" v-model="loginInfo.email"
-                   class="padding-half-top">
-          <!--            <ion-icon slot="start" :icon="mailOutline" aria-hidden="true"></ion-icon>-->
-          <div v-if="isEmptyProm" slot="label">
-            <ion-text color="danger">Povinné</ion-text>
-          </div>
+                   error-text="Špatný email" :helper-text="isInputEmpty.email ? 'povinné': '' " v-model="loginInfo.email"
+                   class="padding-half-top custom">
         </ion-input>
 
-        <ion-input class="ion-margin-top" fill="outline" label="Password" label-placement="floating" type="password"
-                   error-text="Špatné heslo" value="password" v-model="loginInfo.password">
-          <div v-if="isEmptyProm" slot="label">
-            <ion-text color="danger">Povinné</ion-text>
-          </div>
+        <ion-input class="ion-margin-top custom" fill="outline" label="Password" label-placement="floating" type="password"
+                   error-text="Špatné heslo" value="password" v-model="loginInfo.password" :helper-text="isInputEmpty.password ? 'povinné' : ''">
         </ion-input>
           <div class="ion-padding-vertical">
             <ion-button  expand="block" shape="round"  @click="LogIn(loginInfo)">Přihlásit se</ion-button>
@@ -41,7 +34,6 @@
       </div>
 
       <div class="ion-padding">
-        <ion-text color="danger"  v-if="emailFormat.length > 0"> {{ emailFormat }}</ion-text>
         <ion-text color="danger"  v-if="authResponse.errorMessage.length > 0"> {{ authResponse.errorMessage }}</ion-text>
       </div>
 
@@ -60,6 +52,7 @@
 
 import {colorsCases} from "@/model/group/createGroupEnums";
 import {
+  IonImg,
   IonContent,
   IonHeader,
   IonGrid,
@@ -73,7 +66,7 @@ import {
   IonToolbar,
   IonInput,
   IonText,
-  IonLoading, onIonViewWillLeave, onIonViewWillEnter, IonIcon,
+  IonLoading, onIonViewWillLeave, onIonViewWillEnter, IonIcon, onIonViewDidLeave,
 } from "@ionic/vue";
 import {reactive, ref, UnwrapNestedRefs, watchSyncEffect} from "vue";
 import {Login} from "@/model/auth/Login";
@@ -96,15 +89,17 @@ const fetchFromFirebase = fetchingFirebase()
 const groupStore = useGroupStore()
 const groupChatStore = useGroupChatStore()
 
-const input = ref(null)
-const isEmptyProm = ref(false)
-const emailFormat = ref("")
+
+const isInputEmpty = reactive({
+  email: false,
+  password: false
+})
+
 const loading = ref<boolean>(false)
 
 const loginInfo: Login = reactive({
   email: "",
-  password: "",
-  errorMessage: ""
+  password: ""
 })
 
 const authResponse = ref<AuthResponse>({errorMessage: "", user: null})
@@ -112,9 +107,7 @@ const authResponse = ref<AuthResponse>({errorMessage: "", user: null})
 async function LogIn(loginInfo: Login) {
   isEmpty(loginInfo)
   console.log(loginInfo.password)
-  if (!emailValidation(loginInfo.email)) {
-    emailFormat.value = "E-mail je ve špatném formátu."
-  } else {
+  if(!isInputEmpty.email && !isInputEmpty.password){
     loading.value = true
     authResponse.value = await (authentication().signIn(loginInfo.email, loginInfo.password))
     if (authResponse.value.user != null) {
@@ -139,17 +132,9 @@ async function LoginHardcore() {
   }
 }
 
-function emailValidation(email: string): boolean {
-  if (email.length > 0) {
-    return email.match(
-        /^(?=.{1,254}$)(?=.{1,64}@)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/)
-  } else {
-    return true
-  }
-}
-
 function isEmpty(loginInfo: Login) {
-  isEmptyProm.value = loginInfo.email.length < 1 || loginInfo.password.length < 1;
+  isInputEmpty.email = loginInfo.email.length < 1
+  isInputEmpty.password = loginInfo.password.length < 1
 }
 
 async function navigate(profileID: string) {
@@ -160,9 +145,11 @@ async function navigate(profileID: string) {
   }
 }
 
-onIonViewWillLeave(() => {
+onIonViewDidLeave(() => {
   loginInfo.password = ""
   loginInfo.email = ""
+  isInputEmpty.password = false
+  isInputEmpty.email = false
 })
 
 onIonViewWillEnter(() => {
@@ -201,6 +188,7 @@ async function saveToStores(profileId: string) {
   flex-direction: column; /* Align items in a column */
   text-align: center; /* Center text horizontally */
 }
+
 
 
 </style>

@@ -9,12 +9,19 @@
     <ion-content :fullscreen="true" class="ion-padding-vertical">
 
       <div class="ion-padding-horizontal">
-        <ion-input :counter="true" maxlength="20"  fill="outline" label="Přezdívka" label-placement="floating"
+        <ion-input class="custom" :counter="true" maxlength="20"  fill="outline"
+                   :helper-text="validationValues.isUsernameEmpty ? 'povinné': validationValues.notUniqueUsername ? 'tato přezdívka je již obsazena' : '' "
+                   label="Přezdívka" label-placement="floating"
                    error-text="Špatná přezdívka" v-model="profile.name"></ion-input>
       </div>
 
     <div class="ion-padding-horizontal ion-margin-top">
-      <ion-textarea :counter="true" maxlength="200" label="Popis" label-placement="floating" v-model="profile.description" fill="outline" rows="3"></ion-textarea>
+      <ion-textarea class="custom" :counter="true" maxlength="200"
+                    :helper-text="validationValues.isDescriptionEmpty ? 'povinné': '' "
+                    label="Popis" label-placement="floating" v-model="profile.description"
+                    fill="outline" rows="3">
+
+      </ion-textarea>
     </div>
 
       <div class="ion-padding-start">
@@ -23,7 +30,7 @@
 
       <div  class="center ion-padding-horizontal">
         <ion-datetime presentation="date"
-                      :max="now"
+                      :max="max"
                       :min="min"
                       name="Datum narození"
                       v-model="profile.date"
@@ -35,9 +42,16 @@
       </div>
       <ion-img style="height: 80vw;background-size: cover;background-position: center" v-if="photo != undefined" :src="photo.webviewPath"></ion-img>
       <div class="center"  v-else>
-<!--        <div style=" border: #fa7676 solid; border-radius: 12px">-->
-          <ion-icon style="height: 80vw; font-size: 80vw; color: #5b5b5b;" :icon="cameraOutline"></ion-icon>
-<!--        </div>-->
+        <ion-thumbnail>
+          <ion-icon class="icon-style" :icon="cameraOutline"></ion-icon>
+        </ion-thumbnail>
+        <div v-if="validationValues.isPhotoEmpty"><p style="color: var(--ion-color-danger)">fotka je povinná</p> </div>
+      </div>
+
+      <div class="ion-padding-start">
+        <p> Poloha</p>
+        <small>Poloha souží k výpočtu vzdálenosti mezi Vámi a hledanými uživateli.
+        Jako defaultní poloha slouží souřadnice Prahy.</small>
       </div>
 
       <div class="center">
@@ -54,6 +68,10 @@
         </ion-button>
       </div>
 
+      <div class="center">
+        <ion-text v-if="validationValues.showErrorMessage" color="danger">Špatně vyplněný profil</ion-text>
+      </div>
+
       <div class="ion-padding">
         <ion-button expand="block" shape="round" @click ='createProfile()'> Uložit </ion-button>
       </div>
@@ -65,6 +83,7 @@
 
 <script setup lang="ts">
 import {
+  IonThumbnail,
   IonPage, IonContent, IonTitle, IonHeader, IonToolbar, IonInput,
   IonItem, IonLabel, IonList, IonTextarea, IonDatetime, IonButton,
   IonLoading, IonAlert, IonText, onIonViewDidEnter, IonImg, onIonViewWillEnter, IonIcon, IonCol
@@ -80,11 +99,13 @@ import {globalProfile, useProfileStore} from "@/composables/store/profileStore";
 import {savePicture, usePhotoGallery} from "@/composables/photos/usePhotoGallery";
 import {person, cameraOutline, locationOutline, checkmarkOutline} from "ionicons/icons";
 import {useGeolocation} from "@/composables/geolocation/useGeolocation";
+import fetchingFirebase from "@/composables/fetchingFromFirestore";
 
 const router = useRouter()
 const profileStore = useProfileStore()
 const { takePhoto, photo } = usePhotoGallery();
 const {getCurrentPosition, checkPermissions, location} = useGeolocation()
+const fetchFromFirebase = fetchingFirebase()
 
 const buttonName = ref<string>("zjisti polohu")
 
@@ -96,20 +117,31 @@ const profile: Profile = reactive({
     date: "",
     place: {latitude:50.073658, longitude:14.418540 }
 })
+
+const validationValues = reactive({
+  isUsernameEmpty: false,
+  isDescriptionEmpty: false,
+  isPhotoEmpty: false,
+  notUniqueUsername: false,
+  showErrorMessage: false
+})
+
+
 const now = computed(()=>{
-  const now = new Date(Date.now())
-  return now.toISOString()
+  return new Date(Date.now())
 })
 
 const min = computed(()=>{
-  const now = new Date(Date.now())
-  return new Date(now.getFullYear() - 120,now.getMonth(),now.getDate()).toISOString()
+  return new Date(now.value.getFullYear() - 120,now.value.getMonth(),now.value.getDate()).toISOString()
+})
+
+const max = computed(()=>{
+  return new Date(now.value.getFullYear() - 15,now.value.getMonth(),now.value.getDate()).toISOString()
 })
 
 onIonViewWillEnter(()=>{
-  // TODO: check if date is not in the future
-  profile.date = now.value
-  console.log(profile.place)
+  profile.date = max.value
+  console.log(profile)
 })
 
 async function getLocation(){
@@ -135,40 +167,62 @@ async function getLocation(){
 const loading = ref(false)
 
 async function createProfile() {
-  loading.value = true
-  if(globalProfile.id != ""){
-    profile.id = globalProfile.id
-    const answer = await (savingToFirestore().createProfile(profile))
-    if(answer){
-      if (photo.value != undefined){
-        await savePicture(photo.value)
+  const validation = await validate(profile.name)
+  if(validation){
+    loading.value = true
+    if(globalProfile.id != ""){
+      profile.id = globalProfile.id
+      const answer = await (savingToFirestore().createProfile(profile))
+      if(answer){
+        if (photo.value != undefined){
+          await savePicture(photo.value)
+        }
+        navigate()
       }
-      navigate()
     }
+    clearProfile()
+    loading.value = false
+  } else {
+    validationValues.showErrorMessage = true
   }
-  clearProfile()
-  loading.value = false
+
 }
 
+async function validate(username: string ): Promise<boolean>{
+  validationValues.isUsernameEmpty = profile.name.length < 1
+  validationValues.isDescriptionEmpty = profile.description.length < 1
+  validationValues.isPhotoEmpty = photo.value == undefined
+  if(!validationValues.isPhotoEmpty && !validationValues.isDescriptionEmpty && !validationValues.isUsernameEmpty){
+    const profile = await fetchFromFirebase.isUsernameExist(username)
+    if(profile){
+      validationValues.notUniqueUsername = true
+      return false
+    } else {
+      return true
+    }
+  } else {
+    return false
+  }
+}
 
 function clearProfile() {
   profile.name = ""
   profile.description = ""
   profile.place ={latitude:50.073658, longitude:14.418540 }
+  profile.date = max.value
   photo.value = undefined
+
+  validationValues.showErrorMessage = false
+  validationValues.isUsernameEmpty = false
+  validationValues.isDescriptionEmpty = false
+  validationValues.isPhotoEmpty = false
+  validationValues.notUniqueUsername = false
 }
 
 function navigate(){
   console.log("navigating to groups")
   router.push({name: routesNames.Groups, force: true})
 }
-
-
-
-// use watch() to check input length
-
-
-
 
 </script>
 
@@ -180,5 +234,16 @@ function navigate(){
   flex-direction: column; /* Align items in a column */
   text-align: center; /* Center text horizontally */
 }
+
+ion-thumbnail {
+  --size: 140px;
+}
+
+.icon-style {
+  width: 100%;
+  height: 100%;
+  color: #363636
+}
+
 
 </style>
