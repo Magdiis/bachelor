@@ -7,18 +7,18 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-  <!--    <ion-item v-for="n in notifications"> -->
-        <notification-row v-for="n in notifications" :notification="n"></notification-row>
-  <!--    </ion-item> -->
+      <ion-list v-if="filteredNotifications.length > 0">
+        <notification-row v-for="n in filteredNotifications" :notification="n"></notification-row>
+      </ion-list>
         </ion-content>
         </ion-page>
 
 </template>
 <script setup lang="ts" >
-import { IonPage, IonContent, IonTitle, 
+import { IonPage, IonContent, IonTitle,IonList,
 IonHeader, IonToolbar, IonItem, IonRow, IonCol, IonGrid,onIonViewWillEnter} from '@ionic/vue';
 
-import {ref} from "vue";
+import {computed, ref} from "vue";
 
 import {NotificationMessage} from "@/model/notification/NotificationMessage";
 import {onSnapshot, orderBy, query, Query, where} from "firebase/firestore";
@@ -29,12 +29,11 @@ import {globalProfile} from "@/composables/store/profileStore";
 
 const notifications = ref<Array<NotificationMessage>>([])
 
-// function processNotifications(snapshot: QuerySnapshot<DocumentData>){
-//
-// }
+const filteredNotifications = computed(()=>notifications.value.filter(n => !n.toBeDeleted))
+
 
 onIonViewWillEnter(()=>{
-    const q : Query = query(notification_collection,where("receiver","==", globalProfile.id))
+    const q : Query = query(notification_collection,where("receiver","==", globalProfile.id),where("read","==",false))
     onSnapshot(q, (querySnapshot)=>{
           // processNotifications(querySnapshot)
           notifications.value = []
@@ -49,7 +48,8 @@ onIonViewWillEnter(()=>{
               sender: doc.data().sender,
               receiver: doc.data().receiver,
               groupDocumentID: doc.data().groupDocumentID,
-              userDocumentID: doc.data().userDocumentID
+              userDocumentID: doc.data().userDocumentID,
+              toBeDeleted: false
             })
           })
         }, (error) => {

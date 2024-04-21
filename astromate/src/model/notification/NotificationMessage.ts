@@ -10,7 +10,8 @@ export interface NotificationMessage{
     senderName: string,
     groupName: string,
     groupDocumentID: string,
-    userDocumentID: string
+    userDocumentID: string,
+    toBeDeleted: boolean
 }
 
 export enum notificationNames {
