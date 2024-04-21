@@ -12,12 +12,12 @@ export const globalSelectedGroup = reactive<Group>({
 })
 
 export const globalSelectedSearchedGroup = reactive<User>({
-    color: "", groupId: "", id: "", name: "", sportCase: "", useCase: "", userId: "", workCase: ""
+    color: "", groupId: "", id: "", groupName: "", sportCase: "", useCase: "", userId: "", workCase: ""
 })
 
 // EDITED
 export const globalSearchedGroupEditing = reactive<User>({
-    color: "", groupId: "", id: "", name: "", sportCase: "", useCase: "", userId: "", workCase: ""
+    color: "", groupId: "", id: "", groupName: "", sportCase: "", useCase: "", userId: "", workCase: ""
 })
 export const globalGroupEditing = reactive<Group>({
     color: "", currentMembers: 0, description: "", id: "", maxMembers: 0, membersIDs: [], name: "", sportCase: "", useCase: "", userId: "", workCase: ""
@@ -95,7 +95,7 @@ export const useGroupStore = () => {
 
     // editing
     const clearEditing = () =>{
-        const clearSearchedGroup: User = {color: "", groupId: "", id: "", name: "", sportCase: "", useCase: "", userId: "", workCase: ""}
+        const clearSearchedGroup: User = {color: "", groupId: "", id: "", groupName: "", sportCase: "", useCase: "", userId: "", workCase: ""}
         const clearGroup: Group = {color: "", currentMembers: 0, description: "", id: "", maxMembers: 0, membersIDs: [], name: "", sportCase: "", useCase: "", userId: "", workCase: ""}
         Object.assign(globalGroupEditing, clearGroup)
         Object.assign(globalSearchedGroupEditing, clearSearchedGroup)

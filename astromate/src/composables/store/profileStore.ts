@@ -3,7 +3,8 @@ import {Profile} from "@/model/profile/Profile";
 
 
 export const globalProfile = reactive<Profile>({
-    date: "", description: "", id: "", name: "", place: ""
+    place: {latitude:0, longitude:0},
+    date: "", description: "", id: "", name: ""
 })
 
 export const globalProfilePhotoURl = ref("")
@@ -22,7 +23,7 @@ export const useProfileStore = () => {
     const clearProfile = () => {
         globalProfile.id = ""
         globalProfile.name = ""
-        globalProfile.place = ""
+        globalProfile.place = {latitude:0, longitude:0}
         globalProfile.date = ""
         globalProfile.description = ""
     }

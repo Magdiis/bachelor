@@ -6,7 +6,7 @@ export interface UsersResponse {
 interface UserResponse{
     id:string,
     userId: string,
-    name:string,
+    groupName:string,
     useCase: string,
     category:string,
     color:string,

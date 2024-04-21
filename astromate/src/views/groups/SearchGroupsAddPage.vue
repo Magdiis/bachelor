@@ -11,7 +11,6 @@
 
     <ion-content :fullscreen="true"> 
 
-      <ion-input placeholder="Jméno" v-model="user.name"></ion-input>
       <ion-select interface="popover" label="Barva"  v-model="user.color">
             <ion-select-option v-for="color in colorsCasesValues">
                 {{ color }}
@@ -70,7 +69,7 @@ const router = useRouter()
 const user: User = reactive({
     id:"",
     userId: "",
-    name: "",
+  groupName: "",
     useCase: useCase.Work,
     workCase:workCases.Other,
     sportCase:SportCases.Other,
@@ -97,6 +96,7 @@ async function saveToDb() {
     loading.value = true
     clean()
     await savingToFirestore().createUser(user)
+    clearUser()
     loading.value = false
     navigateToGroupScreen()
 }
@@ -127,7 +127,7 @@ function clean(){
 
 function clearUser(){
   user.userId= ""
-  user.name = ""
+  user.groupName = ""
   user.useCase= useCase.Work
   user.workCase=workCases.Other
   user.sportCase=SportCases.Other

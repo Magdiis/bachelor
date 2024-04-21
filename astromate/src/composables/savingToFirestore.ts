@@ -79,7 +79,7 @@ export default function savingToFirestore() {
         try {
             const docRef = await addDoc(users_collection, {
                 userId: user.userId,
-                name: user.name,
+                groupName: user.groupName,
                 useCase: user.useCase,
                 category: returnCategory(user.useCase, user.workCase, user.sportCase),
                 color: user.color,

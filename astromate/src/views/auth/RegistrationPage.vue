@@ -13,7 +13,7 @@
 
 
       <div class="center ion-padding">
-        <ion-img style="height: 144px" src="/register-user-icon.svg"></ion-img>
+        <ion-img style="height: 144px" src="/auth/register-user-icon.svg"></ion-img>
       </div>
 
       <div class="ion-padding-horizontal">

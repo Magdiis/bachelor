@@ -23,7 +23,7 @@
     <div class="container">
       <ion-img style="width: 60vw" :src="colors.sphere"></ion-img>
       <div class="centered">
-        <ion-icon style="font-size: 45vw; color: var(--ion-color-green)" v-if="props.url == 'error'"  :icon="person"></ion-icon>
+        <h2 v-if="props.url == 'error'">Chyba</h2>
         <h2 v-if="url == ''">Načítání..</h2>
         <img v-else style="border-radius: 50%; height: 56vw; width: 56vw" :src="props.url"/>
       </div>
@@ -50,8 +50,8 @@
   <ion-row>
     <ion-col >
       <ion-row  class="ion-justify-content-around">
-        <ion-img @click="like()"  @mousedown="down(true)" :style="buttonStyleLike" :src="colors.like" ></ion-img>
-        <ion-img @click="dislike()" @mousedown="down(false)" :style="buttonStyleDislike" :src="colors.dislike" ></ion-img>
+        <ion-img @click="dislike()"  @mousedown="down(false)" :style="buttonStyleDislike" :src="colors.dislike" ></ion-img>
+        <ion-img @click="like()" @mousedown="down(true)" :style="buttonStyleLike" :src="colors.like" ></ion-img>
       </ion-row>
     </ion-col>
   </ion-row>

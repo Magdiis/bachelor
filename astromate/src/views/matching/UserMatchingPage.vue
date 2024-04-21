@@ -19,7 +19,7 @@
 
         <ion-content :fullscreen="true" :class="contentColor">
 
-          <ion-grid v-if="placeholderAfterDecision.isShown" style="height: 100%; width: 100%; align-items: center; align-content: center; z-index: 1000; position: absolute; ">
+          <ion-grid v-if="placeholderAfterDecision.isShown" style="height: 100%; width: 100%; align-items: center; align-content: center; z-index: 1000; position: fixed; ">
             <ion-row style="flex-direction: column;align-content: center;align-items: center">
               <ion-row>
                 <ion-col>
@@ -385,6 +385,34 @@
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+
+    .heart {
+      opacity: 0;
+      animation: bounceFade 1s ease-in-out forwards;
+    }
+
+    @keyframes bounceFade {
+      0% {
+        transform: scale(1);
+        opacity: 0;
+      }
+      40% {
+        transform: scale(3.2);
+        opacity: 1;
+      }
+      60% {
+        transform: scale(2.8);
+        opacity: 1;
+      }
+      80% {
+        transform: scale(3);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(6);
+        opacity: 0;
+      }
     }
     
     </style>

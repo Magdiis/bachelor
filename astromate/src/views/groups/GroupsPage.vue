@@ -3,7 +3,7 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Skupiny</ion-title>
-        <ion-buttons slot="secondary">
+        <ion-buttons slot="end">
             <ion-button  @click="router.push({name: routesNames.AddGroup})">
             <ion-icon slot="icon-only" :icon="add"></ion-icon>
             </ion-button>

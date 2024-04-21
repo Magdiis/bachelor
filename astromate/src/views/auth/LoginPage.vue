@@ -10,7 +10,7 @@
     <ion-content :fullscreen="true" >
 
       <div class="center ion-padding">
-        <ion-icon style="font-size:9em;" src="/lock-icon.svg"></ion-icon>
+        <ion-icon style="font-size:9em;" src="/auth/lock-icon.svg"></ion-icon>
       </div>
 
       <div class="ion-padding-horizontal">

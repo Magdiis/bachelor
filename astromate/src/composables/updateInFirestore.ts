@@ -6,6 +6,8 @@ import {GroupChat} from "@/model/chat/Chat";
 import {Group} from "@/model/group/Group";
 import {Profile} from "@/model/profile/Profile";
 import {returnCategory} from "@/composables/categoryConvertor";
+import {User} from "@/model/group/User";
+import {NotificationMessage} from "@/model/notification/NotificationMessage";
 
 
 
@@ -38,11 +40,12 @@ export default function updateInFirestore() {
         }
     }
 
-    async function setGroupId(usersDocumentId: string, groupId: string){
+    async function setGroupId(usersDocumentId: string, groupId: string, groupName: string){
         try {
             const userRef = doc(db,"users",usersDocumentId)
             await updateDoc(userRef,{
-                groupId: groupId
+                groupId: groupId,
+                groupName: groupName
             })
         } catch (e) {
             console.error("Error updating user document: ", e)
@@ -83,7 +86,8 @@ export default function updateInFirestore() {
                 const  searchedGroupId = querySnapshot.docs[0].id;
                 const searchedGroupRef = doc(db, "users", searchedGroupId)
                 await updateDoc(searchedGroupRef,{
-                    groupId: ""
+                    groupId: "",
+                    groupName: ""
                 })
             } else {
                 console.error("wrong group id ", groupId, " or user id", userId)
@@ -102,7 +106,8 @@ export default function updateInFirestore() {
                 for (const group of querySnapshot.docs) {
                         const searchedGroupRef = doc(db, "users", group.id)
                         await updateDoc(searchedGroupRef,{
-                            groupId: ""
+                            groupId: "",
+                            groupName: ""
                         })
                         console.log("seting group id = '' with id ", group.id)
                 }
@@ -182,5 +187,32 @@ export default function updateInFirestore() {
         }
     }
 
-    return {updateGroup,removeGroupFromSearchedGroup,updateProfile,removeUserFromGroup,setGroupIdEmptyInGroups,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
+    async function updateSearchedGroup(updatedSearchedGroup: User){
+        try {
+            const searchedGroupDoc = doc(db,"users", updatedSearchedGroup.id)
+            await updateDoc(searchedGroupDoc,{
+                category: returnCategory(updatedSearchedGroup.useCase, updatedSearchedGroup.workCase,updatedSearchedGroup
+                    .sportCase),
+                color: updatedSearchedGroup.color,
+                useCase: updatedSearchedGroup.useCase
+            })
+        } catch (e) {
+            console.error("Error updating searched group document: ", e)
+        }
+    }
+
+    // NOTIFICATIONS
+
+    async function readNotification(notificationMessage: NotificationMessage){
+        try {
+            const notificationDoc = doc(db,"notifications",notificationMessage.id)
+            await updateDoc(notificationDoc,{
+                read: true
+            })
+        } catch (e) {
+            console.error("Error updating notification document: ", e)
+        }
+    }
+
+    return {readNotification,updateSearchedGroup,updateGroup,removeGroupFromSearchedGroup,updateProfile,removeUserFromGroup,setGroupIdEmptyInGroups,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
 }

@@ -11,7 +11,6 @@
 
     <ion-content :fullscreen="true">
 
-      <ion-input label="Jméno" v-model="globalSearchedGroupEditing.name"></ion-input>
       <ion-select interface="popover" label="Barva"  v-model="globalSearchedGroupEditing.color">
         <ion-select-option v-for="color in colorsCasesValues">
           {{ color }}

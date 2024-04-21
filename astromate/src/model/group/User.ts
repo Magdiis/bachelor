@@ -1,7 +1,7 @@
 export interface User {
     id:string,
     userId: string,
-    name:string,
+    groupName:string,
     useCase: string,
     workCase:string,
     sportCase:string,

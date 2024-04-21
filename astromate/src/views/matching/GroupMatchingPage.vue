@@ -16,7 +16,7 @@
     </ion-header>
         <ion-content :fullscreen="true " :class="colors.contentColor">
 
-          <ion-grid v-if="placeholderAfterDecision.isShown" style="height: 100%; width: 100%; align-items: center; align-content: center; z-index: 1000; position: absolute; ">
+          <ion-grid v-if="placeholderAfterDecision.isShown" style="height: 100%; width: 100%; align-items: center; align-content: center; z-index: 1000; position: fixed; ">
             <ion-row style="flex-direction: column;align-content: center;align-items: center">
               <ion-row>
                 <ion-col>

@@ -92,13 +92,12 @@ const updateFirestore = updateInFirestore()
 const loading = ref(false)
 
 onIonViewWillEnter(()=>{
-  console.log("editing Page, group for edit: ",globalGroupEditing)
   setOtherValueToCategories()
 })
 
 const rangeNumbers: number[] = []
 
-for (let i = 2; i <= 30; i++) {
+for (let i = globalGroupEditing.currentMembers; i <= 30; i++) {
   rangeNumbers.push(i)
 }
 
@@ -106,7 +105,6 @@ async function update(){
   loading.value = true
   await updateFirestore.updateGroup(globalGroupEditing)
   Object.assign(globalSelectedGroup, globalGroupEditing)
-  console.log("editing Page, setting selected global group for editing: ",globalSelectedGroup)
   router.back()
   loading.value = false
 }

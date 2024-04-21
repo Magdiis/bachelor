@@ -32,7 +32,7 @@
 
 import {Group} from "@/model/group/Group";
 import {IonItem, IonIcon,IonCol, IonRow} from "@ionic/vue";
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {colorsCases} from "@/model/group/createGroupEnums";
 import {peopleOutline, checkmark} from 'ionicons/icons'
 import {globalSelectedGroup} from "@/composables/store/useGroupStore";
@@ -66,6 +66,7 @@ const isCurrentMoreThanOne = computed(()=>{
 
 // CSS CLASSES
 const returnColorClass = computed(() => {
+  console.log(props.group.color)
   switch (props.group.color) {
     case colorsCases.Blue: {
       return "custom-blue"

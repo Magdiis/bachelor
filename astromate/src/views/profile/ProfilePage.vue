@@ -11,7 +11,7 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" style="--background: var(--ion-color-blue); --color:white">
       <ion-popover trigger="popover-trigger" size="auto" :dismiss-on-select="true">
         <ion-content>
           <ion-list lines="none">
@@ -30,13 +30,37 @@
       <ion-skeleton-text :animated="true" style="height: 100vw" v-else></ion-skeleton-text>
 
       <div class="ion-padding-horizontal">
-        <h3 style="color: var(--ion-color-blue)">{{profile.name}}, {{countAge(profile.date)}}</h3>
-        <h6 style="background-color: var(--ion-color-blue-light);padding: 1em; border-radius: 12px">{{profile.description}}</h6>
+        <h3>{{profile.name}}, {{countAge(profile.date)}}</h3>
+        <h6 style="background-color: var(--ion-color-blue-lighter);padding: 1em; border-radius: 12px">{{profile.description}}</h6>
+        <ion-row  class="ion-align-items-center">
+          <div class="dot">
+            <ion-icon style="padding: 0; margin: 0; font-size: 1.6em" :icon="locationOutline"></ion-icon>
+          </div>
+          <p style="padding-left: 0.6em">lat: {{profile.place.latitude}}, lon: {{profile.place.longitude}}</p>
+        </ion-row>
+
       </div>
-      <ion-row style="padding-left: 9px" class="ion-align-items-center">
-        <ion-icon style="padding: 0; margin: 0" size="large" color="primary" :icon="locationOutline"></ion-icon>
-        <p>lat: {{profile.place.latitude}}, lon: {{profile.place.longitude}}</p>
+
+      <div style="overflow: auto">
+      <ion-row class="ion-nowrap" style="width: 200%; " >
+        <ion-col style="height: 2em">
+          ahojaaaaaaaaaa
+        </ion-col>
+        <ion-col  style="height: 2em">
+          ahojaaaaaaaaaaaa
+        </ion-col>
+        <ion-col  style="height: 2em">
+          ahojaaaaaaaaaaaa
+        </ion-col>
+        <ion-col  style="height: 2em">
+          ahojaaaaaaaaaaaaaaa
+        </ion-col>
+        <ion-col  style="height: 2em">
+          ahojaaaaaaaaaaaaaaaa
+        </ion-col>
       </ion-row>
+      </div>
+
 
 
       <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
@@ -159,5 +183,15 @@ function navigateToEditProfile(){
 ion-skeleton-text {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.dot {
+  height: 2.8em;
+  width: 2.8em;
+  background-color: var(--ion-color-blue-lighter);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

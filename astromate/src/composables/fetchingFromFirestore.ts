@@ -88,7 +88,7 @@ export default function fetchingFirebase() {
                     users.push({
                         id: doc.id,
                         userId: doc.data().userId,
-                        name: doc.data().name,
+                        groupName: doc.data().groupName,
                         useCase: doc.data().useCase,
                         workCase: workCaseThis,
                         sportCase: sportCaseThis,
@@ -122,7 +122,7 @@ export default function fetchingFirebase() {
                     profiles.push({
                         date: doc.data().date,
                         description: doc.data().description,
-                        id: doc.data().id,
+                        id: doc.id,
                         name: doc.data().name,
                         place: doc.data().place
 

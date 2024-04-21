@@ -99,7 +99,7 @@ const group: Group = reactive({
 }) */
 
 
-onIonViewDidEnter(()=>{
+onIonViewWillEnter(()=>{
   clearGroup()
     group.userId = globalProfile.id
     group.membersIDs = [globalProfile.id]

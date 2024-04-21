@@ -39,7 +39,16 @@ export default function deletingInFirestore(){
         }
     }
 
+
+    async function deleteSearchedGroup(searchedGroupId: string){
+        try {
+            await deleteDoc(doc(db,"users",searchedGroupId))
+        } catch (e) {
+            console.error("error with delete searched group document", e)
+        }
+    }
+
     return {
-        deleteGroup
+        deleteGroup, deleteSearchedGroup
     }
 }
