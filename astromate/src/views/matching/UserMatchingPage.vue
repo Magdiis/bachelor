@@ -17,7 +17,7 @@
       </ion-toolbar>
     </ion-header>
 
-        <ion-content :fullscreen="true" :class="contentColor">
+        <ion-content :fullscreen="true" :class="colors.contentColor">
 
           <ion-grid v-if="placeholderAfterDecision.isShown" style="height: 100%; width: 100%; align-items: center; align-content: center; z-index: 1000; position: fixed; ">
             <ion-row style="flex-direction: column;align-content: center;align-items: center">
@@ -34,11 +34,11 @@
             <ion-content>
               <ion-list lines="none">
                 <ion-item :button="true" @click="navigateToEditPage()">
-                  <ion-icon size="large" :icon="pencilOutline" class="ion-padding-end"></ion-icon>
+                  <ion-icon  :icon="pencilOutline" class="ion-padding-end"></ion-icon>
                   Upravit
                 </ion-item>
                 <ion-item :button="true" id="present-alert-delete-group">
-                  <ion-icon size="large" :icon="trashOutline" class="ion-padding-end"></ion-icon>
+                  <ion-icon  :icon="trashOutline" class="ion-padding-end"></ion-icon>
                   Smazat
                 </ion-item>
               </ion-list>
@@ -56,8 +56,6 @@
           <no-available v-if="isEmpty" :color="globalSelectedGroup.color" :no-groups-available="false"></no-available>
           <matching-card-user
               v-if="currentUser != undefined && currentProfile != undefined && currentProfilePhotoUrl!=undefined"
-              @like="makeDecision(true,currentUser)"
-              @dislike="makeDecision(false,currentUser)"
               :profile="currentProfile"
               :user="currentUser"
               :url="currentProfilePhotoUrl"
@@ -65,9 +63,19 @@
 
           </matching-card-user>
 
-
-
         </ion-content>
+      <ion-footer collapse="fade" class="ion-no-border " v-if="currentUser != undefined">
+        <ion-toolbar :class="colors.toolbarBackground">
+          <ion-row style="padding-top: 0.5em; padding-bottom: 0.5em">
+            <ion-col>
+              <ion-row  class="ion-justify-content-around">
+                <ion-img @click="makeDecision(false, currentUser)"  @mousedown="down(false)" :style="buttonStyleDislike" :src="colors.dislikeButton" ></ion-img>
+                <ion-img @click="makeDecision(true, currentUser)" @mousedown="down(true)" :style="buttonStyleLike" :src="colors.likeButton" ></ion-img>
+              </ion-row>
+            </ion-col>
+          </ion-row>
+        </ion-toolbar>
+      </ion-footer>
 
     </ion-page>
     </template>
@@ -75,7 +83,7 @@
     <script setup lang="ts">
     import {
       IonAlert,
-
+      IonFooter,
       IonBackButton, IonButton,
       IonButtons,
       IonContent,
@@ -83,7 +91,7 @@
       IonPage, IonPopover,
       IonTitle,
       IonToolbar,
-      onIonViewDidEnter, onIonViewDidLeave, onIonViewWillEnter
+      onIonViewDidEnter, onIonViewDidLeave, onIonViewWillEnter, IonCol, IonRow, IonImg
     } from '@ionic/vue';
     import {useRoute, useRouter} from 'vue-router';
     import {computed, reactive, ref} from 'vue';
@@ -112,7 +120,7 @@
     import {routesNames} from "@/router/routesNames";
     import {
       globalGroupEditing,
-      globalSelectedGroup,
+      globalSelectedGroup, globalSelectedSearchedGroup,
       useGroupStore
     } from "@/composables/store/useGroupStore";
     import {returnCategory} from "@/composables/categoryConvertor";
@@ -259,6 +267,7 @@
     async function makeNotification(sender:string, receiver:string,groupName: string, senderName: string,
                                     groupDocumentID:string, userDocumentID: string){
       const newNotification: NotificationMessage = {
+        toBeDeleted: false,
         groupDocumentID: groupDocumentID, userDocumentID: userDocumentID,
         groupName: groupName, senderName: senderName,
         id: "", read: false, receiver: receiver,
@@ -330,18 +339,72 @@
       placeholderLikeStyle.value.scale='1'
     }
     // CSS CLASS
-    const contentColor = computed(()=>{
+    const colors = computed(()=>{
       switch (globalSelectedGroup.color) {
         case colorsCases.Blue:
-          return 'ion-content-blue'
+          return {
+            contentColor: 'ion-content-blue',
+            likeButton: 'matching/like-blue.svg',
+            dislikeButton: 'matching/dislike-blue.svg',
+            toolbarBackground: 'toolbar-background-blue'
+          }
         case colorsCases.Green:
-          return 'ion-content-green'
+          return {
+            contentColor:'ion-content-green',
+            likeButton: 'matching/like-green.svg',
+            dislikeButton: 'matching/dislike-green.svg',
+            toolbarBackground: 'toolbar-background-green'
+          }
         case colorsCases.Red:
-          return 'ion-content-red'
+          return{
+            contentColor: 'ion-content-red',
+            likeButton: 'matching/like-red.svg',
+            dislikeButton: 'matching/dislike-red.svg',
+            toolbarBackground: 'toolbar-background-red'
+          }
         case colorsCases.Orange:
-          return 'ion-content-orange'
+          return {
+            contentColor: 'ion-content-orange',
+            likeButton: 'matching/like-orange.svg',
+            dislikeButton: 'matching/dislike-orange.svg',
+            toolbarBackground: 'toolbar-background-orange'
+          }
+        default : {
+          return {
+            contentColor: 'ion-content-blue',
+            likeButton: 'matching/like-blue.svg',
+            dislikeButton: 'matching/dislike-blue.svg',
+            toolbarBackground: 'toolbar-background-blue'
+          }
+        }
       }
     })
+
+    // clicking on button
+    const buttonStyleLike = ref<Partial<CSSStyleDeclaration>>({
+      width: '20vw',
+      scale: '1'
+    })
+
+    const buttonStyleDislike = ref<Partial<CSSStyleDeclaration>>({
+      width: '20vw',
+      scale: '1'
+    })
+
+    const down = (like:boolean)=>{
+      if(like){
+        buttonStyleLike.value.scale = '0.9'
+        setTimeout(()=>{
+          buttonStyleLike.value.scale = '1'
+        },70)
+      } else {
+        buttonStyleDislike.value.scale = '0.9'
+        setTimeout(()=>{
+          buttonStyleDislike.value.scale = '1'
+        },70)
+      }
+    }
+
     </script>
     
     <style scoped>
@@ -363,6 +426,21 @@
       --color: white
     }
 
+    .toolbar-background-green {
+      --background: var(--ion-color-green)
+    }
+
+    .toolbar-background-red {
+      --background: var(--ion-color-darkRed)
+    }
+
+
+    .toolbar-background-blue {
+      --background: var(--ion-color-blue)
+    }
+    .toolbar-background-orange {
+      --background: var(--ion-color-orange)
+    }
 
 
     .container {

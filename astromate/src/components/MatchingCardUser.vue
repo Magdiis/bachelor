@@ -1,17 +1,17 @@
 <template>
   <ion-row class="ion-justify-content-between">
-    <ion-col>
-      <h1>{{props.profile.name}}</h1>
-      <h4>{{age}} let</h4>
+    <ion-col class="ion-padding-start">
+      <h1 style="margin-bottom: 0"> {{props.profile.name}}</h1>
+      <h4 style="margin: 0; font-weight: normal">{{age}} let</h4>
     </ion-col>
     <ion-col size="auto"  style="padding-top: 0; padding-inline-end: 0;">
       <div class="ion-text-end">
         <div class="container">
-          <ion-img style="width: 6.5em;" :src="colors.sphereCorner"></ion-img>
+          <ion-img style="width: 6em;" :src="colors.sphereCorner"></ion-img>
           <div class="centered">
             <ion-row style="flex-direction: column" class="ion-align-items-center">
-              <ion-icon size="large" :icon="settingsOutline"></ion-icon>
-              <h3 style="padding: 0; margin: 0">68%</h3>
+              <ion-icon size="large" src="/compatibility/com-icon-white.svg"></ion-icon>
+              <h3 style="padding: 0; margin: 0; font-weight: normal">68%</h3>
             </ion-row>
           </div>
         </div>
@@ -21,11 +21,11 @@
 
   <div class="center">
     <div class="container">
-      <ion-img style="width: 60vw" :src="colors.sphere"></ion-img>
+      <ion-img style="width: 81vw" :src="colors.sphere"></ion-img>
       <div class="centered">
         <h2 v-if="props.url == 'error'">Chyba</h2>
         <h2 v-if="url == ''">Načítání..</h2>
-        <img v-else style="border-radius: 50%; height: 56vw; width: 56vw" :src="props.url"/>
+        <img v-else style="border-radius: 50%; height: 76vw; width: 76vw" :src="props.url"/>
       </div>
     </div>
   </div>
@@ -39,22 +39,12 @@
     </ion-row>
   </div>
 
-  <div class="ion-padding-horizontal">
+  <div class="ion-padding-horizontal" style="padding-bottom: 1em">
     <div :class="colors.descriptionBackground" style=" padding: 0.1em; border-radius: 12px">
-      <p style="margin-left: 1em"> {{props.profile.description}}</p>
+      <p style="margin-left: 1em; margin-right: 1em"> {{props.profile.description}}</p>
     </div>
   </div>
 
-
-
-  <ion-row>
-    <ion-col >
-      <ion-row  class="ion-justify-content-around">
-        <ion-img @click="dislike()"  @mousedown="down(false)" :style="buttonStyleDislike" :src="colors.dislike" ></ion-img>
-        <ion-img @click="like()" @mousedown="down(true)" :style="buttonStyleLike" :src="colors.like" ></ion-img>
-      </ion-row>
-    </ion-col>
-  </ion-row>
 
   </template>
   
@@ -83,7 +73,6 @@ import { returnCategory } from '@/composables/categoryConvertor';
     color: colorsCases,
     url: string
   }>()
-  const emit = defineEmits(['like','dislike'])
 
   const age = computed(()=>{
 
@@ -92,21 +81,12 @@ import { returnCategory } from '@/composables/categoryConvertor';
     return (now.getFullYear() - birthdayDate.getFullYear()).toString()
   })
 
-  function like(){
-    emit('like')
-  }
-
-  function dislike(){
-    emit('dislike')
-  }
 
   // SRC + CLASSES
   const colors = computed(()=>{
     switch (props.color) {
       case colorsCases.Blue: {
         return {
-          like: "matching/like-blue.svg",
-          dislike: "matching/dislike-blue.svg",
           sphereCorner: "matching/sphere-blue-corner.svg",
           sphere: "matching/sphere-blue.svg",
           dotColor: "background-color-blue",
@@ -115,8 +95,6 @@ import { returnCategory } from '@/composables/categoryConvertor';
       }
       case colorsCases.Green:{
         return {
-          like: "matching/like-green.svg",
-          dislike: "matching/dislike-green.svg",
           sphereCorner: "matching/sphere-green-corner.svg",
           sphere: "matching/sphere-green.svg",
           dotColor: "background-color-green",
@@ -125,8 +103,6 @@ import { returnCategory } from '@/composables/categoryConvertor';
       }
       case colorsCases.Orange:{
         return {
-          like: "matching/like-orange.svg",
-          dislike: "matching/dislike-orange.svg",
           sphereCorner: "matching/sphere-orange-corner.svg",
           sphere: "matching/sphere-orange.svg",
           dotColor: "background-color-orange",
@@ -135,8 +111,6 @@ import { returnCategory } from '@/composables/categoryConvertor';
       }
       case colorsCases.Red:{
         return {
-          like: "matching/like-red.svg",
-          dislike: "matching/dislike-red.svg",
           sphereCorner: "matching/sphere-red-corner.svg",
           sphere: "matching/sphere-red.svg",
           dotColor: "background-color-red",
@@ -145,8 +119,6 @@ import { returnCategory } from '@/composables/categoryConvertor';
       }
       default:{
         return {
-          like: "matching/like-blue.svg",
-          dislike: "matching/dislike-blue.svg",
           sphereCorner: "matching/sphere-blue-corner.svg",
           sphere: "matching/sphere-blue.svg",
           dotColor: "background-color-blue",
@@ -157,31 +129,7 @@ import { returnCategory } from '@/composables/categoryConvertor';
   })
 
 // CSS
-  // clicking on button
-  const buttonStyleLike = ref<Partial<CSSStyleDeclaration>>({
-    width: '20vw',
-    scale: '1'
-  })
 
-  const buttonStyleDislike = ref<Partial<CSSStyleDeclaration>>({
-    width: '20vw',
-    scale: '1'
-  })
-
-  const down = (like:boolean)=>{
-    if(like){
-      buttonStyleLike.value.scale = '0.9'
-      setTimeout(()=>{
-        buttonStyleLike.value.scale = '1'
-      },70)
-    } else {
-      buttonStyleDislike.value.scale = '0.9'
-      setTimeout(()=>{
-        buttonStyleDislike.value.scale = '1'
-      },70)
-    }
-  }
-  
   </script>
   
   <style scoped>

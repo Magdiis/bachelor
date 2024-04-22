@@ -22,7 +22,7 @@
 
   <div class="ion-padding-horizontal">
     <div :class="colors.descriptionBackground" style=" padding: 0.1em; border-radius: 12px">
-      <p style="margin-left: 1em">{{ props.group.name }}</p>
+      <p style="margin-left: 1em; margin-right: 1em">{{ props.group.name }}</p>
     </div>
   </div>
 
@@ -95,51 +95,6 @@
     }
   })
 
-
-
-//   const card = ref(null)
-//   let rightAnimation: Animation
-//   let leftAnimation: Animation
-//
-//   onMounted(()=>{
-//     rightAnimation = createAnimation()
-//           .addElement(card.value.$el)
-//           .duration(200)
-//           .iterations(Infinity)
-//           .fromTo('transform', 'translateX(0px)', 'translateX(100px)')
-//           .fromTo('opacity', '1', '0.1');
-//     leftAnimation = createAnimation()
-//           .addElement(card.value.$el)
-//           .duration(200)
-//           .iterations(Infinity)
-//           .fromTo('transform', 'translateX(0px)', 'translateX(-100px)')
-//           .fromTo('opacity', '1', '0.1');
-//
-//   })
-//
-//   function delay(ms: number) {
-//     return new Promise( resolve => setTimeout(resolve, ms) );
-// }
-
- // async function Like() {
-    // rightAnimation.play()
-    // await delay(200);
-    // rightAnimation.stop()
- // }
-
- // async function Dislike() {
-    // leftAnimation.play()
-    // await delay(200);
-    // leftAnimation.stop()
-  //}
-
-  function leftAnimate(){
-    
-  }
-
-  function rightAnimate(){
-
-  }
   
   </script>
   

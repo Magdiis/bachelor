@@ -16,11 +16,11 @@
         <ion-content>
           <ion-list lines="none">
             <ion-item @click="navigateToEditProfile()">
-              <ion-icon size="large" :icon="pencilOutline" class="ion-padding-end"></ion-icon>
+              <ion-icon  :icon="pencilOutline" class="ion-padding-end"></ion-icon>
               Upravit profil
             </ion-item>
             <ion-item @click="logout">
-              <ion-icon size="large" :icon="logOutOutline" class="ion-padding-end"></ion-icon>
+              <ion-icon  :icon="logOutOutline" class="ion-padding-end"></ion-icon>
               Odhlásit se
             </ion-item>
           </ion-list>

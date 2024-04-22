@@ -30,11 +30,11 @@
             <ion-content>
               <ion-list lines="none">
                 <ion-item :button="true" @click="navigateToEditPage()">
-                  <ion-icon size="large" :icon="pencilOutline" class="ion-padding-end"></ion-icon>
+                  <ion-icon :icon="pencilOutline" class="ion-padding-end"></ion-icon>
                   Upravit
                 </ion-item>
                 <ion-item :button="true" id="present-alert-delete-searched-group">
-                  <ion-icon size="large" :icon="trashOutline" class="ion-padding-end"></ion-icon>
+                  <ion-icon :icon="trashOutline" class="ion-padding-end"></ion-icon>
                   Smazat
                 </ion-item>
               </ion-list>
@@ -60,7 +60,7 @@
 
 
         </ion-content>
-      <ion-footer class="ion-no-border" v-if="currentGroup != undefined">
+      <ion-footer collapse="fade" class="ion-no-border" v-if="currentGroup != undefined">
         <ion-toolbar :class="colors.toolbarBackground">
           <ion-row>
             <ion-col>

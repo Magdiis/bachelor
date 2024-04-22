@@ -3,10 +3,10 @@
     <ion-row style="width: 100%;" class="ion-justify-content-between">
       <ion-col size="9">
         <ion-row class="ion-align-items-center">
-          <h5 :class="returnColorClass" style="padding: 0;margin: 0">
+          <h5 :class="colors.colorClass" style="padding: 0;margin: 0">
             {{props.group.name}}
           </h5>
-          <ion-icon style="padding: 0 0 0 0.5em" v-if="isMaxEqualToCurrent"  :class="returnColorClass" :icon="checkmark"></ion-icon>
+          <ion-icon style="padding: 0 0 0 0.5em" v-if="isMaxEqualToCurrent"  :class="colors.colorClass" :icon="checkmark"></ion-icon>
         </ion-row>
 
         <div class="right" style="padding-top: 0.4em">
@@ -15,7 +15,7 @@
         <ion-row class="ion-justify-content-between ion-padding-top">
           <div>
             <ion-row class="ion-align-items-center">
-              <ion-icon :class="returnColorClass" :icon="peopleOutline"></ion-icon>
+              <ion-icon :class="colors.colorClass" :icon="peopleOutline"></ion-icon>
               <small>{{ props.group.currentMembers }}/{{ props.group.maxMembers }}</small>
             </ion-row>
           </div>
@@ -23,7 +23,7 @@
       </ion-col>
       <ion-col size="auto" v-if="isCurrentMoreThanOne" style="display: flex; justify-content: end; align-items: center;">
           <div class="compatibility-circle">
-            <ion-icon size="large" :icon="peopleOutline"></ion-icon>
+            <ion-icon size="large" :src="colors.compatibilityIcon"></ion-icon>
             <div>{{compatibility}} </div>
           </div>
       </ion-col>
@@ -70,26 +70,47 @@ const isCurrentMoreThanOne = computed(()=>{
 })
 
 // CSS CLASSES
-const returnColorClass = computed(() => {
-  console.log(props.group.color)
+const colors = computed(()=>{
   switch (props.group.color) {
     case colorsCases.Blue: {
-      return "custom-blue"
+      return {
+        colorClass: "custom-blue",
+        searchingGroupIcon: "/user/searching-group-icon-blue.svg",
+        compatibilityIcon: "/compatibility/com-icon-blue.svg"
+      }
     }
     case colorsCases.Green: {
-      return "custom-green"
+      return {
+        colorClass: "custom-green",
+        searchingGroupIcon: "/user/searching-group-icon-green.svg",
+        compatibilityIcon: "/compatibility/com-icon-green.svg"
+      }
+
     }
     case colorsCases.Orange: {
-      return "custom-orange"
+      return {
+        colorClass: "custom-orange",
+        searchingGroupIcon: "/user/searching-group-icon-orange.svg",
+        compatibilityIcon: "/compatibility/com-icon-orange.svg"
+      }
     }
     case colorsCases.Red: {
-      return "custom-dark-red"
+      return {
+        colorClass: "custom-dark-red",
+        searchingGroupIcon: "/user/searching-group-icon-red.svg",
+        compatibilityIcon: "/compatibility/com-icon-red.svg"
+      }
     }
     default: {
-      return "custom-dark-red"
+      return {
+        colorClass: "custom-blue",
+        searchingGroupIcon: "/user/searching-group-icon-blue.svg",
+        compatibilityIcon: "/compatibility/com-icon-blue.svg"
+      }
     }
   }
 })
+
 </script>
 
 <style scoped>
