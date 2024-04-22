@@ -10,29 +10,49 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
+        <div class="center ion-padding">
+          <ion-input label="Jméno skupiny" fill="outline" label-placement="floating" v-model="group.name" error-text="Špatný nazev"
+                     :counter="true" maxlength="20"
+                     :helper-text="isInputEmpty.name ? 'povinné': '' " class="custom"
+          ></ion-input>
+        </div>
 
-        <ion-input placeholder="Jméno" v-model="group.name"></ion-input>
-        <ion-select interface="popover" label="Barva"  v-model="group.color">
-            <ion-select-option v-for="color in colorsCasesValues">
-                {{ color }}
-            </ion-select-option>
+      <div class="ion-padding-horizontal custom">
+        <ion-textarea class="custom" label="Popis" label-placement="floating"
+                      :helper-text="isInputEmpty.description ? 'povinné': '' "
+                      :counter="true" maxlength="200"
+                      v-model="group.description" fill="outline" rows="3">
+        </ion-textarea>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Barevný motiv"  v-model="group.color">
+          <ion-select-option v-for="color in colorsCasesValues">
+            {{ color }}
+          </ion-select-option>
         </ion-select>
+      </div>
 
-      <ion-select interface="popover" label="Počet členů" placeholder="2" v-model="group.maxMembers">
-            <ion-select-option v-for="n in rangeNumbers">
-                {{ n }}
-            </ion-select-option>
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Počet členů" placeholder="2" v-model="group.maxMembers">
+          <ion-select-option v-for="n in rangeNumbers">
+            {{ n }}
+          </ion-select-option>
         </ion-select>
+      </div>
 
-        <ion-textarea label="Popis" label-placement="floating" v-model="group.description" fill="outline" rows="3"></ion-textarea>
-        
+
+
+      <div class="ion-padding-horizontal ion-padding-top">
         <ion-select interface="popover" label="Účel" placeholder="Práce" v-model="group.useCase">
             <ion-select-option v-for="uC in useCasesValues">
                 {{ uC }}
             </ion-select-option>
         </ion-select>
+      </div>
 
-        <div v-if="group.useCase == useCase.Work">
+
+        <div class="ion-padding-horizontal ion-padding-top" v-if="group.useCase == useCase.Work">
             <ion-select interface="popover" label="Kategorie" v-model="group.workCase">
             <ion-select-option v-for="wC in workCasesValues">
                 {{ wC }}
@@ -40,7 +60,7 @@
         </ion-select>
         </div>
 
-        <div v-if="group.useCase == useCase.Sport">
+        <div class="ion-padding-horizontal ion-padding-top" v-if="group.useCase == useCase.Sport">
         <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="group.sportCase">
             <ion-select-option v-for="sC in sportCasesValues">
                 {{ sC }}
@@ -48,7 +68,7 @@
         </ion-select>
         </div>
 
-        <ion-button @click="saveToDb()" >Save</ion-button>
+        <ion-button  expand="block" shape="round" class="ion-padding" @click="saveToDb()" >Uložit</ion-button>
         <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
     </ion-content>
     </ion-page>
@@ -77,6 +97,12 @@ async function waitAndSetfalse(){
   await delay(2000);
   loading.value = false
 } */
+
+
+const isInputEmpty = reactive({
+  name: false,
+  description: false
+})
 
 
 const group: Group = reactive({
@@ -115,11 +141,20 @@ for (let i = 2; i <= 30; i++) {
 const loading = ref(false)
 
 async function saveToDb() {
+  if(validate()){
     loading.value = true
     clean()
     await savingToFirestore().createGroup(group)
     loading.value = false
     navigateToGroupScreen()
+  }
+
+}
+
+function validate(): boolean{
+  isInputEmpty.description = group.description.length < 1
+  isInputEmpty.name = group.name.length < 1
+  return  !isInputEmpty.name && !isInputEmpty.description
 }
 
 function navigateToGroupScreen(){
@@ -145,15 +180,15 @@ function clean(){
 }
 
 function clearGroup(){
-    group.userId = "",
-    group.name = "",
-    group.maxMembers = 2,
-    group.currentMembers = 1,
-    group.description = "",
-    group.useCase = useCase.Work,
-    group.workCase = workCases.Other,
-    group.sportCase = SportCases.Other,
-    group.membersIDs = [],
+    group.userId = ""
+    group.name = ""
+    group.maxMembers = 2
+    group.currentMembers = 1
+    group.description = ""
+    group.useCase = useCase.Work
+    group.workCase = workCases.Other
+    group.sportCase = SportCases.Other
+    group.membersIDs = []
     group.color = colorsCases.Blue
 }
 

@@ -2,10 +2,8 @@
   <ion-modal :is-open="isProfileDetailOpen">
     <ion-content :class="colors.modalBackground">
       <ion-toolbar>
-        <ion-buttons slot="end">
-          <ion-button @click="isProfileDetailOpen = false">
-            Zavřít
-          </ion-button>
+        <ion-buttons slot="start">
+          <ion-back-button default-href="#" @click="isProfileDetailOpen = false"></ion-back-button>
         </ion-buttons>
       </ion-toolbar>
       <div :style="imgStyle" v-if="imgStyle.background != ''"></div>
@@ -52,7 +50,21 @@
 </template>
 
 <script setup lang="ts">
-import {IonSkeletonText,IonToolbar, IonButton, IonButtons,IonRow, IonCol, IonImg, IonIcon, IonItem, IonAvatar, IonContent, IonModal} from '@ionic/vue';
+import {
+  IonSkeletonText,
+  IonToolbar,
+  IonButton,
+  IonButtons,
+  IonRow,
+  IonCol,
+  IonImg,
+  IonIcon,
+  IonItem,
+  IonAvatar,
+  IonContent,
+  IonModal,
+  IonBackButton
+} from '@ionic/vue';
 
 import {Profile} from "@/model/profile/Profile";
 import {colorsCases} from "@/model/group/createGroupEnums";

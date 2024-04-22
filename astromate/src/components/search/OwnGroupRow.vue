@@ -1,30 +1,33 @@
 <template>
   <ion-item @click="setSelectedGroup()" :button="true">
-    <ion-col>
-      <ion-row class="ion-align-items-center">
-        <ion-icon v-if="isMaxEqualToCurrent" size="large" :class="returnColorClass" :icon="checkmark"></ion-icon>
-        <h5 :class="returnColorClass" style="padding: 0;margin: 0">
-          {{props.group.name}}
-        </h5>
-      </ion-row>
-      <div>
-        <small> {{props.group.description}} </small>
-      </div>
-      <ion-row class="ion-justify-content-between ion-padding-top">
-        <div>
-          <ion-row class="ion-align-items-center">
-            <ion-icon size="large" :class="returnColorClass" :icon="peopleOutline"></ion-icon>
-            {{ props.group.currentMembers }}/{{ props.group.maxMembers }}
-          </ion-row>
+    <ion-row style="width: 100%;" class="ion-justify-content-between">
+      <ion-col size="9">
+        <ion-row class="ion-align-items-center">
+          <h5 :class="returnColorClass" style="padding: 0;margin: 0">
+            {{props.group.name}}
+          </h5>
+          <ion-icon style="padding: 0 0 0 0.5em" v-if="isMaxEqualToCurrent"  :class="returnColorClass" :icon="checkmark"></ion-icon>
+        </ion-row>
+
+        <div class="right" style="padding-top: 0.4em">
+          <small class="text"> {{props.group.description}} </small>
         </div>
-        <div  v-if="isCurrentMoreThanOne">
-          <ion-row class="ion-align-items-center">
-            <ion-icon size="large" :class="returnColorClass" :icon="peopleOutline"></ion-icon>
-            {{compatibility}}
-          </ion-row>
-        </div>
-      </ion-row>
-    </ion-col>
+        <ion-row class="ion-justify-content-between ion-padding-top">
+          <div>
+            <ion-row class="ion-align-items-center">
+              <ion-icon :class="returnColorClass" :icon="peopleOutline"></ion-icon>
+              <small>{{ props.group.currentMembers }}/{{ props.group.maxMembers }}</small>
+            </ion-row>
+          </div>
+        </ion-row>
+      </ion-col>
+      <ion-col size="auto" v-if="isCurrentMoreThanOne" style="display: flex; justify-content: end; align-items: center;">
+          <div class="compatibility-circle">
+            <ion-icon size="large" :icon="peopleOutline"></ion-icon>
+            <div>{{compatibility}} </div>
+          </div>
+      </ion-col>
+    </ion-row>
   </ion-item>
 </template>
 
@@ -44,6 +47,8 @@ const router = useRouter()
 const props = defineProps<{
   group: Group
 }>()
+
+
 
 function setSelectedGroup(){
   Object.assign(globalSelectedGroup, props.group)
@@ -88,5 +93,36 @@ const returnColorClass = computed(() => {
 </script>
 
 <style scoped>
+
+.right {
+  flex: 1;
+  min-width: 0px;
+  display: flex;
+  flex-direction: column;
+}
+
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compatibility-circle {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.2em;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 0.09em;
+  border-color: #B0ABAB;
+  width: 3em;
+  height: 3em;
+}
+
+.compatibility-circle div {
+  font-size: 0.8em;
+}
 
 </style>

@@ -201,13 +201,6 @@ import { returnCategory } from '@/composables/categoryConvertor';
     align-items: center;
   }
 
-  .center {
-    display: flex;
-    justify-content: center; /* Horizontal centering */
-    align-items: center; /* Vertical centering */
-    flex-direction: column; /* Align items in a column */
-    text-align: center; /* Center text horizontally */
-  }
 
   .dot {
     height: 2.8em;

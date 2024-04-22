@@ -259,6 +259,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     async function makeNotification(sender:string, receiver:string, groupName: string,
                                     senderName: string,groupDocumentID:string, userDocumentID: string){
       const newNotification: NotificationMessage = {
+        toBeDeleted: false,
         groupDocumentID: groupDocumentID, userDocumentID: userDocumentID,
         groupName: groupName, senderName: senderName,
         id: "", read: false, receiver: receiver,

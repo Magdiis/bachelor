@@ -39,13 +39,7 @@ const iconNoAvailable = computed(()=>{
 
 
 <style scoped>
-.center {
-  display: flex;
-  justify-content: center; /* Horizontal centering */
-  align-items: center; /* Vertical centering */
-  flex-direction: column; /* Align items in a column */
-  text-align: center; /* Center text horizontally */
-}
+
 
 .center_two {
   display: flex;

@@ -9,21 +9,26 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true"> 
+    <ion-content :fullscreen="true">
 
-      <ion-select interface="popover" label="Barva"  v-model="user.color">
+      <div class="ion-padding-horizontal ion-padding-top">
+      <ion-select interface="popover" label="Barevný motiv"  v-model="user.color">
             <ion-select-option v-for="color in colorsCasesValues">
                 {{ color }}
             </ion-select-option>
         </ion-select>
+      </div>
 
+
+      <div class="ion-padding-horizontal ion-padding-top">
         <ion-select interface="popover" label="Účel" placeholder="Práce" v-model="user.useCase">
             <ion-select-option v-for="uC in useCasesValues">
                 {{ uC }}
             </ion-select-option>
         </ion-select>
+      </div>
 
-        <div v-if="user.useCase == useCase.Work">
+        <div class="ion-padding-horizontal ion-padding-top" v-if="user.useCase == useCase.Work">
             <ion-select interface="popover" label="Kategorie" v-model="user.workCase">
             <ion-select-option v-for="wC in workCasesValues">
                 {{ wC }}
@@ -31,7 +36,7 @@
         </ion-select>
         </div>
 
-        <div v-if="user.useCase == useCase.Sport">
+        <div class="ion-padding-horizontal ion-padding-top" v-if="user.useCase == useCase.Sport">
         <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="user.sportCase">
             <ion-select-option v-for="sC in sportCasesValues">
                 {{ sC }}
@@ -39,7 +44,7 @@
         </ion-select>
         </div>
 
-        <ion-button @click="saveToDb()" >Uložit</ion-button>
+      <ion-button  expand="block" shape="round" class="ion-padding" @click="saveToDb()" >Uložit</ion-button>
         <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
 
       

@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 
-import {IonIcon, IonRow,IonButton, IonGrid,IonLabel, createAnimation, IonItem} from "@ionic/vue";
+import {IonCol,IonIcon, IonRow,IonButton, IonGrid,IonLabel, createAnimation, IonItem} from "@ionic/vue";
 import {NotificationMessage, notificationNames, notificationText} from "@/model/notification/NotificationMessage";
 import {computed, onMounted, ref} from "vue";
 import updateInFirestore from "@/composables/updateInFirestore";
@@ -99,6 +99,10 @@ const notificationValues = computed(()=>{
         return notification
     case notificationText.UserAddedUser:
       notification.action = "vás přidal do skupiny"
+      notification.icon = informationCircleOutline
+      return notification
+    case notificationText.UserLeaveGroup:
+      notification.action = "opustil vaší skupinu"
       notification.icon = informationCircleOutline
       return notification
     case notificationText.UserWantsUserToHisGroup:

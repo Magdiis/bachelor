@@ -24,34 +24,10 @@
       </ion-textarea>
     </div>
 
-      <div class="ion-padding-start">
-        <p> Datum narození</p>
-      </div>
-
-      <div  class="center ion-padding-horizontal">
-        <ion-datetime presentation="date"
-                      :max="max"
-                      :min="min"
-                      name="Datum narození"
-                      v-model="profile.date"
-        ></ion-datetime>
-      </div>
-
-      <div class="center">
-        <ion-button fill="clear" @click ='takePhoto()'> Vybrat fotku </ion-button>
-      </div>
-      <ion-img style="height: 80vw;background-size: cover;background-position: center" v-if="photo != undefined" :src="photo.webviewPath"></ion-img>
-      <div class="center"  v-else>
-        <ion-thumbnail>
-          <ion-icon class="icon-style" :icon="cameraOutline"></ion-icon>
-        </ion-thumbnail>
-        <div v-if="validationValues.isPhotoEmpty"><p style="color: var(--ion-color-danger)">fotka je povinná</p> </div>
-      </div>
-
-      <div class="ion-padding-start">
-        <p> Poloha</p>
+      <div class="ion-padding-start ion-padding-bottom" >
+        <p style="margin-bottom: 6px"> Poloha</p>
         <small>Poloha souží k výpočtu vzdálenosti mezi Vámi a hledanými uživateli.
-        Jako defaultní poloha slouží souřadnice Prahy.</small>
+          Jako výchozí poloha slouží souřadnice Prahy.</small>
       </div>
 
       <div class="center">
@@ -67,6 +43,36 @@
           {{buttonName}}
         </ion-button>
       </div>
+
+      <div class="ion-padding-start">
+        <p> Datum narození</p>
+      </div>
+
+      <div  class="center ion-padding-horizontal">
+        <ion-datetime presentation="date"
+                      :max="max"
+                      :min="min"
+                      name="Datum narození"
+                      v-model="profile.date"
+        ></ion-datetime>
+      </div>
+
+
+
+      <div class="center">
+        <ion-button fill="clear" @click ='takePhoto()'> Vybrat fotku </ion-button>
+      </div>
+      <ion-img style="height: 80vw;background-size: cover;background-position: center" v-if="photo != undefined" :src="photo.webviewPath"></ion-img>
+      <div class="center"  v-else>
+        <ion-thumbnail>
+          <ion-icon class="icon-style" :icon="cameraOutline"></ion-icon>
+        </ion-thumbnail>
+        <div v-if="validationValues.isPhotoEmpty"><p style="color: var(--ion-color-danger)">fotka je povinná</p> </div>
+      </div>
+
+
+
+
 
       <div class="center">
         <ion-text v-if="validationValues.showErrorMessage" color="danger">Špatně vyplněný profil</ion-text>
@@ -136,7 +142,7 @@ const min = computed(()=>{
 })
 
 const max = computed(()=>{
-  return new Date(now.value.getFullYear() - 15,now.value.getMonth(),now.value.getDate()).toISOString()
+  return new Date(now.value.getFullYear() - 18,now.value.getMonth(),now.value.getDate()).toISOString()
 })
 
 onIonViewWillEnter(()=>{
@@ -227,13 +233,7 @@ function navigate(){
 </script>
 
 <style scoped>
-.center {
-  display: flex;
-  justify-content: center; /* Horizontal centering */
-  align-items: center; /* Vertical centering */
-  flex-direction: column; /* Align items in a column */
-  text-align: center; /* Center text horizontally */
-}
+
 
 ion-thumbnail {
   --size: 140px;

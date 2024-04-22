@@ -10,28 +10,50 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-input label="Jméno" v-model="globalGroupEditing.name"></ion-input>
-      <ion-select interface="popover" label="Barva"  v-model="globalGroupEditing.color">
-        <ion-select-option v-for="color in colorsCasesValues">
-          {{ color }}
-        </ion-select-option>
-      </ion-select>
 
-      <ion-select interface="popover" label="Počet členů" :placeholder="globalGroupEditing.maxMembers" v-model="globalGroupEditing.maxMembers">
-        <ion-select-option v-for="n in rangeNumbers">
-          {{ n }}
-        </ion-select-option>
-      </ion-select>
+      <div class="center ion-padding">
+        <ion-input label="Jméno skupiny" fill="outline" label-placement="floating" v-model="globalGroupEditing.name" error-text="Špatný nazev"
+                   :counter="true" maxlength="20"
+                   :helper-text="isInputEmpty.name ? 'povinné': '' " class="custom"
+        ></ion-input>
+      </div>
 
-      <ion-textarea label="Popis" label-placement="floating" v-model="globalGroupEditing.description" fill="outline" rows="3"></ion-textarea>
+      <div class="ion-padding-horizontal custom">
+        <ion-textarea class="custom" label="Popis" label-placement="floating"
+                      :helper-text="isInputEmpty.description ? 'povinné': '' "
+                      :counter="true" maxlength="200"
+                      v-model="globalGroupEditing.description" fill="outline" rows="3">
+        </ion-textarea>
+      </div>
 
+
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Barevný motiv"  v-model="globalGroupEditing.color">
+          <ion-select-option v-for="color in colorsCasesValues">
+            {{ color }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Počet členů" placeholder="2" v-model="globalGroupEditing.maxMembers">
+          <ion-select-option v-for="n in rangeNumbers">
+            {{ n }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
       <ion-select interface="popover" label="Účel" placeholder="Práce" v-model="globalGroupEditing.useCase">
         <ion-select-option v-for="uC in useCasesValues">
           {{ uC }}
         </ion-select-option>
       </ion-select>
+      </div>
 
-      <div v-if="globalGroupEditing.useCase == useCase.Work">
+
+      <div class="ion-padding-horizontal ion-padding-top"  v-if="globalGroupEditing.useCase == useCase.Work">
         <ion-select interface="popover" label="Kategorie" v-model="globalGroupEditing.workCase">
           <ion-select-option v-for="wC in workCasesValues">
             {{ wC }}
@@ -39,7 +61,7 @@
         </ion-select>
       </div>
 
-      <div v-if="globalGroupEditing.useCase == useCase.Sport">
+      <div class="ion-padding-horizontal ion-padding-top"  v-if="globalGroupEditing.useCase == useCase.Sport">
         <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="globalGroupEditing.sportCase">
           <ion-select-option v-for="sC in sportCasesValues">
             {{ sC }}
@@ -47,7 +69,7 @@
         </ion-select>
       </div>
 
-      <ion-button @click="update()">Uložit změny</ion-button>
+      <ion-button expand="block" shape="round" class="ion-padding" @click="update()">Uložit změny</ion-button>
       <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
     </ion-content>
   </ion-page>
@@ -83,7 +105,7 @@ import {
   useCasesValues, workCases,
   workCasesValues
 } from "@/model/group/createGroupEnums";
-import {ref} from "vue";
+import {reactive, ref} from "vue";
 import updateInFirestore from "@/composables/updateInFirestore";
 
 const router = useRouter()
@@ -91,9 +113,17 @@ const updateFirestore = updateInFirestore()
 
 const loading = ref(false)
 
+const isInputEmpty = reactive({
+  name: false,
+  description: false
+})
+
+
 onIonViewWillEnter(()=>{
   setOtherValueToCategories()
 })
+
+
 
 const rangeNumbers: number[] = []
 
@@ -102,11 +132,19 @@ for (let i = globalGroupEditing.currentMembers; i <= 30; i++) {
 }
 
 async function update(){
-  loading.value = true
-  await updateFirestore.updateGroup(globalGroupEditing)
-  Object.assign(globalSelectedGroup, globalGroupEditing)
-  router.back()
-  loading.value = false
+  if(validate()){
+    loading.value = true
+    await updateFirestore.updateGroup(globalGroupEditing)
+    Object.assign(globalSelectedGroup, globalGroupEditing)
+    router.back()
+    loading.value = false
+  }
+}
+
+function validate(): boolean{
+  isInputEmpty.description = globalGroupEditing.description.length < 1
+  isInputEmpty.name = globalGroupEditing.name.length < 1
+  return  !isInputEmpty.name && !isInputEmpty.description
 }
 
 function setOtherValueToCategories() {

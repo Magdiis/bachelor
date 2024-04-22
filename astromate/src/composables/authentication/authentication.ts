@@ -11,19 +11,23 @@ export default function authentication() {
                 errorMessage: "", user: user
             }
         } catch (error:any) {
-            console.log(error.code, error.message)
-            switch (error) {
+            console.log(error.code)
+            switch (error.code) {
                 case 'auth/email-already-in-use':
                     return {
-                        errorMessage: "Tento email existuje.", user: null
+                        errorMessage: "Zadaný e-mail už existuje.", user: null
                     }
                 case 'auth/invalid-email':
                     return {
-                        errorMessage: "Tento email existuje.", user: null
+                        errorMessage: "Špatně zadaný e-mail.", user: null
+                    }
+                case 'auth/weak-password':
+                    return {
+                        errorMessage: "Slabé heslo. Heslo musí být dlouhé alespoň 6 znaků.", user: null
                     }
                 default:
                     return {
-                        errorMessage: "Chyba pri registraci", user: null
+                        errorMessage: "Chyba", user: null
                     }
             }
         }
@@ -38,10 +42,19 @@ export default function authentication() {
                  errorMessage: "", user: user
              }
          } catch (error: any) {
+             console.log(error.code)
              switch (error.code) {
                  case 'auth/invalid-credential':
                      return {
-                         errorMessage: "Špatný email nebo heslo.", user: null
+                         errorMessage: "Chybně zadané heslo nebo e-mail.", user: null
+                     }
+                 case 'auth/invalid-email':
+                     return {
+                         errorMessage: "Chybný formát e-mailu.", user: null
+                     }
+                 case 'auth/invalid-password':
+                     return {
+                         errorMessage: "Špatné heslo", user: null
                      }
                  default:
                      return {

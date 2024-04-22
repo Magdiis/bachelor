@@ -20,7 +20,7 @@
         <ion-content v-if="chatParams.isAdmin">
           <ion-list lines="none">
             <ion-item @click="isModalOpen=true">
-              <ion-icon size="large" :icon="personRemoveOutline" class="ion-padding-end"></ion-icon>
+              <ion-icon :icon="peopleOutline" class="ion-padding-end"></ion-icon>
               Zobrazit členy
             </ion-item>
           </ion-list>
@@ -28,7 +28,7 @@
         <ion-content v-else>
           <ion-list lines="none">
             <ion-item :button="true" :detail="false" id="present-alert-delete-chat">
-              <ion-icon size="large" :icon="logOutOutline" class="ion-padding-end"></ion-icon>
+              <ion-icon  :icon="logOutOutline" class="ion-padding-end"></ion-icon>
               Opustit skupinu
             </ion-item>
           </ion-list>
@@ -59,6 +59,7 @@
           </ion-list>
         </ion-content>
       </ion-modal>
+
 
       <ion-action-sheet
           :is-open="isSheetOpen"
@@ -126,7 +127,7 @@ import {
   ellipsisVertical,
   logOutOutline,
   send,
-  personRemoveOutline,
+  personRemoveOutline, personOutline, peopleOutline,
 } from 'ionicons/icons'
 import {globalProfile} from "@/composables/store/profileStore";
 import OwnMessageRow from "@/components/chat/ownMessageRow.vue";
@@ -139,11 +140,13 @@ import {globalGroups, globalSearchedGroups, useGroupStore} from "@/composables/s
 import {routesNames} from "@/router/routesNames";
 import {currentGroupChat} from "@/composables/store/useGroupChatStore";
 import {useDocument} from "vuefire";
+import {NotificationMessage, notificationText} from "@/model/notification/NotificationMessage";
 
 const router = useRouter()
 const route = useRoute()
 const groupChatStore = useGroupChatStore()
 const groupStore = useGroupStore()
+const saveToFirestore = savingToFirestore()
 
 const content = ref(null as any | null)
 
@@ -214,11 +217,26 @@ async function leaveGroup() {
   // leave from groupChat
   await (updateInFirestore().leaveGroupChat(leaveChatGroup(findedGroupChat)))
   // FROM STORE - SET GROUP_ID = ""
-  await (updateInFirestore().setGroupId(findedSearchedGroup.id, ""))
+  await (updateInFirestore().setGroupId(findedSearchedGroup.id, "",""))
   // THIS GROUP IS NOT IN STORE - REMOVE FROM MEMBERS
   await (updateInFirestore().removeFromGroup(chatParams.id, globalProfile.id))
 
   // SEND NOTIFICATION
+  const notificationMessage: NotificationMessage = {
+    groupDocumentID: findedGroupChat.id,
+    groupName: findedGroupChat.name,
+    id: "",
+    read: false,
+    receiver: findedGroupChat.ownerID,
+    sender: globalProfile.id,
+    senderName: globalProfile.name,
+    sentAt: Timestamp.now(),
+    text: notificationText.UserLeaveGroup,
+    toBeDeleted: false,
+    userDocumentID: findedSearchedGroup.id
+
+  }
+  await saveToFirestore.createNotification(notificationMessage)
 
   await router.push({name: routesNames.GroupChats})
   loading.value = false
@@ -266,7 +284,21 @@ async function removeUser(name: string){
   // from store - remove from group members
   const findedGroup: Group = groupStore.getGroup(findedGroupChat.id)
   await (updateInFirestore().removeUserFromGroup(removeUserFromGroup(findedGroup,removingId)))
-
+  // NOTIFICATION
+  const notification: NotificationMessage = {
+    groupDocumentID: findedGroupChat.id,
+    groupName: findedGroupChat.name,
+    id: "",
+    read: false,
+    receiver: removingId,
+    sender: globalProfile.id,
+    senderName: globalProfile.name,
+    sentAt: Timestamp.now(),
+    text: notificationText.UserRemovedUser,
+    toBeDeleted: false,
+    userDocumentID: "" // snad nevadi
+  }
+  await saveToFirestore.createNotification(notification)
   // AFTER ALL UPDATES
   groupChatStore.updateCurrentGroupChat(updatedGroupChat)
   loading.value = false
@@ -354,12 +386,13 @@ const cancelOrConfirmButtons = [
 const returnActionSheetButtons = (name: string) => {
   if(name === globalProfile.name){
     return [
-      {
-        text: 'Zobrazit profil',
-        data: {
-          action: 'profile',
-        },
-      },
+        //TODO
+      // {
+      //   text: 'Zobrazit profil',
+      //   data: {
+      //     action: 'profile',
+      //   },
+      // },
     ]
   } else {
     return [
@@ -369,12 +402,13 @@ const returnActionSheetButtons = (name: string) => {
           action: 'remove',
         },
       },
-      {
-        text: 'Zobrazit profil',
-        data: {
-          action: 'profile',
-        },
-      },
+        // TODO
+      // {
+      //   text: 'Zobrazit profil',
+      //   data: {
+      //     action: 'profile',
+      //   },
+      // },
     ]
   }
 }

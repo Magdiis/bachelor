@@ -288,6 +288,14 @@ html {
   padding-top: 8px;
 }
 
+.center {
+  display: flex;
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
+  flex-direction: column; /* Align items in a column */
+  text-align: center; /* Center text horizontally */
+}
+
 
 
 /** ANIMATIONS **/
@@ -295,4 +303,17 @@ html {
 @keyframes notificationRight {
   0%   { transform: translateX(0px); }
   100% { transform: translateX(100vw); }
+}
+
+
+/** HELPER TEXT TO RED **/
+ion-input.custom.ios .input-bottom .helper-text,
+ion-input.custom.md .input-bottom .helper-text{
+  color: var(--ion-color-danger);
+}
+
+
+ion-textarea.custom.ios .textarea-bottom .helper-text,
+ion-textarea.custom.md .textarea-bottom .helper-text{
+  color: var(--ion-color-danger);
 }

@@ -183,6 +183,19 @@ export default function fetchingFirebase() {
 
     }
 
+    async function isUsernameExist(username: string): Promise<boolean> {
+        try {
+            const q: Query = query(profiles_collection, where('name','==',username))
+            const docSnap = await getDocs(q)
+            console.log("is username exist", !docSnap.empty)
+            return !docSnap.empty
+        } catch (e) {
+            console.error("Error ", e)
+            throw new Error("Error")
+        }
+
+    }
+
     async function fetchGroupChats(profileId: string): Promise<GroupChat[]> {
         var groupChats: GroupChat[] = []
         try {
@@ -237,7 +250,7 @@ export default function fetchingFirebase() {
         }
     }
 
-    return {getOwnGroups, getOwnUsers, fetchMembersProfiles, fetchProfile, isProfileExist, fetchGroupChats}
+    return {isUsernameExist, getOwnGroups, getOwnUsers, fetchMembersProfiles, fetchProfile, isProfileExist, fetchGroupChats}
 }
 
 

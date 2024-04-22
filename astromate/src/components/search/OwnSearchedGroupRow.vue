@@ -1,53 +1,63 @@
 <template>
-  <ion-item @click="setSelectedSearchedGroup()" :button="true" v-if="isGroupSearched">
-    <ion-col>
+  <ion-item @click="setSelectedSearchedGroup()" :button="true" v-if="isGroupSearched" style="padding-top: 0.4em">
+    <ion-col style="padding-bottom: 0.8em">
       <ion-row class="ion-align-items-center">
-        <ion-col size="auto">
-          <ion-icon  :class="returnColorClass" :icon="checkmark"></ion-icon>
-        </ion-col>
-        <ion-col>
-          <h5 :class="returnColorClass" style="padding: 0;margin: 0">
-            {{props.user.useCase}}
-          </h5>
-          <p style="padding: 0;margin: 0" v-if="props.user.sportCase != ''">{{props.user.sportCase}}</p>
-          <p style="padding: 0;margin: 0" v-else>{{props.user.workCase}}</p>
+        <ion-col class="ion-no-padding">
+          <ion-row class="ion-align-items-center">
+            <h5 :class="colors.colorClass" style="padding: 0;margin: 0">
+              {{props.user.useCase}}
+            </h5>
+            <p style="margin: 0; padding: 0 0 0 0.5em;" v-if="props.user.sportCase">{{props.user.sportCase}}</p>
+            <p style="padding: 0 0 0 0.5em;;margin: 0" v-else>{{props.user.workCase}}</p>
+            <ion-col size="auto">
+              <ion-icon :class="colors.colorClass" :icon="checkmark"></ion-icon>
+            </ion-col>
+          </ion-row>
+
+
         </ion-col>
       </ion-row>
 
-      <ion-row class="ion-justify-content-between ion-padding-top">
+      <ion-row class="ion-justify-content-between ion-align-items-center" >
         <div>
           <ion-row class="ion-align-items-center">
-            <ion-icon size="large" :class="returnColorClass" :icon="peopleOutline"></ion-icon>
-            jmeno
+            <ion-icon :class="colors.colorClass" :icon="peopleOutline" style="padding-right: 0.5em"></ion-icon>
+            <small> {{props.user.groupName}} </small>
           </ion-row>
         </div>
-        <div >
-          <ion-row class="ion-align-items-center">
-            <ion-icon size="large" :class="returnColorClass" :icon="peopleOutline"></ion-icon>
-            {{compatibility}}
-          </ion-row>
-        </div>
+
       </ion-row>
+
+
+    </ion-col>
+    <ion-col size="auto">
+      <div class="compatibility-circle">
+          <ion-icon size="large" :src="colors.compatibilityIcon"></ion-icon>
+          <div>{{compatibility}}</div>
+      </div>
     </ion-col>
   </ion-item>
 
 
-  <ion-item @click="setSelectedSearchedGroup()" :button="true" v-else>
-    <ion-col class="ion-align-items-center">
+  <ion-item @click="setSelectedSearchedGroup()" :button="true" v-else style="padding-top: 0.4em">
+    <ion-col class="ion-align-items-center" style="padding-bottom: 0.8em">
       <ion-row class="ion-justify-content-between ion-align-items-center ">
         <div>
-          <ion-col style="padding: 0;margin: 0">
-            <ion-row class="ion-align-items-center">
-              <h5 :class="returnColorClass" style="padding: 0;margin: 0">{{props.user.useCase}} </h5>
-            </ion-row>
-            <p style="padding: 0;margin: 0" v-if="props.user.sportCase != ''">{{props.user.sportCase}}</p>
-            <p style="padding: 0;margin: 0" v-else>{{props.user.workCase}}</p>
-          </ion-col>
-
+          <ion-row class="ion-align-items-center">
+            <h5 :class="colors.colorClass" style="padding: 0;margin: 0">
+              {{props.user.useCase}}
+            </h5>
+            <p style="margin: 0; padding: 0 0 0 0.5em;" v-if="props.user.sportCase">{{props.user.sportCase}}</p>
+            <p style="padding: 0 0 0 0.5em;;margin: 0" v-else>{{props.user.workCase}}</p>
+          </ion-row>
         </div>
+
         <div>
           <ion-row class="ion-align-items-center">
-            <ion-icon style="font-size:2em;" :src="searchingGroupIcon"></ion-icon>
+            <div class="compatibility-circle">
+              <ion-icon style="font-size:2em;" :src="colors.searchingGroupIcon"></ion-icon>
+            </div>
+
           </ion-row>
         </div>
       </ion-row>
@@ -89,47 +99,65 @@ const compatibility = computed(()=>{
 
 
 // CSS CLASSES
-const returnColorClass = computed(() => {
+const colors = computed(()=>{
   switch (props.user.color) {
     case colorsCases.Blue: {
-      return "custom-blue"
+      return {
+        colorClass: "custom-blue",
+        searchingGroupIcon: "/user/searching-group-icon-blue.svg",
+        compatibilityIcon: "/compatibility/com-icon-blue.svg"
+      }
     }
     case colorsCases.Green: {
-      return "custom-green"
+      return {
+        colorClass: "custom-green",
+        searchingGroupIcon: "/user/searching-group-icon-green.svg",
+        compatibilityIcon: "/compatibility/com-icon-green.svg"
+      }
+
     }
     case colorsCases.Orange: {
-      return "custom-orange"
+      return {
+        colorClass: "custom-orange",
+        searchingGroupIcon: "/user/searching-group-icon-orange.svg",
+        compatibilityIcon: "/compatibility/com-icon-orange.svg"
+      }
     }
     case colorsCases.Red: {
-      return "custom-dark-red"
+      return {
+        colorClass: "custom-dark-red",
+        searchingGroupIcon: "/user/searching-group-icon-red.svg",
+        compatibilityIcon: "/compatibility/com-icon-red.svg"
+      }
     }
     default: {
-      return "custom-dark-red"
+      return {
+        colorClass: "custom-blue",
+        searchingGroupIcon: "/user/searching-group-icon-blue.svg",
+        compatibilityIcon: "/compatibility/com-icon-blue.svg"
+      }
     }
   }
 })
 
-const searchingGroupIcon = computed(()=>{
-  switch (props.user.color) {
-    case colorsCases.Blue: {
-      return "/user/searching-group-icon-blue.svg"
-    }
-    case colorsCases.Green: {
-      return "/user/searching-group-icon-green.svg"
-    }
-    case colorsCases.Orange: {
-      return "/user/searching-group-icon-orange.svg"
-    }
-    case colorsCases.Red: {
-      return "/user/searching-group-icon-red.svg"
-    }
-    default: {
-      return "/user/searching-group-icon-blue.svg"
-    }
-  }
-})
 </script>
 
 <style scoped>
+.compatibility-circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.2em;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 0.09em;
+  border-color: #B0ABAB;
+  width: 3em;
+  height: 3em;
+}
 
+.compatibility-circle div {
+  font-size: 0.8em;
+}
 </style>

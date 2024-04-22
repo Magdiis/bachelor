@@ -43,10 +43,11 @@ export const sportCasesValues = Object.values(SportCases)
 
 
 export enum colorsCases{
-    Blue = "blue",
-    Red = "red",
-    Orange = "orange",
-    Green = "green"
+    Blue = "modrá",
+    Red = "červená",
+    // TODO: dodělat barvy
+    Orange = "oranžová",
+    Green = "zelená"
 }
 
 export const colorsCasesValues = Object.values(colorsCases)
