@@ -6,7 +6,9 @@ export default defineConfig({
     specPattern: "tests/e2e/specs/**/*.cy.{js,jsx,ts,tsx}",
     videosFolder: "tests/e2e/videos",
     screenshotsFolder: "tests/e2e/screenshots",
-    baseUrl: "http://localhost:5173",
+    baseUrl: "http://localhost:8100",
+    viewportWidth:375,
+    viewportHeight: 667,
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
