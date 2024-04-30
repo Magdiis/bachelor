@@ -49,6 +49,62 @@ app.get("/getOtherUsers/:userId/:useCase/:category",(req, res) => {
     })
 })
 
+app.get("/getOwnGroups/:userId",async (req, res)=>{
+    var body = {
+        ownGroups: []
+    }
+    var groupsFromFirestore = []
+    var groupsWithProfiles = []
+
+    groupsFromFirestore = await fetchingFromFirestore.getOwnGroupsFromFirestore(req.params.userId)
+    if(groupsFromFirestore.length < 1){
+        res.json(body)
+    } else {
+        groupsWithProfiles = await fetchingFromFirestore.addProfilesToGroups(groupsFromFirestore)
+        console.log('groups with profiles: ', groupsWithProfiles[0].membersProfiles[0])
+        groupsWithProfiles.forEach((groupWithProfiles)=>{
+                body.ownGroups.push({
+                    category: groupWithProfiles.category,
+                    color: groupWithProfiles.color,
+                    currentMembers: groupWithProfiles.currentMembers,
+                    description: groupWithProfiles.description,
+                    maxMembers: groupWithProfiles.maxMembers,
+                    name: groupWithProfiles.name,
+                    membersIDs: groupWithProfiles.membersIDs,
+                    useCase: groupWithProfiles.useCase,
+                    userId: groupWithProfiles.userId,
+                    compatibility: fetchingFromFirestore.calculateCompatibility(groupWithProfiles.membersProfiles)
+                })
+        })
+        res.json(body)
+    }
+})
+
+app.get("/getOwnUsers/:userId",async (req, res)=>{
+    var body = {
+        ownUsers: []
+    }
+    const usersFromFirestore = await fetchingFromFirestore.getOwnUsersFromFirestore(req.params.userId)
+    if(usersFromFirestore.length < 1){
+        res.json(body)
+    } else {
+        for (const user of usersFromFirestore) {
+            const membersIds = user.groupId === '' ? [] : await fetchingFromFirestore.getMembersIdsByGroupId(user.groupId);
+            const profiles = membersIds.length > 1 ?  await fetchingFromFirestore.getProfiles(membersIds) : []
+            const compatibility = profiles.length > 1 ? await fetchingFromFirestore.calculateCompatibility(profiles) : 0
+            body.ownUsers.push({
+                category: user.category,
+                color: user.color,
+                groupId: user.groupId,
+                groupName: user.groupName,
+                useCase: user.useCase,
+                userId: user.userId,
+                compatibility: compatibility
+            });
+        }
+        res.json(body)
+    }
+})
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
