@@ -1,5 +1,5 @@
 <template>
-  <div class="center ion-padding" v-if="props.userMatching">
+  <div id="user-matching-done-placeholder" class="center ion-padding" v-if="props.userMatching">
     <ion-icon style="font-size:12em" src="/placeholders/done.svg"></ion-icon>
     <h1 style="font-weight: bold">Skupina naplněna</h1>
     <h4>Maximální počet členů byl naplněn. Pokud chcete dál hledat lidi do své skupiny, zvyšte maximální počet členů.</h4>
@@ -9,7 +9,7 @@
       </ion-button>
     </div>
   </div>
-  <div class="center ion-padding" v-else>
+  <div id="group-matching-done-placeholder" class="center ion-padding" v-else>
     <ion-icon style="font-size:12em" src="/placeholders/done.svg"></ion-icon>
     <h1 style="font-weight: bold">Skupina nalezena</h1>
     <h4>Jste členem skupiny ‘{{globalSelectedSearchedGroup.groupName}}’. Pokud chcete ze skupiny odejít a hledat si jinou skupinu v této kategorii. </h4>

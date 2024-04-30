@@ -64,13 +64,13 @@
           </matching-card-user>
 
         </ion-content>
-      <ion-footer collapse="fade" class="ion-no-border " v-if="currentUser != undefined">
+      <ion-footer class="ion-no-border " v-if="currentUser != undefined">
         <ion-toolbar :class="colors.toolbarBackground">
           <ion-row style="padding-top: 0.5em; padding-bottom: 0.5em">
             <ion-col>
               <ion-row  class="ion-justify-content-around">
                 <ion-img @click="makeDecision(false, currentUser)"  @mousedown="down(false)" :style="buttonStyleDislike" :src="colors.dislikeButton" ></ion-img>
-                <ion-img @click="makeDecision(true, currentUser)" @mousedown="down(true)" :style="buttonStyleLike" :src="colors.likeButton" ></ion-img>
+                <ion-img id="user-matching-like-button" @click="makeDecision(true, currentUser)" @mousedown="down(true)" :style="buttonStyleLike" :src="colors.likeButton" ></ion-img>
               </ion-row>
             </ion-col>
           </ion-row>
@@ -220,7 +220,6 @@
       await saveDecisionToDB(like, user.id)
       // Make notification and send
       if(groupsFilter.value != undefined){
-        await makeNotification("","","","","","")
         await makeNotification(
             globalProfile.id,
             user.userId,

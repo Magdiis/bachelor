@@ -4,7 +4,7 @@
       <ion-toolbar>
         <ion-title>Skupiny</ion-title>
         <ion-buttons slot="end">
-            <ion-button  @click="router.push({name: routesNames.AddGroup})">
+            <ion-button id="navigate-to-create-group-button" @click="router.push({name: routesNames.AddGroup})">
             <ion-icon slot="icon-only" :icon="add"></ion-icon>
             </ion-button>
         </ion-buttons>
@@ -14,13 +14,15 @@
     <ion-content :fullscreen="true">
     <ion-loading :is-open="loading" spinner="lines-small" ></ion-loading>
     <div v-if="!loading">
-      <ion-list>
+      <no-groups v-if="isEmpty"></no-groups>
+      <ion-list v-else>
         <ion-list-header  v-if="globalGroups.length > 0">
             <h4>
               Hledám lidi
             </h4>
         </ion-list-header>
         <own-group-row v-for="group in globalGroups" :group="group"></own-group-row>
+
         <ion-list-header v-if="globalSearchedGroups.length > 0">
           <h4>
             Hledám skupiny
@@ -52,32 +54,30 @@ import {globalGroups, globalSearchedGroups, useGroupStore} from "@/composables/s
 import {globalGroupChats} from "@/composables/store/useGroupChatStore";
 import OwnGroupRow from "@/components/search/OwnGroupRow.vue";
 import OwnSearchedGroupRow from "@/components/search/OwnSearchedGroupRow.vue";
+import NoGroups from "@/components/placeholders/NoGroups.vue";
 
 const router = useRouter()
 const groupsStore = useGroupStore()
 
 const loading = ref(false)
+const isEmpty = ref(false)
 
 
 
-onIonViewDidEnter(async()=>{
-  console.log("group chats: ",globalGroupChats)
-  console.log("own groups: ", globalGroups)
-  console.log("own searched groups: ", globalSearchedGroups)
+onIonViewWillEnter(async()=>{
   loading.value = true
   await fetchOwnGroups()
   await fetchOwnUsers()
+  isEmpty.value = globalSearchedGroups.length < 1 && globalGroups.length < 1;
   loading.value = false
 })
 
 
 async function fetchOwnGroups() {
-
-      const groupsFromFirebase = await fetchingFromFirestore().getOwnGroups(globalProfile.id)
-      // groups.length = 0 // clear
-      //groups.push(...groupsFromFirebase) //push
-      groupsStore.setOwnGroups(groupsFromFirebase)
-
+  const groupsFromFirebase = await fetchingFromFirestore().getOwnGroups(globalProfile.id)
+  // groups.length = 0 // clear
+  //groups.push(...groupsFromFirebase) //push
+  groupsStore.setOwnGroups(groupsFromFirebase)
 }
 
 async function fetchOwnUsers() {

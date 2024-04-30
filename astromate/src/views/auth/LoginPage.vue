@@ -14,19 +14,19 @@
       </div>
 
       <div class="ion-padding-horizontal">
-        <ion-input style="margin-top: 8px" ref="input" type="email" fill="outline" label="Email" label-placement="floating"
+        <ion-input id="login_email_input" style="margin-top: 8px" ref="input" type="email" fill="outline" label="Email" label-placement="floating"
                    error-text="Špatný email" :helper-text="isInputEmpty.email ? 'povinné': '' " v-model="loginInfo.email"
                    class="padding-half-top custom">
         </ion-input>
 
-        <ion-input class="ion-margin-top custom" fill="outline" label="Password" label-placement="floating" type="password"
+        <ion-input id="login_password_input" class="ion-margin-top custom" fill="outline" label="Password" label-placement="floating" type="password"
                    error-text="Špatné heslo" value="password" v-model="loginInfo.password" :helper-text="isInputEmpty.password ? 'povinné' : ''">
         </ion-input>
           <div class="ion-padding-vertical">
-            <ion-button  expand="block" shape="round"  @click="LogIn(loginInfo)">Přihlásit se</ion-button>
+            <ion-button id="login_button"  expand="block" shape="round"  @click="LogIn(loginInfo)">Přihlásit se</ion-button>
 
           </div>
-          <ion-button  expand="block" shape="round" fill="outline"
+          <ion-button expand="block" shape="round" fill="outline"
                        @click="router.push({name: routesNames.Registration})">Vytvořit účet
           </ion-button>
 
@@ -111,7 +111,7 @@ async function LogIn(loginInfo: Login) {
     loading.value = true
     authResponse.value = await (authentication().signIn(loginInfo.email, loginInfo.password))
     if (authResponse.value.user != null) {
-      console.log(authResponse.value.user.user.uid)
+
       // SET STORES
       await saveToStores(authResponse.value.user.user.uid)
 

@@ -39,7 +39,7 @@
   </ion-item>
 
 
-  <ion-item @click="setSelectedSearchedGroup()" :button="true" v-else style="padding-top: 0.4em">
+  <ion-item id="groups-searched-group-item-created" @click="setSelectedSearchedGroup()" :button="true" v-else style="padding-top: 0.4em">
     <ion-col class="ion-align-items-center" style="padding-bottom: 0.8em">
       <ion-row class="ion-justify-content-between ion-align-items-center ">
         <div>

@@ -8,7 +8,6 @@ export function getDegree(longitude: string): number {
 export function getDegreeByRoundedMinutes(longitude: string): number {
     var minutes: string = longitude.split('°')[1]
     minutes = minutes.substring(0, minutes.indexOf("'"))
-    console.log("minutes: ",minutes)
    if (Number(minutes) < 30){
        return 0
    } else {

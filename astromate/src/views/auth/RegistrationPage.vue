@@ -17,11 +17,11 @@
       </div>
 
       <div class="ion-padding-horizontal">
-        <ion-input class="custom" ref="input" type="email" fill="outline" label="Email" label-placement="floating"
+        <ion-input id="registration_email_input" class="custom" ref="input" type="email" fill="outline" label="Email" label-placement="floating"
                    :helper-text="isInputEmpty.email ? 'povinné': '' "   error-text="Špatný email" v-model="loginInfo.email">
 
         </ion-input>
-        <ion-input class="ion-margin-top custom"  fill="outline" label="Heslo" label-placement="floating" type="password" value="heslo"
+        <ion-input id="registration_password_input" class="ion-margin-top custom"  fill="outline" label="Heslo" label-placement="floating" type="password" value="heslo"
                    :helper-text="isInputEmpty.password ? 'povinné' : ''" error-text="Špatné heslo" v-model="loginInfo.password">
 
         </ion-input>
@@ -29,7 +29,7 @@
 
 
       <div class="ion-padding">
-        <ion-button expand="block" shape="round" @click="register(loginInfo)">Registrovat</ion-button>
+        <ion-button id="registration_button" expand="block" shape="round" @click="register(loginInfo)">Registrovat</ion-button>
       </div>
 
       <div class="ion-padding">

@@ -11,14 +11,14 @@
 
     <ion-content :fullscreen="true">
         <div class="center ion-padding">
-          <ion-input label="Jméno skupiny" fill="outline" label-placement="floating" v-model="group.name" error-text="Špatný nazev"
+          <ion-input id="add-group-name-input" label="Jméno skupiny" fill="outline" label-placement="floating" v-model="group.name" error-text="Špatný nazev"
                      :counter="true" maxlength="20"
                      :helper-text="isInputEmpty.name ? 'povinné': '' " class="custom"
           ></ion-input>
         </div>
 
       <div class="ion-padding-horizontal custom">
-        <ion-textarea class="custom" label="Popis" label-placement="floating"
+        <ion-textarea id="add-group-description-textarea" class="custom" label="Popis" label-placement="floating"
                       :helper-text="isInputEmpty.description ? 'povinné': '' "
                       :counter="true" maxlength="200"
                       v-model="group.description" fill="outline" rows="3">
@@ -68,7 +68,7 @@
         </ion-select>
         </div>
 
-        <ion-button  expand="block" shape="round" class="ion-padding" @click="saveToDb()" >Uložit</ion-button>
+        <ion-button id="add-group-save-button" expand="block" shape="round" class="ion-padding" @click="saveToDb()" >Uložit</ion-button>
         <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
     </ion-content>
     </ion-page>

@@ -3,7 +3,7 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-            <ion-back-button default-href="#" @click="router.back"></ion-back-button>
+            <ion-back-button id="group-matching-navigate-back-button" default-href="#" @click="router.back"></ion-back-button>
         </ion-buttons>
         <ion-buttons slot="end">
           <ion-button id="popover-edit-searched-group">
@@ -49,7 +49,7 @@
 
           <ion-loading :is-open="loading" spinner="lines-small"></ion-loading>
           <done v-if="isFilled" :user-matching="false"/>
-          <no-available :color="globalSelectedSearchedGroup.color" v-if="isEmpty" :no-groups-available="true"></no-available>
+          <no-available id="goup-matching-no-available-placeholder" :color="globalSelectedSearchedGroup.color" v-if="isEmpty" :no-groups-available="true"></no-available>
         <matching-card-group
             v-if="currentGroup!=undefined && currentMembers.length>0"
             :group="currentGroup"
@@ -60,13 +60,13 @@
 
 
         </ion-content>
-      <ion-footer collapse="fade" class="ion-no-border" v-if="currentGroup != undefined">
+      <ion-footer class="ion-no-border" v-if="currentGroup != undefined">
         <ion-toolbar :class="colors.toolbarBackground">
-          <ion-row>
+          <ion-row style="padding-top: 0.5em; padding-bottom: 0.5em">
             <ion-col>
               <ion-row  class="ion-justify-content-around">
-                <ion-img @click="makeDecision(false, currentGroup)"  @mousedown="down(false)" :style="buttonStyleLike" :src="colors.dislikeButton" ></ion-img>
-                <ion-img @click="makeDecision(true, currentGroup)" @mousedown="down(true)" :style="buttonStyleDislike" :src="colors.likeButton" ></ion-img>
+                <ion-img @click="makeDecision(false, currentGroup)"  @mousedown="down(false)" :style="buttonStyleDislike" :src="colors.dislikeButton" ></ion-img>
+                <ion-img id="group-matching-like-button" @click="makeDecision(true, currentGroup)" @mousedown="down(true)" :style="buttonStyleLike" :src="colors.likeButton" ></ion-img>
               </ion-row>
             </ion-col>
           </ion-row>
@@ -132,6 +132,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import {GroupChat} from "@/model/chat/Chat";
     import NoAvailable from "@/components/placeholders/NoAvailable.vue";
     import Done from "@/components/placeholders/Done.vue";
+    import {globalSharedCompatibility} from "@/composables/store/comaptibilityStore";
     
     const router = useRouter()
     const route = useRoute()
@@ -240,6 +241,8 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
     async function nextGroup(){
      // groups.value.shift()  //remove first element
+      console.log("next group, refresh com")
+      globalSharedCompatibility.com = 0
       groups.value = groups.value.slice(1)
       currentGroup.value = groups.value[0]
       if(currentGroup.value != undefined){

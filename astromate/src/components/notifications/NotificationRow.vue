@@ -1,5 +1,5 @@
 <template>
-  <div :style="notificationMessageStyle">
+  <div :style="notificationMessageStyle" id="notification-item">
     <ion-item>
       <ion-grid v-if="isNotificationInfo ">
         <!--sender id: {{props.notification.sender}} -->
@@ -19,7 +19,7 @@
             <ion-button size="small" color="danger" style=" padding-right: 1em" shape="round" @click="decline(props.notification)" fill="outline">
               Odmítnout
             </ion-button>
-            <ion-button size="small" color="success" shape="round" fill="outline" @click="
+            <ion-button id="notification-item-accept-button" size="small" color="success" shape="round" fill="outline" @click="
           accept(props.notification.sender,
           props.notification.receiver,
           props.notification.groupDocumentID,

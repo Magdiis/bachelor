@@ -44,7 +44,7 @@
         </ion-select>
         </div>
 
-      <ion-button  expand="block" shape="round" class="ion-padding" @click="saveToDb()" >Uložit</ion-button>
+      <ion-button id="add-searched-group-save-button" expand="block" shape="round" class="ion-padding" @click="saveToDb()" >Uložit</ion-button>
         <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
 
       

@@ -1,5 +1,5 @@
 <template>
-  <ion-item @click="setSelectedGroup()" :button="true">
+  <ion-item id="groups-group-item" @click="setSelectedGroup()" :button="true">
     <ion-row style="width: 100%;" class="ion-justify-content-between">
       <ion-col size="9">
         <ion-row class="ion-align-items-center">

@@ -3,10 +3,10 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-back-button :class="returnColorClass" default-href="#" @click="router.back"></ion-back-button>
+          <ion-back-button id="chat-conversation-navigate-back-button" :class="returnColorClass" default-href="#" @click="router.back"></ion-back-button>
         </ion-buttons>
         <ion-buttons slot="primary">
-          <ion-button id="trigger-popover-edit-users">
+          <ion-button id="trigger-popover-edit-users" @click="isPopoverOpen = true">
             <ion-icon slot="icon-only" :ios="ellipsisHorizontal" :md="ellipsisVertical"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -15,11 +15,10 @@
     </ion-header>
     <ion-content :fullscreen="true" ref="content" :scroll-events="true">
 
-
-      <ion-popover trigger="trigger-popover-edit-users" size="auto" :dismiss-on-select="true">
+      <ion-popover :is-open="isPopoverOpen"  @didDismiss="isPopoverOpen=false" size="auto" :dismiss-on-select="true">
         <ion-content v-if="chatParams.isAdmin">
           <ion-list lines="none">
-            <ion-item @click="isModalOpen=true">
+            <ion-item id="chat-conversation-show-members-item" @click="openModalClosePopover()">
               <ion-icon :icon="peopleOutline" class="ion-padding-end"></ion-icon>
               Zobrazit členy
             </ion-item>
@@ -27,7 +26,11 @@
         </ion-content>
         <ion-content v-else>
           <ion-list lines="none">
-            <ion-item :button="true" :detail="false" id="present-alert-delete-chat">
+            <ion-item @click="openModalClosePopover()">
+              <ion-icon :icon="peopleOutline" class="ion-padding-end"></ion-icon>
+              Zobrazit členy
+            </ion-item>
+            <ion-item :button="true" :detail="false" @click="isPopoverOpen=false" id="present-alert-delete-chat">
               <ion-icon  :icon="logOutOutline" class="ion-padding-end"></ion-icon>
               Opustit skupinu
             </ion-item>
@@ -35,14 +38,14 @@
           <ion-alert
               trigger="present-alert-delete-chat"
               header="Opravdu chcete opustit tuto skupinu?"
-              :buttons="cancelOrConfirmButtons"
+              :buttons="cancelOrConfirmButtonsLeavingGroup"
           >
           </ion-alert>
         </ion-content>
 
       </ion-popover>
 
-      <ion-modal :is-open="isModalOpen">
+      <ion-modal id="chat-page-members-modal" :is-open="isModalOpen">
         <ion-content>
           <ion-toolbar>
             <ion-buttons slot="start">
@@ -53,16 +56,39 @@
             </ion-title>
           </ion-toolbar>
           <ion-list>
-            <ion-item @click="openSheet(name)" v-if="currentGroupChat != undefined" v-for="name in currentGroupChat.membersNames">
-                {{name }}
+            <ion-item  @click="openSheet(idAndName)" v-if="currentGroupChat != undefined" v-for="idAndName in currentGroupChat.membersNamesAndIDs">
+              <member-row :id-and-name="idAndName"></member-row>
             </ion-item>
           </ion-list>
         </ion-content>
       </ion-modal>
 
+      <ion-modal  :is-open="isModalForProfileOpen">
+        <ion-content style="--background: var(--ion-color-blue); --color:white">
+          <ion-toolbar>
+            <ion-title>
+              Profil člena
+            </ion-title>
+            <ion-buttons slot="start">
+              <ion-back-button default-href="#" @click="isModalForProfileOpen=false"></ion-back-button>
+            </ion-buttons>
+          </ion-toolbar>
+          <div v-if="selectedProfile != undefined">
+            <profile-in-modal :profile="selectedProfile"></profile-in-modal>
+          </div>
+          <div v-else>
+            <h1 class="ion-padding">
+              Chyba při načítání profilu
+            </h1>
+          </div>
+        </ion-content>
+      </ion-modal>
+
 
       <ion-action-sheet
+          id="chat-page-action-sheet"
           :is-open="isSheetOpen"
+          header="Akce"
           @willDismiss="dismissActionSheet($event)"
           :buttons="returnActionSheetButtons(currentName)">
       </ion-action-sheet>
@@ -79,8 +105,8 @@
 
     <ion-footer>
       <ion-toolbar>
-        <ion-textarea v-model="messageText" fill="outline" class="ion-padding" placeholder="Zpráva"></ion-textarea>
-        <ion-button fill="clear" slot="end" @click="createMessage(
+        <ion-textarea id="chat-conversation-textarea-input" v-model="messageText" fill="outline" class="ion-padding" placeholder="Zpráva"></ion-textarea>
+        <ion-button id="chat-conversation-send-message-button" fill="clear" slot="end" @click="createMessage(
                 {
                 id: '',
                 messageText: messageText,
@@ -96,6 +122,7 @@
 
 <script setup lang="ts">
 import {
+  IonActionSheet,
   IonAlert,
   IonBackButton,
   IonButton,
@@ -105,16 +132,15 @@ import {
   IonHeader,
   IonIcon,
   IonItem,
-  IonList, IonLoading,
+  IonList,
+  IonLoading,
+  IonModal,
   IonPage,
   IonPopover,
   IonTextarea,
   IonTitle,
-  IonToolbar,
-  onIonViewWillEnter,
-    IonModal,
-    IonActionSheet
-
+  IonToolbar, onIonViewDidLeave,
+  onIonViewWillEnter
 } from "@ionic/vue";
 import {useRoute, useRouter} from "vue-router";
 import {ChatParams, GroupChat, TextMessage} from "@/model/chat/Chat";
@@ -122,36 +148,39 @@ import {computed, reactive, ref} from "vue";
 import {collection, onSnapshot, orderBy, query, Timestamp} from "firebase/firestore";
 import {db} from "@/firebase-service";
 import savingToFirestore from "@/composables/savingToFirestore";
-import {
-  ellipsisHorizontal,
-  ellipsisVertical,
-  logOutOutline,
-  send,
-  personRemoveOutline, personOutline, peopleOutline,
-} from 'ionicons/icons'
+import {ellipsisHorizontal, ellipsisVertical, logOutOutline, peopleOutline, send,} from 'ionicons/icons'
 import {globalProfile} from "@/composables/store/profileStore";
 import OwnMessageRow from "@/components/chat/ownMessageRow.vue";
 import ForeignMessageRow from "@/components/chat/foreignMessageRow.vue";
 import {colorsCases} from "@/model/group/createGroupEnums";
-import {useGroupChatStore} from "@/composables/store/useGroupChatStore";
+import {currentGroupChat, useGroupChatStore} from "@/composables/store/useGroupChatStore";
 import updateInFirestore from "@/composables/updateInFirestore";
 import {Group} from "@/model/group/Group";
-import {globalGroups, globalSearchedGroups, useGroupStore} from "@/composables/store/useGroupStore";
+import {useGroupStore} from "@/composables/store/useGroupStore";
 import {routesNames} from "@/router/routesNames";
-import {currentGroupChat} from "@/composables/store/useGroupChatStore";
-import {useDocument} from "vuefire";
 import {NotificationMessage, notificationText} from "@/model/notification/NotificationMessage";
+import MemberRow from "@/components/chat/memberRow.vue";
+import {Profile} from "@/model/profile/Profile";
+import fetchingFirebase from "@/composables/fetchingFromFirestore";
+import ProfileInModal from "@/components/profile/profileInModal.vue";
 
 const router = useRouter()
 const route = useRoute()
 const groupChatStore = useGroupChatStore()
 const groupStore = useGroupStore()
 const saveToFirestore = savingToFirestore()
+const fetchFromFirestore = fetchingFirebase()
+
 
 const content = ref(null as any | null)
 
 const isModalOpen = ref<boolean>(false)
 const isSheetOpen = ref<boolean>(false)
+const isModalForProfileOpen = ref<boolean>(false)
+const isPopoverOpen = ref<boolean>(false)
+
+const profiles = ref<Profile[]>([])
+const selectedProfile = ref<Profile>()
 
 const chatParams = reactive<ChatParams>({
   id: "",
@@ -169,8 +198,18 @@ const messageText = ref("")
 const textMessages = ref<Array<TextMessage>>([])
 
 const currentName = ref("")
+onIonViewDidLeave(()=>{
+  chatParams.id = ''
+  chatParams.name = ''
+  chatParams.color = ''
+  chatParams.isAdmin = false
+  isPopoverOpen.value = false
+  isModalOpen.value = false
+  isSheetOpen.value = false
+})
 
 onIonViewWillEnter(async () => {
+  profiles.value = []
   getChatParamsFromRoute()
   const path = "chats/" + chatParams.id + '/messages'
   //const path = "chats/"+"nejakyDocumentID"+'/messages'
@@ -191,8 +230,18 @@ onIonViewWillEnter(async () => {
     console.error("Error text messages: ", error)
   })
   groupChatStore.setCurrentGroupChat(chatParams.id)
+  if(currentGroupChat.value != undefined){
+    profiles.value = await fetchFromFirestore.fetchMembersProfiles(currentGroupChat.value.membersIDs)
+
+  }
 
 })
+
+const getSelectedProfile = (name: string) : Profile| undefined => {
+  return profiles.value.find((profile)=>{
+    return profile.name === name
+  })
+}
 
 function getChatParamsFromRoute() {
   const chatParamsString = route.params.chatParams
@@ -205,6 +254,11 @@ async function createMessage(textMessage: TextMessage, chatId: string) {
     await (savingToFirestore().createTextMessage(textMessage, chatId))
     messageText.value = ""
   }
+}
+
+function openModalClosePopover(){
+  isPopoverOpen.value = false
+  isModalOpen.value = true
 }
 
 // MANAGE USERS
@@ -223,17 +277,9 @@ async function leaveGroup() {
 
   // SEND NOTIFICATION
   const notificationMessage: NotificationMessage = {
-    groupDocumentID: findedGroupChat.id,
-    groupName: findedGroupChat.name,
-    id: "",
-    read: false,
-    receiver: findedGroupChat.ownerID,
-    sender: globalProfile.id,
-    senderName: globalProfile.name,
-    sentAt: Timestamp.now(),
-    text: notificationText.UserLeaveGroup,
-    toBeDeleted: false,
-    userDocumentID: findedSearchedGroup.id
+    groupDocumentID: findedGroupChat.id, groupName: findedGroupChat.name, id: "", read: false,
+    receiver: findedGroupChat.ownerID, sender: globalProfile.id, senderName: globalProfile.name,
+    sentAt: Timestamp.now(), text: notificationText.UserLeaveGroup, toBeDeleted: false, userDocumentID: findedSearchedGroup.id
 
   }
   await saveToFirestore.createNotification(notificationMessage)
@@ -255,15 +301,9 @@ function leaveChatGroup(groupChat: GroupChat): GroupChat {
     return !m.includes(globalProfile.name + ";" + globalProfile.id)
   })
   return {
-    color: groupChat.color,
-    countMembers: updatedMembersIds.length,
-    id: groupChat.id,
-    isPairs: groupChat.isPairs,
-    membersIDs: updatedMembersIds as [string],
-    membersNames: updatedNames as [string],
-    membersNamesAndIDs: updatedMembersNamesAndIDs as [string],
-    name: groupChat.name,
-    ownerID: groupChat.ownerID
+    color: groupChat.color, countMembers: updatedMembersIds.length, id: groupChat.id, isPairs: groupChat.isPairs,
+    membersIDs: updatedMembersIds as [string], membersNames: updatedNames as [string],
+    membersNamesAndIDs: updatedMembersNamesAndIDs as [string], name: groupChat.name, ownerID: groupChat.ownerID
   }
 }
 
@@ -286,17 +326,9 @@ async function removeUser(name: string){
   await (updateInFirestore().removeUserFromGroup(removeUserFromGroup(findedGroup,removingId)))
   // NOTIFICATION
   const notification: NotificationMessage = {
-    groupDocumentID: findedGroupChat.id,
-    groupName: findedGroupChat.name,
-    id: "",
-    read: false,
-    receiver: removingId,
-    sender: globalProfile.id,
-    senderName: globalProfile.name,
-    sentAt: Timestamp.now(),
-    text: notificationText.UserRemovedUser,
-    toBeDeleted: false,
-    userDocumentID: "" // snad nevadi
+    groupDocumentID: findedGroupChat.id, groupName: findedGroupChat.name, id: "", read: false,
+    receiver: removingId, sender: globalProfile.id, senderName: globalProfile.name, sentAt: Timestamp.now(),
+    text: notificationText.UserRemovedUser, toBeDeleted: false, userDocumentID: "" // snad nevadi
   }
   await saveToFirestore.createNotification(notification)
   // AFTER ALL UPDATES
@@ -320,15 +352,9 @@ function removeUserFromGroupChat(groupChat: GroupChat ,removingName: string, rem
   })
 
   return {
-    color: groupChat.color,
-    countMembers: updatedMembersIds.length,
-    id: groupChat.id,
-    isPairs: groupChat.isPairs,
-    membersIDs: updatedMembersIds as [string],
-    membersNames: updatedNames as [string],
-    membersNamesAndIDs: updatedMembersNamesAndIDs as [string],
-    name: groupChat.name,
-    ownerID: groupChat.ownerID
+    color: groupChat.color, countMembers: updatedMembersIds.length, id: groupChat.id,
+    isPairs: groupChat.isPairs, membersIDs: updatedMembersIds as [string], membersNames: updatedNames as [string],
+    membersNamesAndIDs: updatedMembersNamesAndIDs as [string], name: groupChat.name, ownerID: groupChat.ownerID
   }
 
 }
@@ -344,89 +370,53 @@ function removeUserFromGroup(group: Group, removingId: string): Group{
   const updatedMembersIds =  group.membersIDs.filter((id: string) => {
       return id !== removingId
   })
-
-  return {
-    color: group.color,
-    currentMembers: updatedMembersIds.length,
-    description: group.description,
-    id: group.id,
-    maxMembers: group.maxMembers,
-    membersIDs: updatedMembersIds,
-    name: group.name,
-    sportCase: group.sportCase,
-    useCase: group.useCase,
-    userId: group.userId,
-    workCase: group.workCase
+  return {color: group.color, currentMembers: updatedMembersIds.length, description: group.description,
+    id: group.id, maxMembers: group.maxMembers, membersIDs: updatedMembersIds, name: group.name,
+    sportCase: group.sportCase, useCase: group.useCase, userId: group.userId, workCase: group.workCase
   }
 }
-function viewProfile(){
-
+function viewProfile(currentName: string){
+  selectedProfile.value = getSelectedProfile(currentName)
+  isModalForProfileOpen.value = true
 }
 // ALERT BUTTONS
-const cancelOrConfirmButtons = [
-  {
-    text: 'Zrušit',
-    role: 'cancel',
-    cssClass: 'alert-button-cancel',
-    handler: () => {
-      console.log('Alert canceled');
-    },
-  },
-  {
-    text: 'Opustit',
-    role: 'confirm',
-    cssClass: 'alert-button-confirm',
-    handler: () => {
-      leaveGroup()
-    },
-  },
+const cancelOrConfirmButtonsLeavingGroup = [
+  {text: 'Zrušit', role: 'cancel', cssClass: 'alert-button-cancel', handler: () => {console.log('Alert canceled');},},
+  {text: 'Opustit', role: 'confirm', cssClass: 'alert-button-confirm', handler: () => {leaveGroup()},},
+];
+
+const cancelOrConfirmButtonsRemoveUser = [
+  {text: 'Zrušit', role: 'cancel', cssClass: 'alert-button-cancel', handler: () => {console.log('Alert canceled');},},
+  {text: 'Opustit', role: 'confirm', cssClass: 'alert-button-confirm', handler: () => {console.log("removing user")},},
 ];
 
 // ACTION SHEET BUTTONS
 const returnActionSheetButtons = (name: string) => {
-  if(name === globalProfile.name){
-    return [
-        //TODO
-      // {
-      //   text: 'Zobrazit profil',
-      //   data: {
-      //     action: 'profile',
-      //   },
-      // },
-    ]
+  if(globalProfile.id === currentGroupChat.value?.ownerID){
+    if(name === globalProfile.name){
+      return [{text: 'Zobrazit profil', data: {action: 'profile',},},]
+    } else {return [{text: 'Odebrat uživatele', role: 'destructive', data: {action: 'remove',},},
+      {text: 'Zobrazit profil', data: {action: 'profile',},},]
+    }
   } else {
-    return [
-      {
-        text: 'Odebrat uživatele',
-        data: {
-          action: 'remove',
-        },
-      },
-        // TODO
-      // {
-      //   text: 'Zobrazit profil',
-      //   data: {
-      //     action: 'profile',
-      //   },
-      // },
-    ]
+    return [{text: 'Zobrazit profil', data: {action: 'profile',},}]
   }
+
 }
 
 const dismissActionSheet = (ev: CustomEvent) => {
   isSheetOpen.value = false
   const event = ev.detail.data.action
   if (event === "remove"){
-    console.log("remove")
     removeUser(currentName.value)
   }
   if (event === "profile"){
-    viewProfile()
-    console.log("profile")
+    viewProfile(currentName.value)
   }
 };
 
-const openSheet = (name: string) =>{
+const openSheet = (idAndName: string) =>{
+  const name = idAndName.substring(0, idAndName.indexOf(";"))
   isSheetOpen.value = true
   currentName.value = name
 }
