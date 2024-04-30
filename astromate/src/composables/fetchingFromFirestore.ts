@@ -107,19 +107,21 @@ export default function fetchingFirebase() {
     }
 
     async function fetchMembersProfiles(membersIDs: string[]): Promise<Profile[]> {
-        console.log("Fetching")
         var profiles: Profile[] = []
 
         const q: Query = query(profiles_collection, where('__name__', "in", membersIDs))
         try {
             const profilesRef = await getDocs(q)
             if (profilesRef.empty) {
-                console.log("empty")
                 return profiles
             } else {
                 profilesRef.forEach((doc) => {
                     console.log(doc.data().name)
                     profiles.push({
+                        handy: doc.data().handy,
+                        plan: doc.data().plan,
+                        temperament: doc.data().temperament,
+                        thinking: doc.data().thinking,
                         date: doc.data().date,
                         description: doc.data().description,
                         id: doc.id,
@@ -142,10 +144,13 @@ export default function fetchingFirebase() {
             const docRef = doc(db, "profiles", profileID)
             const docSnap = await getDoc(docRef)
             if (!docSnap.exists()) {
-                console.log("empty")
                 return undefined
             } else {
                 return {
+                    handy: docSnap.data().handy,
+                    plan: docSnap.data().plan,
+                    temperament: docSnap.data().temperament,
+                    thinking: docSnap.data().thinking,
                     date: docSnap.data().date,
                     description: docSnap.data().description,
                     id: docSnap.id,
@@ -165,8 +170,10 @@ export default function fetchingFirebase() {
             const docRef = doc(db, "profiles", profileID)
             const docSnap = await getDoc(docRef)
             if (docSnap.exists()) {
-                console.log("data", docSnap.data())
+
                 const foundedProfile: Profile = {
+                    handy: docSnap.data().handy, plan: docSnap.data().plan,
+                    temperament: docSnap.data().temperament, thinking: docSnap.data().thinking,
                     date: docSnap.data().date, description: docSnap.data().description,
                     id: profileID, name: docSnap.data().name, place: docSnap.data().place
                 }
@@ -174,7 +181,6 @@ export default function fetchingFirebase() {
                 //TODO: condition if we want to save to profile store
                 useProfileStore().setProfile(foundedProfile)
             }
-            console.log("dokument exists() ", docSnap.exists())
             return docSnap.exists()
         } catch (e) {
             console.error("Error ", e)
@@ -187,7 +193,7 @@ export default function fetchingFirebase() {
         try {
             const q: Query = query(profiles_collection, where('name','==',username))
             const docSnap = await getDocs(q)
-            console.log("is username exist", !docSnap.empty)
+
             return !docSnap.empty
         } catch (e) {
             console.error("Error ", e)
@@ -223,7 +229,7 @@ export default function fetchingFirebase() {
             throw new Error("Error")
         }
 
-        function pushToGroupChats(doc) {
+        function pushToGroupChats(doc: any) {
             groupChats.push({
                 color: doc.data().color,
                 countMembers: doc.data().countMembers,

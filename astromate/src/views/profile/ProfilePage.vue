@@ -31,38 +31,22 @@
 
       <div class="ion-padding-horizontal">
         <h3>{{profile.name}}, {{countAge(profile.date)}}</h3>
-        <h6 style="background-color: var(--ion-color-blue-lighter);padding: 1em; border-radius: 12px">{{profile.description}}</h6>
         <ion-row  class="ion-align-items-center">
           <div class="dot">
             <ion-icon style="padding: 0; margin: 0; font-size: 1.6em" :icon="locationOutline"></ion-icon>
           </div>
-          <p style="padding-left: 0.6em">lat: {{profile.place.latitude}}, lon: {{profile.place.longitude}}</p>
+          <p  style="padding-left: 0.6em">lat: {{profile.place.latitude}}, lon: {{profile.place.longitude}}</p>
         </ion-row>
-
+        <h6 style="background-color: var(--ion-color-blue-lighter);padding: 1em; border-radius: 12px">{{profile.description}}</h6>
+        <div style="padding-top: 1em">
+        <scrolling-characteristics
+            :temperament="profile.temperament"
+            :handy="profile.handy"
+            :plan="profile.plan"
+            :thinking="profile.thinking"
+            :color="colorsCases.Blue"></scrolling-characteristics>
       </div>
-
-      <div style="overflow: auto">
-      <ion-row class="ion-nowrap" style="width: 200%; " >
-        <ion-col style="height: 2em">
-          ahojaaaaaaaaaa
-        </ion-col>
-        <ion-col  style="height: 2em">
-          ahojaaaaaaaaaaaa
-        </ion-col>
-        <ion-col  style="height: 2em">
-          ahojaaaaaaaaaaaa
-        </ion-col>
-        <ion-col  style="height: 2em">
-          ahojaaaaaaaaaaaaaaa
-        </ion-col>
-        <ion-col  style="height: 2em">
-          ahojaaaaaaaaaaaaaaaa
-        </ion-col>
-      </ion-row>
       </div>
-
-
-
       <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
 
 
@@ -104,6 +88,7 @@ import { getDownloadURL , ref as storageRef } from "firebase/storage";
 import useStorage from "@/composables/firebaseStorage/useStorage";
 import {colorsCases} from "@/model/group/createGroupEnums";
 import {Timestamp} from "firebase/firestore";
+import ScrollingCharacteristics from "@/components/profile/scrollingCharacteristics.vue";
 
 
 const profile = globalProfile

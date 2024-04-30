@@ -22,6 +22,38 @@
                       :counter="true" maxlength="200" label="Popis" label-placement="floating" v-model="editedProfile.description" fill="outline" rows="3"></ion-textarea>
       </div>
 
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Temperament"  v-model="editedProfile.temperament">
+          <ion-select-option v-for="temp in temperamentValues">
+            {{ temp }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Plánovací typ"  v-model="editedProfile.plan">
+          <ion-select-option v-for="plan in planValues">
+            {{ plan }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Typ myšlení"  v-model="editedProfile.thinking">
+          <ion-select-option v-for="think in thinkingValues">
+            {{ think }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Tvoření"  v-model="editedProfile.handy">
+          <ion-select-option v-for="handy in handyValues">
+            {{ handy }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
       <div class="ion-padding-start">
         <p> Datum narození</p>
       </div>
@@ -96,11 +128,11 @@ import {
   IonPage,
   IonTextarea,
   IonTitle,
-  IonToolbar, onIonViewWillEnter, IonButtons, IonBackButton, onIonViewDidLeave, IonText
+  IonToolbar, onIonViewWillEnter, IonButtons, IonBackButton, onIonViewDidLeave, IonText, IonSelectOption, IonSelect
 } from "@ionic/vue";
 import {cameraOutline, checkmarkOutline, locationOutline, save} from 'ionicons/icons';
 import {computed, reactive, ref} from "vue";
-import {Profile} from "@/model/profile/Profile";
+import {handyValues, planValues, Profile, temperamentValues, thinkingValues} from "@/model/profile/Profile";
 import {globalProfile, globalProfilePhotoURl, useProfileStore} from "@/composables/store/profileStore";
 import {useRouter} from "vue-router";
 import {savePicture, usePhotoGallery} from "@/composables/photos/usePhotoGallery";
@@ -114,7 +146,12 @@ const profileStore = useProfileStore()
 const router = useRouter()
 const {getCurrentPosition, checkPermissions, location} = useGeolocation()
 
-const editedProfile = reactive<Profile>({date: "", description: "", id: "", name: "", place: {longitude:0,latitude:0}})
+const editedProfile = reactive<Profile>({date: "",
+  handy: "",
+  plan: "",
+  temperament: "",
+  thinking: "",
+  description: "", id: "", name: "", place: {longitude:0,latitude:0}})
 
 const loading = ref(false)
 
@@ -146,6 +183,10 @@ function setProfile(){
   editedProfile.description = globalProfile.description
   editedProfile.name = globalProfile.name
   editedProfile.place = globalProfile.place
+  editedProfile.handy = globalProfile.handy
+  editedProfile.plan = globalProfile.plan
+  editedProfile.temperament = globalProfile.temperament
+  editedProfile.thinking = globalProfile.thinking
 }
 
 function cleanPhoto(){

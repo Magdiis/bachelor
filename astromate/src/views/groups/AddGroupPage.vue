@@ -10,34 +10,41 @@
         </ion-toolbar>
       </ion-header>
 
-      <ion-card @click="router.push({name: routesNames.SearchPeopleAdd})">
-        <ion-card-header>
-          <ion-card-title>
-            Hledám lidi
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          Po vytvoření bude uživatel hledat lidi do své skupiny
-        </ion-card-content>
-      </ion-card>
+      <ion-list>
+        <ion-item id="add-group-selection-button" @click="router.push({name: routesNames.SearchPeopleAdd})" :button="true">
+          <ion-row>
+            <ion-col>
+              <ion-row class="ion-align-items-center" style="margin-top: 1em;">
+                <ion-icon size="large" src="/user/user-request-icon.svg"></ion-icon>
+                <h1 style="color: var(--ion-color-blue); padding: 0; margin: 0 0 0 0.5em;">Hledám lidi</h1>
+              </ion-row>
+              <p>Vytvoření vlastní skupiny do které budete moct zvát uživatele</p>
+            </ion-col>
+          </ion-row>
+        </ion-item>
 
+        <ion-item id="add-searched-group-selection-button" @click="router.push({name: routesNames.SearchGroupsAdd})" :button="true">
+          <ion-row>
+            <ion-col>
+              <ion-row class="ion-align-items-center" style="margin-top: 1em;">
+                <ion-icon size="large" src="/user/searching-group-icon-blue.svg"></ion-icon>
+                <h1 style="color: var(--ion-color-blue); padding: 0; margin: 0 0 0 0.5em;">Hledám skupiny</h1>
+              </ion-row>
+              <p>Chci se přidat do existující skupiny jiného uživatele</p>
+            </ion-col>
+          </ion-row>
+        </ion-item>
+      </ion-list>
 
-      <ion-card @click="router.push({name: routesNames.SearchGroupsAdd})">
-        <ion-card-header>
-          <ion-card-title>
-            Hledám skupiny
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          Po vytvoření bude uživatel hledat skupiny do kterých chce patřit
-        </ion-card-content>
-      </ion-card>
     </ion-content>
   </ion-page>
 
 </template>
 <script setup lang="ts">
 import {
+  IonIcon,
+    IonRow,
+    IonList, IonCol,
   IonPage,
   IonContent,
   IonTitle,

@@ -24,7 +24,39 @@
       </ion-textarea>
     </div>
 
-      <div class="ion-padding-start ion-padding-bottom" >
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Temperament"  v-model="profile.temperament">
+          <ion-select-option v-for="temp in temperamentValues">
+            {{ temp }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Plánovací typ"  v-model="profile.plan">
+          <ion-select-option v-for="plan in planValues">
+            {{ plan }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Typ myšlení"  v-model="profile.thinking">
+          <ion-select-option v-for="think in thinkingValues">
+            {{ think }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-top">
+        <ion-select interface="popover" label="Tvoření"  v-model="profile.handy">
+          <ion-select-option v-for="handy in handyValues">
+            {{ handy }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+
+      <div class="ion-padding-horizontal ion-padding-bottom " >
         <p style="margin-bottom: 6px"> Poloha</p>
         <small>Poloha souží k výpočtu vzdálenosti mezi Vámi a hledanými uživateli.
           Jako výchozí poloha slouží souřadnice Prahy.</small>
@@ -44,8 +76,12 @@
         </ion-button>
       </div>
 
-      <div class="ion-padding-start">
-        <p> Datum narození</p>
+      <div class="ion-padding-horizontal">
+        <ion-row>
+          Datum narození
+          <div v-if="validationValues.isDateEmpty" style="color: var(--ion-color-danger); margin-left: 0.5em"><small>(povinné)</small></div>
+        </ion-row>
+
       </div>
 
       <div  class="center ion-padding-horizontal">
@@ -60,7 +96,7 @@
 
 
       <div class="center">
-        <ion-button fill="clear" @click ='takePhoto()'> Vybrat fotku </ion-button>
+        <ion-button id="create_profile_take_picture_button"  fill="clear" @click ='takePhoto()'> Vybrat fotku </ion-button>
       </div>
       <ion-img style="height: 80vw;background-size: cover;background-position: center" v-if="photo != undefined" :src="photo.webviewPath"></ion-img>
       <div class="center"  v-else>
@@ -69,9 +105,6 @@
         </ion-thumbnail>
         <div v-if="validationValues.isPhotoEmpty"><p style="color: var(--ion-color-danger)">fotka je povinná</p> </div>
       </div>
-
-
-
 
 
       <div class="center">
@@ -90,11 +123,30 @@
 <script setup lang="ts">
 import {
   IonThumbnail,
-  IonPage, IonContent, IonTitle, IonHeader, IonToolbar, IonInput,
-  IonItem, IonLabel, IonList, IonTextarea, IonDatetime, IonButton,
-  IonLoading, IonAlert, IonText, onIonViewDidEnter, IonImg, onIonViewWillEnter, IonIcon, IonCol
+  IonPage,
+  IonContent,
+  IonTitle,
+  IonHeader,
+  IonToolbar,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonTextarea,
+  IonDatetime,
+  IonButton,
+  IonLoading,
+  IonAlert,
+  IonText,
+  onIonViewDidEnter,
+  IonImg,
+  onIonViewWillEnter,
+  IonIcon,
+  IonCol,
+  IonSelectOption,
+  IonSelect
 } from '@ionic/vue';
-import type { Profile } from '@/model/profile/Profile.ts'
+import {handyValues, planValues, Profile, temperamentValues, thinkingValues} from '@/model/profile/Profile.ts'
 import {computed, reactive, ref} from "vue";
 //import { format, parseISO } from 'date-fns';
 import savingToFirestore from '@/composables/savingToFirestore'
@@ -106,6 +158,7 @@ import {savePicture, usePhotoGallery} from "@/composables/photos/usePhotoGallery
 import {person, cameraOutline, locationOutline, checkmarkOutline} from "ionicons/icons";
 import {useGeolocation} from "@/composables/geolocation/useGeolocation";
 import fetchingFirebase from "@/composables/fetchingFromFirestore";
+import {colorsCasesValues, useCase, workCasesValues} from "@/model/group/createGroupEnums";
 
 const router = useRouter()
 const profileStore = useProfileStore()
@@ -129,7 +182,8 @@ const validationValues = reactive({
   isDescriptionEmpty: false,
   isPhotoEmpty: false,
   notUniqueUsername: false,
-  showErrorMessage: false
+  showErrorMessage: false,
+  isDateEmpty: false
 })
 
 
@@ -146,7 +200,6 @@ const max = computed(()=>{
 })
 
 onIonViewWillEnter(()=>{
-  profile.date = max.value
   console.log(profile)
 })
 
@@ -198,7 +251,8 @@ async function validate(username: string ): Promise<boolean>{
   validationValues.isUsernameEmpty = profile.name.length < 1
   validationValues.isDescriptionEmpty = profile.description.length < 1
   validationValues.isPhotoEmpty = photo.value == undefined
-  if(!validationValues.isPhotoEmpty && !validationValues.isDescriptionEmpty && !validationValues.isUsernameEmpty){
+  validationValues.isDateEmpty = profile.date == ''
+  if(!validationValues.isPhotoEmpty && !validationValues.isDescriptionEmpty && !validationValues.isUsernameEmpty && !validationValues.isDateEmpty){
     const profile = await fetchFromFirebase.isUsernameExist(username)
     if(profile){
       validationValues.notUniqueUsername = true
@@ -215,14 +269,16 @@ function clearProfile() {
   profile.name = ""
   profile.description = ""
   profile.place ={latitude:50.073658, longitude:14.418540 }
-  profile.date = max.value
+  profile.date = ""
   photo.value = undefined
+  buttonName.value = 'zjisti polohu'
 
   validationValues.showErrorMessage = false
   validationValues.isUsernameEmpty = false
   validationValues.isDescriptionEmpty = false
   validationValues.isPhotoEmpty = false
   validationValues.notUniqueUsername = false
+  validationValues.isDateEmpty = false
 }
 
 function navigate(){

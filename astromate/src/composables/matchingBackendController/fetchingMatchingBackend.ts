@@ -17,8 +17,6 @@ export default function fetchingMatchingBackend(){
                 groupsFilter.useCase + "/" +
                 groupsFilter.category /*,{headers:{"ngrok-skip-browser-warning":"1"}}*/);
 
-            console.log("I am in getOtherGroups then");
-            console.log("response data: ", JSON.stringify(response.data));
             if(response.data.groups.length > 0){
                 console.log("data:",response.data)
                 response.data.groups.forEach((group)=>{
@@ -55,7 +53,6 @@ export default function fetchingMatchingBackend(){
                 groupsFilter.useCase + "/" +
                 groupsFilter.category /*,{headers:{"ngrok-skip-browser-warning":"1"}}*/);
             if(response.data.users.length > 0){
-                console.log("data:",response.data)
                 response.data.users.forEach((user)=>{
                     const {sportCaseThis, workCaseThis} = convertCategory(user.useCase,user.category)
                     users.push({

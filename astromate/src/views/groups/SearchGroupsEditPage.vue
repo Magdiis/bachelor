@@ -19,29 +19,33 @@
       </ion-select>
       </div>
 
-      <div class="ion-padding-horizontal ion-padding-top">
-      <ion-select interface="popover" label="Účel" placeholder="Práce" v-model="globalSearchedGroupEditing.useCase">
-        <ion-select-option v-for="uC in useCasesValues">
-          {{ uC }}
-        </ion-select-option>
-      </ion-select>
-      </div>
+      <!--TODO: když bude čas tak upravit ale jinak na to kašlat -->
+<!--      <div v-if="globalSelectedSearchedGroup.groupId == ''">-->
+<!--        <div class="ion-padding-horizontal ion-padding-top">-->
+<!--          <ion-select interface="popover" label="Účel" placeholder="Práce" v-model="globalSearchedGroupEditing.useCase">-->
+<!--            <ion-select-option v-for="uC in useCasesValues">-->
+<!--              {{ uC }}-->
+<!--            </ion-select-option>-->
+<!--          </ion-select>-->
+<!--        </div>-->
 
-      <div class="ion-padding-horizontal ion-padding-top" v-if="globalSearchedGroupEditing.useCase == useCase.Work">
-        <ion-select interface="popover" label="Kategorie" v-model="globalSearchedGroupEditing.workCase">
-          <ion-select-option v-for="wC in workCasesValues">
-            {{ wC }}
-          </ion-select-option>
-        </ion-select>
-      </div>
+<!--        <div class="ion-padding-horizontal ion-padding-top" v-if="globalSearchedGroupEditing.useCase == useCase.Work">-->
+<!--          <ion-select interface="popover" label="Kategorie" v-model="globalSearchedGroupEditing.workCase">-->
+<!--            <ion-select-option v-for="wC in workCasesValues">-->
+<!--              {{ wC }}-->
+<!--            </ion-select-option>-->
+<!--          </ion-select>-->
+<!--        </div>-->
 
-      <div class="ion-padding-horizontal ion-padding-top" v-if="globalSearchedGroupEditing.useCase == useCase.Sport">
-        <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="globalSearchedGroupEditing.sportCase">
-          <ion-select-option v-for="sC in sportCasesValues">
-            {{ sC }}
-          </ion-select-option>
-        </ion-select>
-      </div>
+<!--        <div class="ion-padding-horizontal ion-padding-top" v-if="globalSearchedGroupEditing.useCase == useCase.Sport">-->
+<!--          <ion-select interface="popover" label="Druh" placeholder="Kategorie" v-model="globalSearchedGroupEditing.sportCase">-->
+<!--            <ion-select-option v-for="sC in sportCasesValues">-->
+<!--              {{ sC }}-->
+<!--            </ion-select-option>-->
+<!--          </ion-select>-->
+<!--        </div>-->
+<!--      </div>-->
+
 
       <ion-button expand="block" shape="round" class="ion-padding" @click="update()" >Uložit</ion-button>
       <ion-loading :is-open="loading" message="Ukládání" spinner="lines-small" ></ion-loading>
