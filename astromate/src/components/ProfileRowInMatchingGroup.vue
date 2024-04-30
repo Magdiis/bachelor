@@ -10,17 +10,31 @@
       <ion-skeleton-text :animated="true" style="height: 100vw" v-else></ion-skeleton-text>
       <div class="ion-padding-horizontal">
         <h3>{{profile.name}}, {{age}}</h3>
-        <h6 :class="colors.descriptionBackground" style="padding: 1em; border-radius: 12px">{{profile.description}}</h6>
-<!--        <ion-row>-->
-<!--          ikonka-->
-<!--          jak je daleko ?-->
-<!--        </ion-row>-->
+
         <ion-row class="ion-align-items-center">
           <div class="dot" :class="colors.dotColor">
-            <ion-icon style="font-size: 1.6em" :icon="settingsOutline"></ion-icon>
+            <ion-icon style="font-size: 1.6em" :icon="locationOutline"></ion-icon>
           </div>
-          <p style="padding-left: 0.6em"> 20%</p>
+          <p style="padding-left: 0.6em"> {{distance}} </p>
         </ion-row>
+
+        <h6 :class="colors.descriptionBackground" style="padding: 1em; border-radius: 12px">{{profile.description}}</h6>
+          <div class="ion-padding-bottom" style="padding-top: 1em">
+            <scrolling-characteristics
+                :temperament="profile.temperament"
+                :handy="profile.handy"
+                :plan="profile.plan"
+                :thinking="profile.thinking"
+                :color="props.color"></scrolling-characteristics>
+          </div>
+
+
+<!--        <ion-row class="ion-align-items-center">-->
+<!--          <div class="dot" :class="colors.dotColor">-->
+<!--            <ion-icon size="large" src="/compatibility/com-icon-white.svg"></ion-icon>-->
+<!--          </div>-->
+<!--          <p style="padding-left: 0.6em"> {{ compatibility }}%</p>-->
+<!--        </ion-row>-->
       </div>
 
     </ion-content>
@@ -42,7 +56,7 @@
       {{profile.name}}
     </ion-col>
     <ion-col class="ion-text-end">
-      20%
+      {{ compatibility }}%
     </ion-col>
   </ion-row>
 </ion-item>
@@ -51,28 +65,35 @@
 
 <script setup lang="ts">
 import {
-  IonSkeletonText,
-  IonToolbar,
-  IonButton,
+  IonBackButton,
   IonButtons,
-  IonRow,
   IonCol,
-  IonImg,
-  IonIcon,
-  IonItem,
-  IonAvatar,
   IonContent,
+  IonIcon,
+  IonImg,
+  IonItem,
   IonModal,
-  IonBackButton
+  IonRow,
+  IonSkeletonText,
+  IonToolbar
 } from '@ionic/vue';
 
 import {Profile} from "@/model/profile/Profile";
 import {colorsCases} from "@/model/group/createGroupEnums";
-import {computed, onMounted, reactive, ref} from "vue";
+import {computed, onBeforeMount, onMounted, ref} from "vue";
 import useStorage from "@/composables/firebaseStorage/useStorage";
 import {locationOutline, person, settingsOutline} from 'ionicons/icons'
+import {getDistance} from "geolib";
+import {globalProfile} from "@/composables/store/profileStore";
+import {useCompatibility, userPlanets} from "@/composables/empheremis/useCompatibility";
+import {usePlanetEphemeris} from "@/composables/empheremis/useEmpheremis";
+import {globalSharedCompatibility} from "@/composables/store/comaptibilityStore";
+import ScrollingCharacteristics from "@/components/profile/scrollingCharacteristics.vue";
+
 
 const firebaseStorage = useStorage()
+const planetEphemeris = usePlanetEphemeris()
+
 const currentProfilePhotoUrl = ref("")
 const isProfileDetailOpen = ref<boolean>(false)
 
@@ -85,8 +106,11 @@ const profileId = computed(()=>{
   return props.profile.id
 })
 
+
 onMounted(async ()=>{
   await getPhoto(profileId.value)
+  globalSharedCompatibility.com = globalSharedCompatibility.com + compatibility.value
+  console.log("set glSharCom onMounted profile row", globalSharedCompatibility)
 })
 async function getPhoto(profileId: string){
   const responseStorage  = await firebaseStorage.getPhoto(profileId)
@@ -97,6 +121,25 @@ async function getPhoto(profileId: string){
     currentProfilePhotoUrl.value = 'error'
   }
 }
+
+const distance = computed(()=>{
+  const distance = getDistance(
+      {latitude: globalProfile.place.latitude, longitude: globalProfile.place.longitude},
+      {latitude: props.profile.place.latitude, longitude: props.profile.place.longitude})
+  const toKm = Math.round(distance/1000)
+  if (toKm < 2){
+    return "poblíž"
+  } else {
+    return `${toKm} km daleko`
+  }
+})
+
+const compatibility = computed(()=>{
+  const userPlanets1: userPlanets = planetEphemeris.getPlanetsEphemeris(globalProfile.date,globalProfile.place.latitude,globalProfile.place.longitude)
+  const userPlaners2: userPlanets = planetEphemeris.getPlanetsEphemeris(props.profile.date, props.profile.place.latitude, props.profile.place.longitude)
+  const{ compatibilityResult, numberOfSquare} = useCompatibility(userPlanets1, userPlaners2)
+  return compatibilityResult()
+})
 
 const age = computed(()=>{
   const now = new Date(Date.now())
@@ -119,7 +162,7 @@ const colors = computed(()=>{
         sphere: "matching/sphere-blue.svg",
         modalBackground: "modal-background-blue",
         descriptionBackground: "description-background-blue",
-        dotColor: "background-color-blue",
+        dotColor: "background-color-blue"
       }
     }
     case colorsCases.Green:{
@@ -127,7 +170,7 @@ const colors = computed(()=>{
         sphere: "matching/sphere-green.svg",
         modalBackground: "modal-background-green",
         descriptionBackground: "description-background-green",
-        dotColor: "background-color-green",
+        dotColor: "background-color-green"
       }
     }
     case colorsCases.Orange:{
@@ -135,7 +178,7 @@ const colors = computed(()=>{
         sphere: "matching/sphere-orange.svg",
         modalBackground: "modal-background-orange",
         descriptionBackground: "description-background-orange",
-        dotColor: "background-color-orange",
+        dotColor: "background-color-orange"
       }
     }
     case colorsCases.Red:{
@@ -143,14 +186,14 @@ const colors = computed(()=>{
         sphere: "matching/sphere-red.svg",
         modalBackground: "modal-background-red",
         descriptionBackground: "description-background-red",
-        dotColor: "background-color-red",
+        dotColor: "background-color-red"
       }
     }
     default:{
       return {
         sphere: "matching/sphere-blue.svg",
         modalBackground: "modal-background-blue",
-        descriptionBackground: "description-background-blue"
+        descriptionBackground: "description-background-blue",
       }
     }
   }

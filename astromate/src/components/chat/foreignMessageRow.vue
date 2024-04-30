@@ -1,6 +1,12 @@
 <template>
   <ion-grid>
-    <ion-row class="placing">
+    <ion-row class="placing ion-align-items-center">
+      <ion-col size="auto">
+        <div class="dot" v-if="img.src == ''">
+          <ion-icon size="large" style="color: #e7e7e7" :icon="person"></ion-icon>
+        </div>
+        <img v-else :src="img.src"  style="border-radius: 50%; height: 3em; width: 3em"></img>
+      </ion-col>
       <ion-col  class="messageBackground">
         <ion-row class="ion-align-items-center">
            <ion-text class="name-typography" :class="returnColorClass">
@@ -18,13 +24,25 @@
 import {TextMessage} from "@/model/chat/Chat";
 import {colorsCases} from "@/model/group/createGroupEnums";
 import {IonIcon, IonText,IonLabel, IonCol, IonGrid, IonRow, onIonViewDidEnter } from '@ionic/vue';
-import {computed} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
+import {globalProfile, globalProfilePhotoURl} from "@/composables/store/profileStore";
+import useStorage from "@/composables/firebaseStorage/useStorage";
+import {person} from "ionicons/icons";
 
+
+const firebaseStorage = useStorage()
 const props = defineProps<{
   textMessage: TextMessage,
   color: string
 }>()
 
+const img = reactive({
+  src: ""
+})
+
+onMounted(async ()=>{
+  await getPhoto(props.textMessage.sentById)
+})
 
 const time = computed(()=>{
   const timeString = props.textMessage.sentAt.toDate().toLocaleTimeString()
@@ -57,6 +75,13 @@ const returnColorClass = computed(() => {
   }
 })
 
+async function getPhoto(id: string){
+  const response = await firebaseStorage.getPhoto(id)
+  if (response.URL != undefined){
+    img.src = response.URL
+  }
+}
+
 
 </script>
 
@@ -64,7 +89,7 @@ const returnColorClass = computed(() => {
 <style scoped>
 
 .placing {
-  margin-right: 25%;
+  margin-right: 10%;
   padding: 0.2em
 }
 
@@ -82,6 +107,19 @@ const returnColorClass = computed(() => {
 
 .name-typography {
   font-weight: bold;
+}
+
+.dot {
+  height: 3em;
+  width: 3em;
+  background-color: #fff;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 0.09em;
+  border-color: #e7e7e7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 

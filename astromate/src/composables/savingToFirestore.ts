@@ -30,6 +30,10 @@ export default function savingToFirestore() {
                 description: profile.description,
                 date: profile.date,
                 place: profile.place,
+                temperament: profile.temperament,
+                thinking: profile.thinking,
+                plan: profile.plan,
+                handy: profile.handy
             })
             useProfileStore().setProfile(profile)
             return true

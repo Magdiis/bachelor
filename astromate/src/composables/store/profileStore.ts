@@ -3,6 +3,7 @@ import {Profile} from "@/model/profile/Profile";
 
 
 export const globalProfile = reactive<Profile>({
+    handy: "", plan: "", temperament: "", thinking: "",
     place: {latitude:0, longitude:0},
     date: "", description: "", id: "", name: ""
 })
@@ -18,6 +19,10 @@ export const useProfileStore = () => {
         globalProfile.date = addedProfile.date
         globalProfile.place = addedProfile.place
         globalProfile.description = addedProfile.description
+        globalProfile.handy = addedProfile.handy
+        globalProfile.plan = addedProfile.plan
+        globalProfile.temperament = addedProfile.temperament
+        globalProfile.thinking = addedProfile.thinking
     }
 
     const clearProfile = () => {
@@ -26,6 +31,10 @@ export const useProfileStore = () => {
         globalProfile.place = {latitude:0, longitude:0}
         globalProfile.date = ""
         globalProfile.description = ""
+        globalProfile.handy = ""
+        globalProfile.plan = ""
+        globalProfile.temperament = ""
+        globalProfile.thinking = ""
     }
 
     const setURL = (URL: string)=>{

@@ -164,7 +164,11 @@ export default function updateInFirestore() {
                 date: updatedProfile.date,
                 description: updatedProfile.description,
                 name: updatedProfile.name,
-                place: updatedProfile.place
+                place: updatedProfile.place,
+                temperament: updatedProfile.temperament,
+                thinking: updatedProfile.thinking,
+                plan: updatedProfile.plan,
+                handy: updatedProfile.handy
             })
         } catch (e) {
             console.error("Error updating profile document: ", e)

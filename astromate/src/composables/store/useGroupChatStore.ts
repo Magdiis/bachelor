@@ -16,7 +16,6 @@ export const useGroupChatStore = () => {
     }
 
     const getGroupChat = (groupChatId: string): GroupChat => {
-        console.log("global group chats ", JSON.stringify(globalGroupChats))
         const result =  globalGroupChats.find((groupChat) => {
             return groupChat.id === groupChatId
         })

@@ -1,17 +1,21 @@
 <template>
   <ion-row  class="ion-justify-content-between">
-    <ion-col>
-      <h1>{{props.group.name}}</h1>
-      <h4>{{props.group.currentMembers}}/{{props.group.maxMembers}}</h4>
+    <ion-col class="ion-padding-start">
+      <h1 style="margin-bottom: 0">{{props.group.name}}</h1>
+      <ion-row class="ion-align-items-center">
+        <ion-icon size="large" :icon="peopleOutline"></ion-icon>
+        <h4 style="padding: 0 0 0 0.2em;margin:0; font-weight: normal">{{props.group.currentMembers}}/{{props.group.maxMembers}}</h4>
+      </ion-row>
+
     </ion-col>
     <ion-col size="auto"  style="padding-top: 0; padding-inline-end: 0;">
       <div class="ion-text-end">
         <div class="container">
-          <ion-img style="width: 6.5em;" :src="colors.sphereCorner"></ion-img>
+          <ion-img style="width: 6em;" :src="colors.sphereCorner"></ion-img>
           <div class="centered">
-            <ion-row style="flex-direction: column" class="ion-align-items-center">
-              <ion-icon size="large" :icon="settingsOutline"></ion-icon>
-              <h3 style="padding: 0; margin: 0">68%</h3>
+            <ion-row class="ion-align-items-center com-icon-more-center">
+              <ion-icon size="large" src="/compatibility/com-icon-white.svg"></ion-icon>
+              <h3 class="compatibility-text">{{ sharedCompatibility }}%</h3>
             </ion-row>
           </div>
 
@@ -20,13 +24,13 @@
     </ion-col>
   </ion-row>
 
-  <div class="ion-padding-horizontal">
+  <div class="ion-padding-horizontal ion-padding-top">
     <div :class="colors.descriptionBackground" style=" padding: 0.1em; border-radius: 12px">
       <p style="margin-left: 1em; margin-right: 1em">{{ props.group.name }}</p>
     </div>
   </div>
 
-  <ion-list lines="none">
+  <ion-list lines="none" class="ion-padding-top">
     <profile-row-in-matching-group  v-for="profile in props.profiles"
                                     :color="props.color" :profile="profile">
     </profile-row-in-matching-group>
@@ -46,10 +50,11 @@
   import type { Group } from '@/model/group/Group';
   import { useRouter } from 'vue-router';
   import {Profile} from "@/model/profile/Profile";
-  import {settingsOutline} from "ionicons/icons";
-  import {computed} from "vue";
+  import {peopleOutline, settingsOutline} from "ionicons/icons";
+  import {computed, onBeforeMount, onMounted, reactive} from "vue";
   import {colorsCases} from "@/model/group/createGroupEnums";
   import ProfileRowInMatchingGroup from "@/components/ProfileRowInMatchingGroup.vue";
+  import {globalSharedCompatibility} from "@/composables/store/comaptibilityStore";
   
   const router = useRouter()
   
@@ -58,6 +63,17 @@
     profiles: Profile[],
     color: colorsCases
   }>()
+
+  onBeforeMount(()=>{
+    globalSharedCompatibility.com = 0
+    console.log("set glSharCom to zero, refresh, ",globalSharedCompatibility.com)
+  })
+
+  const sharedCompatibility = computed(()=>{
+    console.log("profiles lenght: ", props.profiles.length)
+    console.log("matching card group, global shared com: ",globalSharedCompatibility)
+    return Math.round(globalSharedCompatibility.com / props.profiles.length)
+  })
 
   // SRC + CLASSES
   const colors = computed(()=>{
@@ -123,6 +139,18 @@
 
   .background-blue {
     background: var(--ion-color-blue-lighter);
+  }
+
+  .compatibility-text {
+    padding: 0;
+    margin: 0;
+    font-weight: normal;
+  }
+
+  .com-icon-more-center {
+    flex-direction: column;
+    padding-left: 0.8em;
+    padding-bottom: 0.8em
   }
   
   </style>

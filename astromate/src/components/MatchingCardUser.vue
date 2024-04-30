@@ -1,4 +1,5 @@
 <template>
+  <div id="user-matching-profile-card">
   <ion-row class="ion-justify-content-between">
     <ion-col class="ion-padding-start">
       <h1 style="margin-bottom: 0"> {{props.profile.name}}</h1>
@@ -9,9 +10,9 @@
         <div class="container">
           <ion-img style="width: 6em;" :src="colors.sphereCorner"></ion-img>
           <div class="centered">
-            <ion-row style="flex-direction: column" class="ion-align-items-center">
+            <ion-row class="ion-align-items-center com-icon-more-center">
               <ion-icon size="large" src="/compatibility/com-icon-white.svg"></ion-icon>
-              <h3 style="padding: 0; margin: 0; font-weight: normal">68%</h3>
+              <h3 class="compatibility-text">{{ compatibility }}%</h3>
             </ion-row>
           </div>
         </div>
@@ -35,7 +36,7 @@
       <div class="dot" :class="colors.dotColor">
         <ion-icon style="font-size: 1.6em" :icon="locationOutline"></ion-icon>
       </div>
-      <p style="padding-left: 0.6em"> 18 km daleko</p>
+      <p style="padding-left: 0.6em"> {{distance}} </p>
     </ion-row>
   </div>
 
@@ -45,7 +46,15 @@
     </div>
   </div>
 
-
+  <div class="ion-padding-horizontal" style="padding-bottom: 1em; padding-top: 1em">
+  <scrolling-characteristics
+      :temperament="profile.temperament"
+      :handy="profile.handy"
+      :plan="profile.plan"
+      :thinking="profile.thinking"
+      :color="colorsCases.Blue"></scrolling-characteristics>
+  </div>
+  </div>
   </template>
   
   
@@ -60,11 +69,14 @@ import { returnCategory } from '@/composables/categoryConvertor';
   import {Profile} from "@/model/profile/Profile";
   import {colorsCases} from "@/model/group/createGroupEnums";
   import {settingsOutline, personOutline, person, locationOutline, telescopeOutline} from "ionicons/icons";
-
-
+  import {getDistance} from "geolib";
+  import {globalProfile} from "@/composables/store/profileStore";
   const router = useRouter()
+  import {useCompatibility, userPlanets} from "@/composables/empheremis/useCompatibility";
+  import {usePlanetEphemeris} from "@/composables/empheremis/useEmpheremis";
+  import ScrollingCharacteristics from "@/components/profile/scrollingCharacteristics.vue";
 
-
+  const planetEphemeris = usePlanetEphemeris()
 
 
   const props = defineProps<{
@@ -81,6 +93,24 @@ import { returnCategory } from '@/composables/categoryConvertor';
     return (now.getFullYear() - birthdayDate.getFullYear()).toString()
   })
 
+  const distance = computed(()=>{
+      const distance = getDistance(
+          {latitude: globalProfile.place.latitude, longitude: globalProfile.place.longitude},
+          {latitude: props.profile.place.latitude, longitude: props.profile.place.longitude})
+      const toKm = Math.round(distance/1000)
+      if (toKm < 2){
+        return "poblíž"
+      } else {
+        return `${toKm} km daleko`
+      }
+  })
+
+  const compatibility = computed(()=>{
+    const userPlanets1: userPlanets = planetEphemeris.getPlanetsEphemeris(globalProfile.date,globalProfile.place.latitude,globalProfile.place.longitude)
+    const userPlaners2: userPlanets = planetEphemeris.getPlanetsEphemeris(props.profile.date, props.profile.place.latitude, props.profile.place.longitude)
+    const{ compatibilityResult, numberOfSquare} = useCompatibility(userPlanets1, userPlaners2)
+    return compatibilityResult()
+  })
 
   // SRC + CLASSES
   const colors = computed(()=>{
@@ -173,6 +203,18 @@ import { returnCategory } from '@/composables/categoryConvertor';
 
   .background-blue {
     background: var(--ion-color-blue-lighter);
+  }
+
+  .compatibility-text {
+    padding: 0;
+    margin: 0;
+    font-weight: normal;
+  }
+
+  .com-icon-more-center {
+    flex-direction: column;
+    padding-left: 0.8em;
+    padding-bottom: 0.8em
   }
 
 
