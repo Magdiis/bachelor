@@ -18,7 +18,6 @@
               <h3 class="compatibility-text">{{ sharedCompatibility }}%</h3>
             </ion-row>
           </div>
-
         </div>
       </div>
     </ion-col>
@@ -54,25 +53,18 @@
   import {computed, onBeforeMount, onMounted, reactive} from "vue";
   import {colorsCases} from "@/model/group/createGroupEnums";
   import ProfileRowInMatchingGroup from "@/components/ProfileRowInMatchingGroup.vue";
-  import {globalSharedCompatibility} from "@/composables/store/comaptibilityStore";
   
   const router = useRouter()
   
   const props = defineProps<{
     group: Group,
     profiles: Profile[],
-    color: colorsCases
+    color: colorsCases,
+    groupCom: number
   }>()
 
-  onBeforeMount(()=>{
-    globalSharedCompatibility.com = 0
-    console.log("set glSharCom to zero, refresh, ",globalSharedCompatibility.com)
-  })
-
   const sharedCompatibility = computed(()=>{
-    console.log("profiles lenght: ", props.profiles.length)
-    console.log("matching card group, global shared com: ",globalSharedCompatibility)
-    return Math.round(globalSharedCompatibility.com / props.profiles.length)
+    return props.groupCom
   })
 
   // SRC + CLASSES

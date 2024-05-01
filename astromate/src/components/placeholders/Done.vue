@@ -12,9 +12,14 @@
   <div id="group-matching-done-placeholder" class="center ion-padding" v-else>
     <ion-icon style="font-size:12em" src="/placeholders/done.svg"></ion-icon>
     <h1 style="font-weight: bold">Skupina nalezena</h1>
-    <h4>Jste členem skupiny ‘{{globalSelectedSearchedGroup.groupName}}’. Pokud chcete ze skupiny odejít a hledat si jinou skupinu v této kategorii. </h4>
+    <h4>Jste členem skupiny ‘{{globalSelectedSearchedGroup.groupName}}’.
+      Jestli chcete hledat další skupinu v této kategorii, definujte si novou hledanou skupinu. </h4>
+    <div class="ion-padding">
+      <ion-button @click="navigateToCreateSearchedGroup()" shape="round" style="--border-color: white; --color: white" fill="outline" >
+        Vytvořit
+      </ion-button>
+    </div>
   </div>
-
 </template>
 <script setup lang="ts">
 import {IonIcon, IonCol, IonRow, IonButton} from "@ionic/vue";
@@ -30,6 +35,10 @@ const props = defineProps<{
 const navigateToEditScreen = () => {
   Object.assign(globalGroupEditing, globalSelectedGroup)
   router.push({name:routesNames.SearchPeopleEdit})
+}
+
+const navigateToCreateSearchedGroup = ()=>{
+  router.push({name:routesNames.SearchGroupsAdd})
 }
 
 const router= useRouter()

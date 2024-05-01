@@ -1,3 +1,6 @@
+import {Profile} from "@/model/profile/Profile";
+import {usePlanetEphemeris} from "@/composables/empheremis/useEmpheremis";
+
 export type userPlanets = {
     sun: number,
     jupiter: number;
@@ -70,5 +73,25 @@ export function useCompatibility(user1: userPlanets, user2: userPlanets){
 
     return {
         compatibilityResult, numberOfSquare
+    }
+}
+
+export function groupCompatibility(profiles: Profile[]):number{
+    const planetEphemeris = usePlanetEphemeris()
+    let count = 0
+    let total = 0
+    if(profiles.length < 2){
+        return 0
+    } else {
+        for (let i = 0; i < profiles.length; i++) {
+            for (let m = i + 1; m < profiles.length; m++) {
+                const userPlanets1 = planetEphemeris.getPlanetsEphemeris(profiles[i].date,profiles[i].place.latitude,profiles[i].place.longitude)
+                const userPlanets2 = planetEphemeris.getPlanetsEphemeris(profiles[m].date,profiles[m].place.latitude,profiles[m].place.longitude)
+                const {compatibilityResult} = useCompatibility(userPlanets1,userPlanets2)
+                total += compatibilityResult()
+                count++;
+            }
+        }
+        return Math.round(total/count)
     }
 }

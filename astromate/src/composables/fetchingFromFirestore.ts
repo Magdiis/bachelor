@@ -202,61 +202,87 @@ export default function fetchingFirebase() {
 
     }
 
-    async function fetchGroupChats(profileId: string): Promise<GroupChat[]> {
-        var groupChats: GroupChat[] = []
+    // async function fetchGroupChats(profileId: string): Promise<GroupChat[]> {
+    //     var groupChats: GroupChat[] = []
+    //     try {
+    //         const q: Query = query(groups_chat_collection, where('membersIDs', "array-contains", profileId))
+    //         const groupChatsRef = await getDocs(q)
+    //         if (groupChatsRef.empty) {
+    //             return groupChats
+    //         } else {
+    //             await Promise.all(groupChatsRef.docs.map(async (doc) => {
+    //                 // if everyone leave group chat, but admin did not delete the group
+    //                 // check if group chat contains messages - admin can be in chat group alone
+    //                 if (doc.data().countMembers === 1) {
+    //                     const hasMessages = await hasGroupChatMessages(doc.id)
+    //                     if (hasMessages) {
+    //                         pushToGroupChats(doc)
+    //                     }
+    //                 } else {
+    //                     pushToGroupChats(doc)
+    //                 }
+    //             }))
+    //             return groupChats
+    //         }
+    //     } catch (e) {
+    //         console.error("Error ", e)
+    //         throw new Error("Error")
+    //     }
+    //
+    //     function pushToGroupChats(doc: any) {
+    //         groupChats.push({
+    //             color: doc.data().color,
+    //             countMembers: doc.data().countMembers,
+    //             id: doc.id,
+    //             isPairs: doc.data().isPairs,
+    //             membersIDs: doc.data().membersIDs,
+    //             membersNames: doc.data().membersNames,
+    //             ownerID: doc.data().ownerID,
+    //             name: doc.data().name,
+    //             membersNamesAndIDs: doc.data().membersNamesAndIDs,
+    //         })
+    //     }
+    // }
+
+    // async function hasGroupChatMessages(chatId: string): Promise<boolean> {
+    //     const path = "chats/" + chatId + "/messages"
+    //     const q = query(collection(db, path))
+    //     try {
+    //         const chatRef = await getDocs(q)
+    //         return !chatRef.empty
+    //     } catch (e) {
+    //         console.error("error fetching messages ", e)
+    //         throw new Error("")
+    //     }
+    // }
+
+    async function getGroupChat(groupChatId: string): Promise<GroupChat>{
         try {
-            const q: Query = query(groups_chat_collection, where('membersIDs', "array-contains", profileId))
-            const groupChatsRef = await getDocs(q)
-            if (groupChatsRef.empty) {
-                return groupChats
+            const docRef = doc(db, "groupChat", groupChatId)
+            const docSnap = await getDoc(docRef)
+            if(docSnap.exists()){
+                return {
+                    color: docSnap.data().color,
+                    countMembers: docSnap.data().countMembers,
+                    id: docSnap.id,
+                    isPairs: docSnap.data().isPairs,
+                    membersIDs: docSnap.data().membersIDs,
+                    membersNames: docSnap.data().membersNames,
+                    membersNamesAndIDs: docSnap.data().membersNamesAndIDs,
+                    name:docSnap.data().name,
+                    ownerID: docSnap.data().ownerID
+                }
             } else {
-                await Promise.all(groupChatsRef.docs.map(async (doc) => {
-                    // if everyone leave group chat, but admin did not delete the group
-                    // check if group chat contains messages - admin can be in chat group alone
-                    if (doc.data().countMembers === 1) {
-                        const hasMessages = await hasGroupChatMessages(doc.id)
-                        if (hasMessages) {
-                            pushToGroupChats(doc)
-                        }
-                    } else {
-                        pushToGroupChats(doc)
-                    }
-                }))
-                return groupChats
+                throw new Error("group chat does not exist")
             }
-        } catch (e) {
-            console.error("Error ", e)
-            throw new Error("Error")
-        }
 
-        function pushToGroupChats(doc: any) {
-            groupChats.push({
-                color: doc.data().color,
-                countMembers: doc.data().countMembers,
-                id: doc.id,
-                isPairs: doc.data().isPairs,
-                membersIDs: doc.data().membersIDs,
-                membersNames: doc.data().membersNames,
-                ownerID: doc.data().ownerID,
-                name: doc.data().name,
-                membersNamesAndIDs: doc.data().membersNamesAndIDs,
-            })
-        }
-    }
-
-    async function hasGroupChatMessages(chatId: string): Promise<boolean> {
-        const path = "chats/" + chatId + "/messages"
-        const q = query(collection(db, path))
-        try {
-            const chatRef = await getDocs(q)
-            return !chatRef.empty
         } catch (e) {
             console.error("error fetching messages ", e)
             throw new Error("")
         }
     }
 
-    return {isUsernameExist, getOwnGroups, getOwnUsers, fetchMembersProfiles, fetchProfile, isProfileExist, fetchGroupChats}
+    return {getGroupChat,isUsernameExist, getOwnGroups, getOwnUsers, fetchMembersProfiles, fetchProfile, isProfileExist}
 }
 
 

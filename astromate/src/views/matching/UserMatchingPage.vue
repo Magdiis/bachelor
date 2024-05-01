@@ -41,13 +41,13 @@
                   <ion-icon  :icon="trashOutline" class="ion-padding-end"></ion-icon>
                   Smazat
                 </ion-item>
+                <ion-alert
+                    trigger="present-alert-delete-group"
+                    header="Opravdu chcete smazat vyhledávání uživatelů? Bude smazán i  případný chat."
+                    :buttons="cancelOrConfirmButtons"
+                >
+                </ion-alert>
               </ion-list>
-              <ion-alert
-                  trigger="present-alert-delete-group"
-                  header="Opravdu chcete smazat vyhledávání uživatelů? Bude smazán i  případný chat."
-                  :buttons="cancelOrConfirmButtons"
-              >
-              </ion-alert>
             </ion-content>
           </ion-popover>
 
@@ -82,6 +82,7 @@
     
     <script setup lang="ts">
     import {
+      IonGrid,
       IonAlert,
       IonFooter,
       IonBackButton, IonButton,
@@ -128,6 +129,7 @@
     import {colorsCases} from "@/model/group/createGroupEnums";
     import useStorage from "@/composables/firebaseStorage/useStorage";
     import Done from "@/components/placeholders/Done.vue";
+    import {Group} from "@/model/group/Group";
 
     const router = useRouter()
     const route = useRoute()
@@ -172,6 +174,9 @@
 
     onIonViewDidLeave(()=>{
       isEmpty.value = false
+      users.value = []
+      currentUser.value = undefined
+      currentProfile.value = undefined
     })
     function getGroupsFilter() {
         groupsFilter.value = {
@@ -232,6 +237,7 @@
       // Add to seen by field
       if (currentUser.value?.id != null){
         await addUsersSeenBy(currentUser.value.id)
+        await addGroupSeenBy(globalSelectedGroup.id, currentUser.value.userId)
       }
 
       // change current user to next one
@@ -247,6 +253,10 @@
 
     async function addUsersSeenBy(userId: string){
         await updateInFirestore().addUsersSeenBy(userId,globalProfile.id)
+    }
+
+    async function addGroupSeenBy(groupId: string, profileId: string){
+      await updateInFirestore().addGroupsSeenBy(groupId, profileId)
     }
 
     async function nextUser(){
@@ -285,14 +295,33 @@
       // SET "" TO SEARCHED GROUPS WITH GROUP ID
       await updateFirestore.setGroupIdEmptyInGroups(groupId)
       // SEND NOTIFICATION TO MEMBERS
-
+      await sendNotificationToMembers(globalSelectedGroup)
       // NAVIGATE
       await router.push({name: routesNames.Groups})
       loading.value = false
     }
 
-    function sendNotification(membersIds: string[]){
-
+    async function sendNotificationToMembers(group:Group){
+        if(group.membersIDs.length>0){
+          for (const id of group.membersIDs){
+            if(id !== globalProfile.id){
+              const notificationMessage: NotificationMessage = {
+                groupDocumentID: group.id,
+                groupName: group.name,
+                id: group.id,
+                read: false,
+                receiver: id,
+                sender: globalProfile.id,
+                senderName: globalProfile.name,
+                sentAt: Timestamp.now(),
+                text: notificationText.UserDeleteGroup,
+                toBeDeleted: false,
+                userDocumentID: ""
+              }
+              await savingToFirestore().createNotification(notificationMessage)
+            }
+          }
+        }
     }
 
     function navigateToEditPage(){
@@ -316,8 +345,8 @@
         role: 'confirm',
         cssClass: 'alert-button-confirm',
         handler: async () => {
-          if(groupsFilter.value?.userOrGroupID_card != undefined){
-            await deleteOwnGroup(groupsFilter.value.userOrGroupID_card)
+          if(globalSelectedGroup.id != ''){
+            await deleteOwnGroup(globalSelectedGroup.id)
           }
         },
       },

@@ -146,7 +146,15 @@ import {
   IonSelectOption,
   IonSelect
 } from '@ionic/vue';
-import {handyValues, planValues, Profile, temperamentValues, thinkingValues} from '@/model/profile/Profile.ts'
+import {
+  Handy,
+  handyValues, Plan,
+  planValues,
+  Profile,
+  Temperament,
+  temperamentValues, Thinking,
+  thinkingValues
+} from '@/model/profile/Profile.ts'
 import {computed, reactive, ref} from "vue";
 //import { format, parseISO } from 'date-fns';
 import savingToFirestore from '@/composables/savingToFirestore'
@@ -174,7 +182,11 @@ const profile: Profile = reactive({
     name: "",
     description: "",
     date: "",
-    place: {latitude:50.073658, longitude:14.418540 }
+    place: {latitude:50.073658, longitude:14.418540 },
+    handy: Handy.handy,
+    temperament: Temperament.extrovert,
+    thinking: Thinking.rational,
+    plan: Plan.plan
 })
 
 const validationValues = reactive({
@@ -272,6 +284,10 @@ function clearProfile() {
   profile.date = ""
   photo.value = undefined
   buttonName.value = 'zjisti polohu'
+  profile.handy = Handy.handy
+  profile.temperament= Temperament.extrovert
+  profile.thinking = Thinking.rational
+  profile.plan = Plan.plan
 
   validationValues.showErrorMessage = false
   validationValues.isUsernameEmpty = false

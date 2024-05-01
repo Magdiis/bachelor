@@ -87,7 +87,7 @@ import {getDistance} from "geolib";
 import {globalProfile} from "@/composables/store/profileStore";
 import {useCompatibility, userPlanets} from "@/composables/empheremis/useCompatibility";
 import {usePlanetEphemeris} from "@/composables/empheremis/useEmpheremis";
-import {globalSharedCompatibility} from "@/composables/store/comaptibilityStore";
+
 import ScrollingCharacteristics from "@/components/profile/scrollingCharacteristics.vue";
 
 
@@ -109,8 +109,7 @@ const profileId = computed(()=>{
 
 onMounted(async ()=>{
   await getPhoto(profileId.value)
-  globalSharedCompatibility.com = globalSharedCompatibility.com + compatibility.value
-  console.log("set glSharCom onMounted profile row", globalSharedCompatibility)
+
 })
 async function getPhoto(profileId: string){
   const responseStorage  = await firebaseStorage.getPhoto(profileId)

@@ -18,9 +18,7 @@ async function getOtherGroupsFromFirestore(userID_string, useCase_string, catego
                 .where("useCase","==",useCase_string)
                 .where("category","==",category_string)
                 .get()
-        groupsRef.forEach((doc) => {
-                 console.log(doc.id, '=>', doc.data());
-             });
+
 
         return groupsRef
     } catch (e) {
@@ -42,10 +40,10 @@ async function getOtherUsersFromFirestore(userID_string, useCase_string, categor
 }
 
 function filterGroups(userID, groupsFromFirebase_querySnapshot){
-    console.log("inside filterGroupsMethod")
+
     var groups = []
     groupsFromFirebase_querySnapshot.forEach((doc)=>{
-        //console.log(doc.id, '=>', doc.data())
+
         if(doc.data().wasSeenBy.includes(userID) === false
             && isCurrentMembersSmallerThanMax(doc.data().currentMembers, doc.data().maxMembers)){
             var newGroup = doc.data()
@@ -62,10 +60,10 @@ function isCurrentMembersSmallerThanMax(currentMembers_number, maxMembers_number
 
 function filterUsers(userID, usersFromFirebase_querySnapshot){
     var users = []
-    console.log("inside filterUsers")
+
     usersFromFirebase_querySnapshot.forEach((doc)=>{
         if(doc.data().wasSeenBy.includes(userID) === false && doc.data().groupId === ""){
-            console.log("groupId: ", doc.data().groupId)
+
             var newUser = doc.data()
             newUser['id'] = doc.id
             users.push(newUser)
@@ -84,6 +82,7 @@ async function getOwnUsersFromFirestore(userId_string){
             let users = []
             usersRef.forEach((doc)=>{
                 users.push({
+                    id: doc.id,
                     category: doc.data().category,
                     color: doc.data().color,
                     groupId: doc.data().groupId,
@@ -127,6 +126,7 @@ async function getOwnGroupsFromFirestore(userId_string){
             let groups = []
             groupsRef.forEach((doc)=>{
                 groups.push({
+                    id: doc.id,
                     category: doc.data().category,
                     color: doc.data().color,
                     currentMembers: doc.data().currentMembers,
@@ -161,7 +161,7 @@ async function getProfiles(profilesIds){
             return profiles
         } else {
             profilesRef.forEach((doc) => {
-                console.log(doc.data().name)
+
                 profiles.push({
                     date: doc.data().date,
                     place: doc.data().place
@@ -196,7 +196,7 @@ function calculateCompatibility(profiles){
 
 
 function compatibilityBetweenTwoProfiles(profile1, profile2){
-    console.log('profile 1: ', profile1)
+
     const profile1Planets = getPlanetEphemeris(profile1.date,profile1.place.latitude, profile1.place.longitude)
     const profile2Planets = getPlanetEphemeris(profile2.date,profile2.place.latitude, profile2.place.longitude)
     var allAspects = []

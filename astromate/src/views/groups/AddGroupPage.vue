@@ -42,6 +42,7 @@
 </template>
 <script setup lang="ts">
 import {
+  IonItem,
   IonIcon,
     IonRow,
     IonList, IonCol,

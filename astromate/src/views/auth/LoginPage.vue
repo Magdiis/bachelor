@@ -41,7 +41,7 @@
 
       <!-- delete -->
 <!--      <ion-button @click="router.push({name:routesNames.CreateProfile})"> create profile </ion-button>-->
-      <ion-button shape="round" @click="LoginHardcore()">Login hardcore</ion-button>
+<!--      <ion-button shape="round" @click="LoginHardcore()">Login hardcore</ion-button>-->
     </ion-content>
 
   </ion-page>
@@ -170,10 +170,6 @@ async function saveToStores(profileId: string) {
   groupStore.setOwnSearchedGroups(ownSearchedGroups)
   const ownGroups = await fetchFromFirebase.getOwnGroups(profileId)
   groupStore.setOwnGroups(ownGroups)
-
-  //GROUP CHATS
-  const groupChats = await fetchFromFirebase.fetchGroupChats(profileId)
-  groupChatStore.setGroupChats(groupChats)
 
 }
 

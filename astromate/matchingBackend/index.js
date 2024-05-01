@@ -18,17 +18,17 @@ app.get('/', (req, res) => {
 })
 
 app.get("/getOtherGroups/:userId/:useCase/:category", (req, res) => {
-     console.log(req.params.useCase)
+
     var body = {
         groups: []
     }
     fetchingFromFirestore.getOtherGroupsFromFirestore(req.params.userId, req.params.useCase, req.params.category).then(querySnapshot  =>{
         if(querySnapshot.size === 0){
-            console.log("zero")
+
             // empty json
             res.json(body)
         } else {
-            console.log("not zero")
+
             body.groups = fetchingFromFirestore.filterGroups(req.params.userId, querySnapshot)
             res.json(body)
         }
@@ -61,9 +61,10 @@ app.get("/getOwnGroups/:userId",async (req, res)=>{
         res.json(body)
     } else {
         groupsWithProfiles = await fetchingFromFirestore.addProfilesToGroups(groupsFromFirestore)
-        console.log('groups with profiles: ', groupsWithProfiles[0].membersProfiles[0])
+
         groupsWithProfiles.forEach((groupWithProfiles)=>{
                 body.ownGroups.push({
+                    id: groupWithProfiles.id,
                     category: groupWithProfiles.category,
                     color: groupWithProfiles.color,
                     currentMembers: groupWithProfiles.currentMembers,
@@ -93,6 +94,7 @@ app.get("/getOwnUsers/:userId",async (req, res)=>{
             const profiles = membersIds.length > 1 ?  await fetchingFromFirestore.getProfiles(membersIds) : []
             const compatibility = profiles.length > 1 ? await fetchingFromFirestore.calculateCompatibility(profiles) : 0
             body.ownUsers.push({
+                id: user.id,
                 category: user.category,
                 color: user.color,
                 groupId: user.groupId,

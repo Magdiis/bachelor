@@ -1,6 +1,8 @@
 import {reactive} from "vue";
 import {Group} from "@/model/group/Group";
 import {User} from "@/model/group/User";
+import {OwnGroup} from "@/model/group/ownGroupsResponse";
+import {OwnUser} from "@/model/group/ownUsersResponse";
 
 // ALL
 export const globalSearchedGroups = reactive<User[]>([])
@@ -23,6 +25,10 @@ export const globalGroupEditing = reactive<Group>({
     color: "", currentMembers: 0, description: "", id: "", maxMembers: 0, membersIDs: [], name: "", sportCase: "", useCase: "", userId: "", workCase: ""
 })
 
+// OWN GROUPS
+export const globalOwnGroups = reactive<OwnGroup[]>([])
+export const globalOwnSearchedGroups = reactive<OwnUser[]>([])
+
 export const useGroupStore = () => {
 
     /****************** SET ******************/
@@ -40,6 +46,16 @@ export const useGroupStore = () => {
     const setSearchedGroups = (addedSearchedGroups: User[])=>{
         globalSearchedGroups.splice(0)
         globalSearchedGroups.push(...addedSearchedGroups)
+    }
+
+    const setOwnGroupsWithCom = (groups: OwnGroup[])=>{
+        globalOwnGroups.splice(0)
+        globalOwnGroups.push(...groups)
+    }
+
+    const setOwnSearchedGroupsWithCom = (users: OwnUser[])=>{
+        globalOwnSearchedGroups.splice(0)
+        globalOwnSearchedGroups.push(...users)
     }
 
     // editing groups
@@ -102,6 +118,6 @@ export const useGroupStore = () => {
     }
 
 
-    return {setOwnSearchedGroups,clear,setOwnGroups, setSearchedGroups,getSearchedGroupByGroupId, getGroup,
+    return {setOwnSearchedGroupsWithCom,setOwnGroupsWithCom,setOwnSearchedGroups,clear,setOwnGroups, setSearchedGroups,getSearchedGroupByGroupId, getGroup,
         setEditingSearchedGroup, setEditingGroup, clearEditing, getSearchedGroupById}
 }

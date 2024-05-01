@@ -24,5 +24,6 @@ export enum notificationText {
     UserWantsToUsersGroup = 2, //"Uživatel se chce přidat do vaší skupiny",
     UserAddedUser = 3, // "Uživatel vás přidal do své skupiny",
     UserRemovedUser = 4, //"Uživatel vás odebral ze skupiny",
-    UserLeaveGroup = 5 // Uživatel opustil skupinu
+    UserLeaveGroup = 5, // Uživatel opustil skupinu
+    UserDeleteGroup = 6 // Uživatel smazal skupinu
 }

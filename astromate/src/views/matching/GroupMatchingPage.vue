@@ -54,10 +54,8 @@
             v-if="currentGroup!=undefined && currentMembers.length>0"
             :group="currentGroup"
             :profiles="currentMembers"
+            :group-com="groupCom"
             :color="globalSelectedSearchedGroup.color"/>
-
-
-
 
         </ion-content>
       <ion-footer class="ion-no-border" v-if="currentGroup != undefined">
@@ -95,7 +93,7 @@
       IonList,
       IonItem,
       IonPopover,
-      IonAlert, IonLoading, IonImg, IonFooter
+      IonAlert, IonLoading, IonImg, IonFooter, onIonViewDidLeave
     } from '@ionic/vue';
     import { useRouter } from 'vue-router';
     import { useRoute } from 'vue-router';
@@ -121,7 +119,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import updateInFirestore from "@/composables/updateInFirestore";
     import fetchingMatchingBackend from "@/composables/matchingBackendController/fetchingMatchingBackend";
     import {Profile} from "@/model/profile/Profile";
-    import {NotificationMessage, notificationText} from "@/model/notification/NotificationMessage";
+    import {NotificationMessage, notificationNames, notificationText} from "@/model/notification/NotificationMessage";
     import {auth} from "@/firebase-service";
     import {globalProfile} from "@/composables/store/profileStore";
     import {globalSelectedGroup, globalSelectedSearchedGroup, useGroupStore} from "@/composables/store/useGroupStore";
@@ -132,7 +130,8 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import {GroupChat} from "@/model/chat/Chat";
     import NoAvailable from "@/components/placeholders/NoAvailable.vue";
     import Done from "@/components/placeholders/Done.vue";
-    import {globalSharedCompatibility} from "@/composables/store/comaptibilityStore";
+    import fetchingFirebase from "@/composables/fetchingFromFirestore";
+    import {groupCompatibility} from "@/composables/empheremis/useCompatibility";
     
     const router = useRouter()
     const route = useRoute()
@@ -146,6 +145,8 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     const groupsFilter = ref<GroupsFilter>()
 
     const currentGroup = ref<Group>()
+
+    const groupCom = ref(0)
 
     const currentMembers = ref<Array<Profile>>([])
 
@@ -161,6 +162,14 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
       like: false
     })
 
+    onIonViewDidLeave(()=>{
+      currentGroup.value = undefined
+      currentMembers.value = []
+      isEmpty.value = false
+      isFilled.value = false
+      groups.value = []
+    })
+
     onIonViewDidEnter(async()=>{
       if(globalSelectedSearchedGroup.groupId != ""){
         isFilled.value = true
@@ -168,7 +177,9 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
         isFilled.value = false
         getGroupsFilter()
         await fetchOthersGroups()
+        console.log("selected group ", globalSelectedSearchedGroup)
       }
+
     })
 
     async function fetchOthersGroups() {
@@ -189,9 +200,13 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     }
 
     async function fetchMembers(membersIDs: string[]){
-        const profilesFromFirebase = await (fetchingFromFirestore().fetchMembersProfiles(membersIDs))
-        currentMembers.value = []
-        currentMembers.value.push(...profilesFromFirebase)
+      const profilesFromFirebase = await (fetchingFromFirestore().fetchMembersProfiles(membersIDs))
+      currentMembers.value = []
+      currentMembers.value.push(...profilesFromFirebase)
+      let allProfiles = []
+      allProfiles.push(globalProfile)
+      allProfiles.push(...profilesFromFirebase)
+      groupCom.value = groupCompatibility(allProfiles)
     }
 
 
@@ -226,6 +241,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
       // Add to seen by field
       if (currentGroup.value?.id != null){
         await addGroupsSeenBy(currentGroup.value.id)
+        await addUsersSeenBy(globalSelectedSearchedGroup.id, currentGroup.value.userId)
       }
       // change current group to next one and remove
       await nextGroup()
@@ -241,8 +257,6 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
     async function nextGroup(){
      // groups.value.shift()  //remove first element
-      console.log("next group, refresh com")
-      globalSharedCompatibility.com = 0
       groups.value = groups.value.slice(1)
       currentGroup.value = groups.value[0]
       if(currentGroup.value != undefined){
@@ -256,8 +270,12 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
     async function addGroupsSeenBy(groupID: string){
         await updateFirestore.addGroupsSeenBy(groupID,globalProfile.id)
-
     }
+
+    async function addUsersSeenBy(userDocumentId: string, ownerId: string){
+      await updateFirestore.addUsersSeenBy(userDocumentId, ownerId)
+    }
+
 
     async function makeNotification(sender:string, receiver:string, groupName: string,
                                     senderName: string,groupDocumentID:string, userDocumentID: string){
@@ -275,6 +293,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
     // EDITING
     async function deleteOwnSearchedGroup(searchedGroup: User){
+      console.log("searched group to delete: ", searchedGroup)
       loading.value = true
       // DELETE SEARCHED GROUP
       await deleteFirestore.deleteSearchedGroup(searchedGroup.id)
@@ -283,11 +302,25 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
         await updateFirestore.removeFromGroup(searchedGroup.groupId, globalProfile.id)
 
         // LEAVE GROUP CHAT
-        const groupChat = groupChatStore.getGroupChat(searchedGroup.groupId)
+        const groupChat = await fetchingFirebase().getGroupChat(searchedGroup.groupId)
         const updatedGroupChat = leaveGroupChat(groupChat)
         await updateFirestore.leaveGroupChat(updatedGroupChat)
 
-        // NOTIFICATION?
+        // NOTIFICATION
+        const notificationMessage: NotificationMessage = {
+          groupDocumentID: groupChat.id,
+          groupName: groupChat.name,
+          id: "",
+          read: false,
+          receiver: groupChat.ownerID,
+          sender: globalProfile.id,
+          senderName: globalProfile.name,
+          sentAt: Timestamp.now(),
+          text: notificationText.UserLeaveGroup,
+          toBeDeleted: false,
+          userDocumentID: ""
+        }
+        await savingToFirestore().createNotification(notificationMessage)
 
       }
       // NAVIGATE

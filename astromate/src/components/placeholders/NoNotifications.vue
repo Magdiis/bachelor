@@ -1,5 +1,5 @@
 <template>
-  <div class="center " style="padding-top: 9vh">
+  <div class="center ion-padding-bottom" style="padding-top: 9vh" >
     <ion-icon style="font-size:16em" src="/placeholders/no-notif.svg"></ion-icon>
     <h1 style="color: var(--ion-color-blue)">Žádné notifikace</h1>
   </div>

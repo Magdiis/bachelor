@@ -51,7 +51,7 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-    path: '/chat/:chatParams',
+    path: '/chat',
     name: routesNames.ChatPage,
     component: ChatPage,
     meta: {

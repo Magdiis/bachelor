@@ -8,6 +8,7 @@ import {Profile} from "@/model/profile/Profile";
 import {returnCategory} from "@/composables/categoryConvertor";
 import {User} from "@/model/group/User";
 import {NotificationMessage} from "@/model/notification/NotificationMessage";
+import {colorsCases} from "@/model/group/createGroupEnums";
 
 
 
@@ -57,12 +58,14 @@ export default function updateInFirestore() {
     async function removeFromGroup(groupDocumentId: string, profileId: string){
         const groupRef = doc(db, "groups", groupDocumentId)
         const groupSnap = await getDoc(groupRef)
+
         if(groupSnap.exists()){
             try {
                 await updateDoc(groupRef,{
                     currentMembers: increment(-1),
                     membersIDs: updateMembers(groupSnap.data().membersIDs, profileId)
                 })
+
             } catch (e) {
                 console.error("Error updating group document: ", e)
             }
@@ -191,6 +194,18 @@ export default function updateInFirestore() {
         }
     }
 
+    async function updateColorAndNameInGroupChat(color: string, name: string, groupChatId: string){
+        try {
+            const groupChatDoc = doc(db, "groupChat",groupChatId )
+            await updateDoc(groupChatDoc,{
+                color: color,
+                name: name
+            })
+        } catch (e) {
+            console.error("Error updating group chat document: ", e)
+        }
+    }
+
     async function updateSearchedGroup(updatedSearchedGroup: User){
         try {
             const searchedGroupDoc = doc(db,"users", updatedSearchedGroup.id)
@@ -218,5 +233,5 @@ export default function updateInFirestore() {
         }
     }
 
-    return {readNotification,updateSearchedGroup,updateGroup,removeGroupFromSearchedGroup,updateProfile,removeUserFromGroup,setGroupIdEmptyInGroups,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
+    return {updateColorAndNameInGroupChat,readNotification,updateSearchedGroup,updateGroup,removeGroupFromSearchedGroup,updateProfile,removeUserFromGroup,setGroupIdEmptyInGroups,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
 }

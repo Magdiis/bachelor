@@ -2,30 +2,30 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Chat</ion-title>
+        <ion-title>Skupiny</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <ion-loading :is-open="loading" spinner="lines-small" ></ion-loading >
-<!--    <no-messages-placeholder></no-messages-placeholder>-->
-      <ion-list>
-        <ion-list-header>
-          <h4>Moje vytvořené skupiny</h4>
-        </ion-list-header>
-        <ion-item id="group-chats-own-chat-group-item" v-for="chat in myGroupChats" >
-          <chat-row :group-chat="chat"></chat-row>
-        </ion-item>
-        <ion-list-header>
-          <h4>Ostaní</h4>
-        </ion-list-header>
-        <ion-item id="group-chats-other-chat-group-item" v-for="chat in otherGroupChats">
-          <chat-row :group-chat="chat" ></chat-row>
-        </ion-item>
-      </ion-list>
+
+        <no-groups v-if="isEmpty"></no-groups>
+        <ion-list v-else>
+          <ion-list-header v-if="myGroupChats.length > 0">
+            <h4>Moje vytvořené skupiny</h4>
+          </ion-list-header>
+          <ion-item id="group-chats-own-chat-group-item" v-for="chat in myGroupChats" >
+            <chat-row :group-chat="chat"></chat-row>
+          </ion-item>
+          <ion-list-header v-if="otherGroupChats.length > 0">
+            <h4>Ostaní</h4>
+          </ion-list-header>
+          <ion-item id="group-chats-other-chat-group-item" v-for="chat in otherGroupChats">
+            <chat-row :group-chat="chat" ></chat-row>
+          </ion-item>
+        </ion-list>
+
     </ion-content>
   </ion-page>
-
 </template>
 <script setup lang="ts">
 import {
@@ -52,34 +52,48 @@ import {globalGroupChats, useGroupChatStore} from "@/composables/store/useGroupC
 import NoGroups from "@/components/placeholders/NoGroups.vue";
 import NoNotifications from "@/components/placeholders/NoNotifications.vue";
 import NoMessagesPlaceholder from "@/components/placeholders/NoMessagesPlaceholder.vue";
-
-const groupChatStore = useGroupChatStore()
+import {onSnapshot, query, Query, where} from "firebase/firestore";
+import {groups_chat_collection, notification_collection} from "@/firebase-service";
+import {globalNotifications} from "@/composables/store/notificationStore";
 
 const myGroupChats = ref<Array<GroupChat>>([])
 const otherGroupChats = ref<Array<GroupChat>>([])
-const loading = ref(false)
+const allGroupChats = ref<Array<GroupChat>>([])
+const groupChatStore = useGroupChatStore()
 const isEmpty = ref(false)
 
 
 onIonViewWillEnter(async () => {
-  console.log("refreshing group chats")
-  loading.value = true
-  const groupsFromFirebase = await fetchGroupChats()
-  groupChatStore.setGroupChats(groupsFromFirebase)
-  filterMyAndOthersGroupChats(groupsFromFirebase)
-  isEmpty.value = myGroupChats.value.length < 1 && otherGroupChats.value.length < 1
-  loading.value = false
+  const q: Query = query(groups_chat_collection, where('membersIDs', "array-contains", globalProfile.id))
+  onSnapshot(q, (querySnapshot)=>{
+    // processNotifications(querySnapshot)
+    allGroupChats.value = []
+    querySnapshot.forEach((doc) => {
+      allGroupChats.value.push({
+        color: doc.data().color,
+        countMembers: doc.data().countMembers,
+        id: doc.id,
+        isPairs: doc.data().isPairs,
+        membersIDs: doc.data().membersIDs,
+        membersNames: doc.data().membersNames,
+        membersNamesAndIDs: doc.data().membersNamesAndIDs,
+        name: doc.data().name,
+        ownerID: doc.data().ownerID
+      })
+    })
+    isEmpty.value = allGroupChats.value.length < 1
+    filterMyAndOthersGroupChats(allGroupChats.value)
+    groupChatStore.setGroupChats(allGroupChats.value)
+  }, (error) => {
+    console.error("Error fetching notifications: ",error)
+  })
 })
-
-async function fetchGroupChats(): Promise<GroupChat[]> {
-  return await (fetchingFirebase().fetchGroupChats(globalProfile.id))
-}
 
 function filterMyAndOthersGroupChats(groupsChat: GroupChat[]) {
   myGroupChats.value = []
   otherGroupChats.value = []
   groupsChat.forEach((chat) => {
-    if (chat.ownerID == globalProfile.id) {
+    if (chat.ownerID === globalProfile.id) {
       myGroupChats.value.push(chat)
     } else {
       otherGroupChats.value.push(chat)

@@ -5,11 +5,23 @@ import {GroupChat} from "@/model/chat/Chat";
 
 export const globalGroupChats = reactive<GroupChat[]>([])
 
-export const currentGroupChat = ref<GroupChat|undefined>(undefined)
+export const currentGroupChat = reactive<GroupChat>({
+    color: "",
+    countMembers: 0,
+    id: "",
+    isPairs: false,
+    membersIDs: [""],
+    membersNames: [""],
+    membersNamesAndIDs: [""],
+    name: "",
+    ownerID: ""
+})
 export const useGroupChatStore = () => {
-    const setCurrentGroupChat = (groupChatId: string) => {
-        currentGroupChat.value = getGroupChat(groupChatId)
+    const setCurrentGroupChat = (groupChat: GroupChat) => {
+        Object.assign(currentGroupChat,groupChat)
     }
+
+
     const setGroupChats = (addedGroupChats: GroupChat[]) => {
         globalGroupChats.splice(0)
         globalGroupChats.push(...addedGroupChats)
@@ -30,7 +42,7 @@ export const useGroupChatStore = () => {
     }
 
     const updateCurrentGroupChat = (groupChat: GroupChat) =>{
-        currentGroupChat.value = groupChat
+        Object.assign(currentGroupChat,groupChat)
     }
 
 

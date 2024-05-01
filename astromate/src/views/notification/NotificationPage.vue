@@ -27,6 +27,7 @@ import {auth, notification_collection} from "@/firebase-service";
 import NotificationRow from "@/components/notifications/NotificationRow.vue";
 import {globalProfile} from "@/composables/store/profileStore";
 import NoNotifications from "@/components/placeholders/NoNotifications.vue";
+import {globalNotifications, isNotificationEmpty} from "@/composables/store/notificationStore";
 
 
 const notifications = ref<Array<NotificationMessage>>([])
@@ -55,6 +56,8 @@ onIonViewWillEnter(()=>{
             })
           })
           isEmpty.value = filteredNotifications.value.length < 1
+          globalNotifications.isNotificationEmpty = notifications.value.length < 1
+          isNotificationEmpty.value = notifications.value.length < 1
         }, (error) => {
           console.error("Error fetching notifications: ",error)
         })

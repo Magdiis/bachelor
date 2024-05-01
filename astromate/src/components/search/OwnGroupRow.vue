@@ -4,19 +4,19 @@
       <ion-col size="9">
         <ion-row class="ion-align-items-center">
           <h5 :class="colors.colorClass" style="padding: 0;margin: 0">
-            {{props.group.name}}
+            {{props.ownGroup.name}}
           </h5>
           <ion-icon style="padding: 0 0 0 0.5em" v-if="isMaxEqualToCurrent"  :class="colors.colorClass" :icon="checkmark"></ion-icon>
         </ion-row>
 
         <div class="right" style="padding-top: 0.4em">
-          <small class="text"> {{props.group.description}} </small>
+          <small class="text"> {{props.ownGroup.description}} </small>
         </div>
         <ion-row class="ion-justify-content-between ion-padding-top">
           <div>
             <ion-row class="ion-align-items-center">
               <ion-icon :class="colors.colorClass" :icon="peopleOutline"></ion-icon>
-              <small>{{ props.group.currentMembers }}/{{ props.group.maxMembers }}</small>
+              <small>{{ props.ownGroup.currentMembers }}/{{ props.ownGroup.maxMembers }}</small>
             </ion-row>
           </div>
         </ion-row>
@@ -41,37 +41,53 @@ import {peopleOutline, checkmark} from 'ionicons/icons'
 import {globalSelectedGroup} from "@/composables/store/useGroupStore";
 import {routesNames} from "@/router/routesNames";
 import {useRouter} from "vue-router";
+import {OwnGroup} from "@/model/group/ownGroupsResponse";
+import {convertCategory} from "@/composables/categoryConvertor";
 
 const router = useRouter()
 
 const props = defineProps<{
-  group: Group
+  ownGroup: OwnGroup
 }>()
 
 
 
 function setSelectedGroup(){
-  Object.assign(globalSelectedGroup, props.group)
+  const {workCaseThis,sportCaseThis} = convertCategory(props.ownGroup.useCase,props.ownGroup.category)
+  const toGroup: Group = {
+    color: props.ownGroup.color,
+    currentMembers: props.ownGroup.currentMembers,
+    description: props.ownGroup.description,
+    id: props.ownGroup.id,
+    maxMembers: props.ownGroup.maxMembers,
+    membersIDs: props.ownGroup.membersIDs,
+    name: props.ownGroup.name,
+    sportCase: sportCaseThis,
+    useCase: props.ownGroup.useCase,
+    userId: props.ownGroup.userId,
+    workCase: workCaseThis
+  }
+  Object.assign(globalSelectedGroup, toGroup)
   router.push({name: routesNames.UserMatching})
   // CLEAN AFTER RETURNING BACK?
 }
 //const isMaxEqualToCurrent = ref(false)
 
 const isMaxEqualToCurrent = computed(()=>{
-  return props.group.currentMembers === props.group.maxMembers
+  return props.ownGroup.currentMembers === props.ownGroup.maxMembers
 })
 
 const compatibility = computed(()=>{
-  return '78%'
+  return `${props.ownGroup.compatibility}%`
 })
 
 const isCurrentMoreThanOne = computed(()=>{
-  return props.group.currentMembers > 1
+  return props.ownGroup.currentMembers > 1
 })
 
 // CSS CLASSES
 const colors = computed(()=>{
-  switch (props.group.color) {
+  switch (props.ownGroup.color) {
     case colorsCases.Blue: {
       return {
         colorClass: "custom-blue",

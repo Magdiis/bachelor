@@ -1,6 +1,6 @@
 <template>
         <ion-row class="row ion-align-items-center ion-nowrap"
-                 @click="navigateToChatPage(props.groupChat.id, props.groupChat.name, props.groupChat.color)">
+                 @click="navigateToChatPage()">
         <ion-col size="auto">
             <span class="dot" >
                 <ion-icon :icon="isPerson ? personOutline : peopleOutline"
@@ -32,6 +32,7 @@ import {ChatParams, GroupChat} from "@/model/chat/Chat";
 import {globalProfile} from "@/composables/store/profileStore";
 import router from "@/router";
 import {routesNames} from "@/router/routesNames";
+import {useGroupChatStore} from "@/composables/store/useGroupChatStore";
 
 
 //TODO: in props - GroupChat, isOwner?
@@ -39,6 +40,7 @@ import {routesNames} from "@/router/routesNames";
     groupChat: GroupChat
 }>() 
 
+const groupChatStore = useGroupChatStore()
 /* style="position: absolute; left: 1em; top: 3em;" */
 
 
@@ -103,15 +105,9 @@ function isAdmin(): boolean{
    return props.groupChat.ownerID === globalProfile.id
 }
 
-function navigateToChatPage(id: string, name: string, color: string){
-  var chatParams: ChatParams = {
-    id: id, name: name, color: color, isAdmin: isAdmin()
-  }
-  var chatParamsString = JSON.stringify(chatParams)
-
-  router.push({name: routesNames.ChatPage, params:{
-    chatParams: chatParamsString
-    }})
+function navigateToChatPage(){
+  groupChatStore.setCurrentGroupChat(props.groupChat)
+  router.push({name: routesNames.ChatPage})
 }
 
 </script>

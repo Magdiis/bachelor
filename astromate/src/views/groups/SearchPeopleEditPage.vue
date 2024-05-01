@@ -108,6 +108,7 @@ import {
 } from "@/model/group/createGroupEnums";
 import {reactive, ref} from "vue";
 import updateInFirestore from "@/composables/updateInFirestore";
+import {currentGroupChat} from "@/composables/store/useGroupChatStore";
 
 const router = useRouter()
 const updateFirestore = updateInFirestore()
@@ -137,6 +138,9 @@ async function update(){
     loading.value = true
     await updateFirestore.updateGroup(globalGroupEditing)
     Object.assign(globalSelectedGroup, globalGroupEditing)
+    await updateFirestore.updateColorAndNameInGroupChat(globalGroupEditing.color,globalGroupEditing.name, globalGroupEditing.id)
+    currentGroupChat.color = globalGroupEditing.color
+    currentGroupChat.name = globalGroupEditing.name
     router.back()
     loading.value = false
   }

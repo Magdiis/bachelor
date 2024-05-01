@@ -5,10 +5,10 @@
         <ion-col class="ion-no-padding">
           <ion-row class="ion-align-items-center">
             <h5 :class="colors.colorClass" style="padding: 0;margin: 0">
-              {{props.user.useCase}}
+              {{props.ownUser.useCase}}
             </h5>
-            <p style="margin: 0; padding: 0 0 0 0.5em;" v-if="props.user.sportCase">{{props.user.sportCase}}</p>
-            <p style="padding: 0 0 0 0.5em;;margin: 0" v-else>{{props.user.workCase}}</p>
+            <p style="margin: 0; padding: 0 0 0 0.5em;" v-if="sportCase != ''">{{sportCase}}</p>
+            <p style="padding: 0 0 0 0.5em;;margin: 0" v-else>{{workCase}}</p>
             <ion-col size="auto">
               <ion-icon :class="colors.colorClass" :icon="checkmark"></ion-icon>
             </ion-col>
@@ -22,7 +22,7 @@
         <div>
           <ion-row class="ion-align-items-center">
             <ion-icon :class="colors.colorClass" :icon="peopleOutline" style="padding-right: 0.5em"></ion-icon>
-            <small> {{props.user.groupName}} </small>
+            <small> {{props.ownUser.groupName}} </small>
           </ion-row>
         </div>
 
@@ -45,10 +45,10 @@
         <div>
           <ion-row class="ion-align-items-center">
             <h5 :class="colors.colorClass" style="padding: 0;margin: 0">
-              {{props.user.useCase}}
+              {{props.ownUser.useCase}}
             </h5>
-            <p style="margin: 0; padding: 0 0 0 0.5em;" v-if="props.user.sportCase">{{props.user.sportCase}}</p>
-            <p style="padding: 0 0 0 0.5em;;margin: 0" v-else>{{props.user.workCase}}</p>
+            <p style="margin: 0; padding: 0 0 0 0.5em;" v-if="sportCase != ''">{{sportCase}}</p>
+            <p style="padding: 0 0 0 0.5em;;margin: 0" v-else>{{workCase}}</p>
           </ion-row>
         </div>
 
@@ -70,37 +70,54 @@
 import {User} from "@/model/group/User";
 import {IonCol, IonIcon, IonItem, IonRow} from "@ionic/vue";
 import {checkmark, peopleOutline} from "ionicons/icons";
-import {computed} from "vue";
+import {computed, onBeforeMount, onMounted, ref} from "vue";
 import {colorsCases} from "@/model/group/createGroupEnums";
 import {globalSelectedSearchedGroup} from "@/composables/store/useGroupStore";
 import {routesNames} from "@/router/routesNames";
 import {useRouter} from "vue-router";
+import {OwnUser} from "@/model/group/ownUsersResponse";
+import {convertCategory} from "@/composables/categoryConvertor";
 
 const router = useRouter()
 
+const sportCase = ref('')
+const workCase = ref('')
+
 const props = defineProps<{
-  user: User
+  ownUser: OwnUser
 }>()
 
+onBeforeMount(()=>{
+  const {workCaseThis, sportCaseThis} = convertCategory(props.ownUser.useCase, props.ownUser.category)
+  sportCase.value = sportCaseThis
+  workCase.value = workCaseThis
+})
+
 function setSelectedSearchedGroup(){
-  Object.assign(globalSelectedSearchedGroup, props.user)
+  const {workCaseThis, sportCaseThis} = convertCategory(props.ownUser.useCase, props.ownUser.category)
+  const toUser: User = {
+    color: props.ownUser.color, groupId: props.ownUser.groupId, groupName: props.ownUser.groupName,
+    id: props.ownUser.id, sportCase: sportCaseThis, useCase: props.ownUser.useCase, userId: props.ownUser.userId,
+    workCase: workCaseThis
+  }
+  Object.assign(globalSelectedSearchedGroup, toUser)
   router.push({name: routesNames.GroupMatching})
 }
 
 
 
 const isGroupSearched = computed(()=>{
-  return props.user.groupId != ''
+  return props.ownUser.groupId != ''
 })
 
 const compatibility = computed(()=>{
-  return '78%'
+  return `${props.ownUser.compatibility}%`
 })
 
 
 // CSS CLASSES
 const colors = computed(()=>{
-  switch (props.user.color) {
+  switch (props.ownUser.color) {
     case colorsCases.Blue: {
       return {
         colorClass: "custom-blue",

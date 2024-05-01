@@ -69,8 +69,6 @@ const props = defineProps<{
 
 
 const notificationMessageStyle = ref<Partial<CSSStyleDeclaration>>({})
-
-const text = ref("")
 const firestoreUpdate = updateInFirestore()
 
 
@@ -82,7 +80,6 @@ const isNotificationInfo = computed(()=>{
 
 onMounted(()=>{
   notificationMessageStyle.value.animationName=''
-  text.value = makeText(props.notification.text, props.notification.senderName, props.notification.groupName)
 })
 
 const notificationValues = computed(()=>{
@@ -114,25 +111,15 @@ const notificationValues = computed(()=>{
       notification.action = "se chce připojit do skupiny"
       notification.icon = "/user/user-request-icon.svg"
       return notification
+
+    case notificationText.UserDeleteGroup:
+      notification.action = "smazal svojí skupinu"
+      notification.icon = informationCircleOutline
+      return notification
     default:
       return notification
   }
 })
-
-function makeText(textNumber: number, senderName: string, groupName: string): string{
-  switch (textNumber) {
-    case notificationText.UserRemovedUser:
-      return "Uživatel " + senderName +" vás odebral ze skupiny " + groupName
-    case notificationText.UserAddedUser:
-      return "Uživatel " + senderName +" vás přidal do skupiny "+ groupName
-    case notificationText.UserWantsUserToHisGroup:
-      return "Uživatel " + senderName +" vás pozval do skupiny "+ groupName
-    case notificationText.UserWantsToUsersGroup:
-      return "Uživatel " + senderName +" se chce připojit do skupiny "+ groupName
-    default:
-      return ""
-  }
-}
 
 async function accept(senderId: string, receiverId: string, groupDocumentId: string,
                       userDocumentId: string, senderName: string, notification: NotificationMessage){

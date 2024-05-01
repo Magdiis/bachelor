@@ -10,17 +10,25 @@
             <ion-icon slot="icon-only" :ios="ellipsisHorizontal" :md="ellipsisVertical"></ion-icon>
           </ion-button>
         </ion-buttons>
-        <ion-title>{{ chatParams.name }}</ion-title>
+        <ion-title>{{ currentGroupChat.name }}</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" ref="content" :scroll-events="true">
 
-      <ion-popover :is-open="isPopoverOpen"  @didDismiss="isPopoverOpen=false" size="auto" :dismiss-on-select="true">
-        <ion-content v-if="chatParams.isAdmin">
+      <ion-popover trigger="trigger-popover-edit-users" :is-open="isPopoverOpen"  @didDismiss="isPopoverOpen=false" size="auto" :dismiss-on-select="true">
+        <ion-content v-if="currentGroupChat.ownerID === globalProfile.id">
           <ion-list lines="none">
             <ion-item id="chat-conversation-show-members-item" @click="openModalClosePopover()">
               <ion-icon :icon="peopleOutline" class="ion-padding-end"></ion-icon>
               Zobrazit členy
+            </ion-item>
+            <ion-item @click="editOwnGroup()">
+              <ion-icon :icon="pencilOutline" class="ion-padding-end"></ion-icon>
+              Upravit skupinu
+            </ion-item>
+            <ion-item @click="deleteOwnGroup()">
+              <ion-icon :icon="trashOutline" class="ion-padding-end"></ion-icon>
+              Smazat skupinu
             </ion-item>
           </ion-list>
         </ion-content>
@@ -42,7 +50,6 @@
           >
           </ion-alert>
         </ion-content>
-
       </ion-popover>
 
       <ion-modal id="chat-page-members-modal" :is-open="isModalOpen">
@@ -96,8 +103,8 @@
       <ion-list>
         <div v-for="message in textMessages">
           <own-message-row v-if="message.sentById == globalProfile.id" :text-message="message"
-                           :color="chatParams.color"></own-message-row>
-          <foreign-message-row v-else :text-message="message" :color="chatParams.color"></foreign-message-row>
+                           :color="currentGroupChat.color"></own-message-row>
+          <foreign-message-row v-else :text-message="message" :color="currentGroupChat.color"></foreign-message-row>
         </div>
       </ion-list>
       <ion-loading :is-open="loading" spinner="lines-small"></ion-loading>
@@ -112,7 +119,7 @@
                 messageText: messageText,
                 sentAt: Timestamp.now() ,
                 sentById: globalProfile.id,
-                sentByName: globalProfile.name},chatParams.id)">
+                sentByName: globalProfile.name},currentGroupChat.id)">
           <ion-icon :class="returnColorClass" slot="icon-only" :icon="send"></ion-icon>
         </ion-button>
       </ion-toolbar>
@@ -148,7 +155,15 @@ import {computed, reactive, ref} from "vue";
 import {collection, onSnapshot, orderBy, query, Timestamp} from "firebase/firestore";
 import {db} from "@/firebase-service";
 import savingToFirestore from "@/composables/savingToFirestore";
-import {ellipsisHorizontal, ellipsisVertical, logOutOutline, peopleOutline, send,} from 'ionicons/icons'
+import {
+  ellipsisHorizontal,
+  ellipsisVertical,
+  logOutOutline,
+  pencilOutline,
+  peopleOutline,
+  send,
+  trashOutline,
+} from 'ionicons/icons'
 import {globalProfile} from "@/composables/store/profileStore";
 import OwnMessageRow from "@/components/chat/ownMessageRow.vue";
 import ForeignMessageRow from "@/components/chat/foreignMessageRow.vue";
@@ -156,13 +171,14 @@ import {colorsCases} from "@/model/group/createGroupEnums";
 import {currentGroupChat, useGroupChatStore} from "@/composables/store/useGroupChatStore";
 import updateInFirestore from "@/composables/updateInFirestore";
 import {Group} from "@/model/group/Group";
-import {useGroupStore} from "@/composables/store/useGroupStore";
+import {globalGroups, useGroupStore} from "@/composables/store/useGroupStore";
 import {routesNames} from "@/router/routesNames";
 import {NotificationMessage, notificationText} from "@/model/notification/NotificationMessage";
 import MemberRow from "@/components/chat/memberRow.vue";
 import {Profile} from "@/model/profile/Profile";
 import fetchingFirebase from "@/composables/fetchingFromFirestore";
 import ProfileInModal from "@/components/profile/profileInModal.vue";
+import deletingInFirestore from "@/composables/deletingInForestore";
 
 const router = useRouter()
 const route = useRoute()
@@ -170,7 +186,7 @@ const groupChatStore = useGroupChatStore()
 const groupStore = useGroupStore()
 const saveToFirestore = savingToFirestore()
 const fetchFromFirestore = fetchingFirebase()
-
+const deleteInFirestore = deletingInFirestore()
 
 const content = ref(null as any | null)
 
@@ -182,36 +198,24 @@ const isPopoverOpen = ref<boolean>(false)
 const profiles = ref<Profile[]>([])
 const selectedProfile = ref<Profile>()
 
-const chatParams = reactive<ChatParams>({
-  id: "",
-  name: "",
-  color: "",
-  isAdmin: false
-})
-
-
-
 const loading = ref(false)
 
 const messageText = ref("")
 
 const textMessages = ref<Array<TextMessage>>([])
 
+
 const currentName = ref("")
 onIonViewDidLeave(()=>{
-  chatParams.id = ''
-  chatParams.name = ''
-  chatParams.color = ''
-  chatParams.isAdmin = false
   isPopoverOpen.value = false
   isModalOpen.value = false
   isSheetOpen.value = false
 })
 
 onIonViewWillEnter(async () => {
+  if(currentGroupChat.id != ''){
   profiles.value = []
-  getChatParamsFromRoute()
-  const path = "chats/" + chatParams.id + '/messages'
+  const path = "chats/" + currentGroupChat.id + '/messages'
   //const path = "chats/"+"nejakyDocumentID"+'/messages'
   const q = query(collection(db, path), orderBy("sentAt"))
   onSnapshot(q, (querySnapshot) => {
@@ -229,10 +233,7 @@ onIonViewWillEnter(async () => {
   }, (error) => {
     console.error("Error text messages: ", error)
   })
-  groupChatStore.setCurrentGroupChat(chatParams.id)
-  if(currentGroupChat.value != undefined){
-    profiles.value = await fetchFromFirestore.fetchMembersProfiles(currentGroupChat.value.membersIDs)
-
+    profiles.value = await fetchFromFirestore.fetchMembersProfiles(currentGroupChat.membersIDs)
   }
 
 })
@@ -241,12 +242,6 @@ const getSelectedProfile = (name: string) : Profile| undefined => {
   return profiles.value.find((profile)=>{
     return profile.name === name
   })
-}
-
-function getChatParamsFromRoute() {
-  const chatParamsString = route.params.chatParams
-  const params: ChatParams = JSON.parse(chatParamsString.toString())
-  Object.assign(chatParams, params)
 }
 
 async function createMessage(textMessage: TextMessage, chatId: string) {
@@ -261,31 +256,78 @@ function openModalClosePopover(){
   isModalOpen.value = true
 }
 
+
+// EDIT GROUP
+function editOwnGroup(){
+// TODO: EDIT OWN GROUP
+  console.log(globalGroups)
+  const group = groupStore.getGroup(currentGroupChat.id)
+  groupStore.setEditingGroup(group)
+  router.push({name:routesNames.SearchPeopleEdit})
+}
+
+// DELETE GROUP
+async function deleteOwnGroup(){
+  loading.value = true
+  await deleteInFirestore.deleteGroup(currentGroupChat.id)
+  await (updateInFirestore().setGroupIdEmptyInGroups(currentGroupChat.id))
+  await sendNotificationToMembers(currentGroupChat)
+  loading.value = false
+  router.back()
+}
+
+async function sendNotificationToMembers(groupChat: GroupChat){
+  if(groupChat.membersIDs.length>0){
+    for (const id of groupChat.membersIDs){
+      if(id !== globalProfile.id){
+        const notificationMessage: NotificationMessage = {
+          groupDocumentID: groupChat.id,
+          groupName: groupChat.name,
+          id: groupChat.id,
+          read: false,
+          receiver: id,
+          sender: globalProfile.id,
+          senderName: globalProfile.name,
+          sentAt: Timestamp.now(),
+          text: notificationText.UserDeleteGroup,
+          toBeDeleted: false,
+          userDocumentID: ""
+        }
+        await savingToFirestore().createNotification(notificationMessage)
+      }
+    }
+  }
+}
+
+
 // MANAGE USERS
 
 // LEAVE GROUP
 async function leaveGroup() {
-  loading.value = true
-  const findedGroupChat = groupChatStore.getGroupChat(chatParams.id)
-  const findedSearchedGroup = groupStore.getSearchedGroupByGroupId(chatParams.id)
-  // leave from groupChat
-  await (updateInFirestore().leaveGroupChat(leaveChatGroup(findedGroupChat)))
-  // FROM STORE - SET GROUP_ID = ""
-  await (updateInFirestore().setGroupId(findedSearchedGroup.id, "",""))
-  // THIS GROUP IS NOT IN STORE - REMOVE FROM MEMBERS
-  await (updateInFirestore().removeFromGroup(chatParams.id, globalProfile.id))
+  if(currentGroupChat.id != ''){
+    loading.value = true
+    const findedGroupChat = groupChatStore.getGroupChat(currentGroupChat.id)
+    const findedSearchedGroup = groupStore.getSearchedGroupByGroupId(currentGroupChat.id)
+    // leave from groupChat
+    await (updateInFirestore().leaveGroupChat(leaveChatGroup(findedGroupChat)))
+    // FROM STORE - SET GROUP_ID = ""
+    await (updateInFirestore().setGroupId(findedSearchedGroup.id, "",""))
+    // THIS GROUP IS NOT IN STORE - REMOVE FROM MEMBERS
+    await (updateInFirestore().removeFromGroup(currentGroupChat.id, globalProfile.id))
 
-  // SEND NOTIFICATION
-  const notificationMessage: NotificationMessage = {
-    groupDocumentID: findedGroupChat.id, groupName: findedGroupChat.name, id: "", read: false,
-    receiver: findedGroupChat.ownerID, sender: globalProfile.id, senderName: globalProfile.name,
-    sentAt: Timestamp.now(), text: notificationText.UserLeaveGroup, toBeDeleted: false, userDocumentID: findedSearchedGroup.id
+    // SEND NOTIFICATION
+    const notificationMessage: NotificationMessage = {
+      groupDocumentID: findedGroupChat.id, groupName: findedGroupChat.name, id: "", read: false,
+      receiver: findedGroupChat.ownerID, sender: globalProfile.id, senderName: globalProfile.name,
+      sentAt: Timestamp.now(), text: notificationText.UserLeaveGroup, toBeDeleted: false, userDocumentID: findedSearchedGroup.id
 
+    }
+    await saveToFirestore.createNotification(notificationMessage)
+
+    await router.push({name: routesNames.GroupChats})
+    loading.value = false
   }
-  await saveToFirestore.createNotification(notificationMessage)
 
-  await router.push({name: routesNames.GroupChats})
-  loading.value = false
 }
 
 
@@ -310,31 +352,31 @@ function leaveChatGroup(groupChat: GroupChat): GroupChat {
 
 // REMOVE USER
 async function removeUser(name: string){
-  loading.value = true
-  const findedGroupChat: GroupChat = groupChatStore.getGroupChat(chatParams.id)
-  const removingId:string = returnUserId(findedGroupChat, name)
-  const updatedGroupChat: GroupChat = removeUserFromGroupChat(findedGroupChat, name, removingId)
+  if(currentGroupChat.id != ''){
+    loading.value = true
+    const removingId:string = returnUserId(currentGroupChat, name)
+    const updatedGroupChat: GroupChat = removeUserFromGroupChat(currentGroupChat, name, removingId)
 
-  // remove from groupChat
-  await (updateInFirestore().leaveGroupChat(updatedGroupChat))
+    // remove from groupChat
+    await (updateInFirestore().leaveGroupChat(updatedGroupChat))
 
-  // not in store - set groupId = ""
-  await (updateInFirestore().removeGroupFromSearchedGroup(findedGroupChat.id,removingId))
+    // not in store - set groupId = ""
+    await (updateInFirestore().removeGroupFromSearchedGroup(currentGroupChat.id,removingId))
 
-  // from store - remove from group members
-  const findedGroup: Group = groupStore.getGroup(findedGroupChat.id)
-  await (updateInFirestore().removeUserFromGroup(removeUserFromGroup(findedGroup,removingId)))
-  // NOTIFICATION
-  const notification: NotificationMessage = {
-    groupDocumentID: findedGroupChat.id, groupName: findedGroupChat.name, id: "", read: false,
-    receiver: removingId, sender: globalProfile.id, senderName: globalProfile.name, sentAt: Timestamp.now(),
-    text: notificationText.UserRemovedUser, toBeDeleted: false, userDocumentID: "" // snad nevadi
+    // from store - remove from group members
+    const findedGroup: Group = groupStore.getGroup(currentGroupChat.id)
+    await (updateInFirestore().removeUserFromGroup(removeUserFromGroup(findedGroup,removingId)))
+    // NOTIFICATION
+    const notification: NotificationMessage = {
+      groupDocumentID: currentGroupChat.id, groupName: currentGroupChat.name, id: "", read: false,
+      receiver: removingId, sender: globalProfile.id, senderName: globalProfile.name, sentAt: Timestamp.now(),
+      text: notificationText.UserRemovedUser, toBeDeleted: false, userDocumentID: "" // snad nevadi
+    }
+    await saveToFirestore.createNotification(notification)
+    // AFTER ALL UPDATES
+    groupChatStore.updateCurrentGroupChat(updatedGroupChat)
+    loading.value = false
   }
-  await saveToFirestore.createNotification(notification)
-  // AFTER ALL UPDATES
-  groupChatStore.updateCurrentGroupChat(updatedGroupChat)
-  loading.value = false
-
 }
 
 
@@ -392,7 +434,7 @@ const cancelOrConfirmButtonsRemoveUser = [
 
 // ACTION SHEET BUTTONS
 const returnActionSheetButtons = (name: string) => {
-  if(globalProfile.id === currentGroupChat.value?.ownerID){
+  if(globalProfile.id === currentGroupChat.ownerID){
     if(name === globalProfile.name){
       return [{text: 'Zobrazit profil', data: {action: 'profile',},},]
     } else {return [{text: 'Odebrat uživatele', role: 'destructive', data: {action: 'remove',},},
@@ -428,23 +470,24 @@ function ScrollToBottom() {
 
 // COMPUTED CSS CLASSES
 const returnColorClass = computed(() => {
-  switch (chatParams.color) {
-    case colorsCases.Blue: {
-      return "custom-blue"
+    switch (currentGroupChat.color) {
+      case colorsCases.Blue: {
+        return "custom-blue"
+      }
+      case colorsCases.Green: {
+        return "custom-green"
+      }
+      case colorsCases.Orange: {
+        return "custom-orange"
+      }
+      case colorsCases.Red: {
+        return "custom-dark-red"
+      }
+      default: {
+        return "custom-dark-red"
+      }
     }
-    case colorsCases.Green: {
-      return "custom-green"
-    }
-    case colorsCases.Orange: {
-      return "custom-orange"
-    }
-    case colorsCases.Red: {
-      return "custom-dark-red"
-    }
-    default: {
-      return "custom-dark-red"
-    }
-  }
+
 })
 
 </script>
