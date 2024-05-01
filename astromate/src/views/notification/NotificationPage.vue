@@ -27,41 +27,14 @@ import {auth, notification_collection} from "@/firebase-service";
 import NotificationRow from "@/components/notifications/NotificationRow.vue";
 import {globalProfile} from "@/composables/store/profileStore";
 import NoNotifications from "@/components/placeholders/NoNotifications.vue";
-import {globalNotifications, isNotificationEmpty} from "@/composables/store/notificationStore";
+import {globalNotifications, isNotificationEmpty, listenNotifications} from "@/composables/store/notificationStore";
 
 
 const notifications = ref<Array<NotificationMessage>>([])
 
-const filteredNotifications = computed(()=>notifications.value.filter(n => !n.toBeDeleted))
-const isEmpty = ref(false)
+const filteredNotifications = computed(()=>globalNotifications.value.filter(n => !n.toBeDeleted))
 
-onIonViewWillEnter(()=>{
-    const q : Query = query(notification_collection,where("receiver","==", globalProfile.id),where("read","==",false))
-    onSnapshot(q, (querySnapshot)=>{
-          // processNotifications(querySnapshot)
-          notifications.value = []
-          querySnapshot.forEach((doc) => {
-            notifications.value.push({
-              groupName: doc.data().groupName,
-              senderName: doc.data().senderName,
-              id: doc.id,
-              read: doc.data().read,
-              sentAt: doc.data().sentAt,
-              text: doc.data().text,
-              sender: doc.data().sender,
-              receiver: doc.data().receiver,
-              groupDocumentID: doc.data().groupDocumentID,
-              userDocumentID: doc.data().userDocumentID,
-              toBeDeleted: false
-            })
-          })
-          isEmpty.value = filteredNotifications.value.length < 1
-          globalNotifications.isNotificationEmpty = notifications.value.length < 1
-          isNotificationEmpty.value = notifications.value.length < 1
-        }, (error) => {
-          console.error("Error fetching notifications: ",error)
-        })
-})
+
 
 
 

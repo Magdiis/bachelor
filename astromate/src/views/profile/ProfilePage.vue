@@ -89,6 +89,7 @@ import useStorage from "@/composables/firebaseStorage/useStorage";
 import {colorsCases} from "@/model/group/createGroupEnums";
 import {Timestamp} from "firebase/firestore";
 import ScrollingCharacteristics from "@/components/profile/scrollingCharacteristics.vue";
+import {stopListeningToNotifications} from "@/composables/store/notificationStore";
 
 
 const profile = globalProfile
@@ -112,6 +113,7 @@ onIonViewWillEnter(async ()=>{
 })
 function logout(){
   loading.value = true
+  stopListeningToNotifications()
   authentication().logout()
   clearStores()
   navigate()

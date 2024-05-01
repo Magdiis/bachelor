@@ -81,6 +81,7 @@ import {globalProfile, useProfileStore} from "@/composables/store/profileStore";
 import {useGroupStore} from "@/composables/store/useGroupStore";
 import {useGroupChatStore} from "@/composables/store/useGroupChatStore";
 import {lockClosed, mailOutline} from "ionicons/icons";
+import {listenNotifications} from "@/composables/store/notificationStore";
 
 
 const router = useRouter()
@@ -114,7 +115,7 @@ async function LogIn(loginInfo: Login) {
 
       // SET STORES
       await saveToStores(authResponse.value.user.user.uid)
-
+      listenNotifications()
       await navigate(globalProfile.id)
     }
     loading.value = false

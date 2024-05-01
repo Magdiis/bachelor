@@ -53,16 +53,15 @@ import {globalNotifications, isNotificationEmpty} from "@/composables/store/noti
 const router = useRouter()
 
 const notification = reactive({
-  isNotEmpty: true
+  isNotEmpty: isNotificationEmpty.value
 })
-
-
   watch(isNotificationEmpty, (newNotif) => {
     notification.isNotEmpty = newNotif
   })
 
+async function checkIfAreNotifications(){
 
-
+}
 </script>
 
 <style scoped>
