@@ -133,6 +133,15 @@
     background: var(--ion-color-blue-lighter);
   }
 
+  .background-red {
+    background: var(--ion-color-darkRed-lighter);
+  }
+
+  .background-orange {
+    background: var(--ion-color-orange-lighter);
+  }
+
+
   .compatibility-text {
     padding: 0;
     margin: 0;

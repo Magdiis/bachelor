@@ -77,15 +77,15 @@ http://ionicframework.com/docs/theming/ */
 
   /** MY COLORS **/
   --ion-color-blue:#005091;
-  --ion-color-darkRed:#BE1A0D;
+  --ion-color-darkRed:#7B0000;
   --ion-color-green:#007B60;
-  --ion-color-orange:#E47F00;
+  --ion-color-orange:#B96802;
 
   /** MY COLOR - light version for matching **/
   --ion-color-blue-lighter: #2A83CC;
-  --ion-color-darkRed-lighter: #EE2110;
+  --ion-color-darkRed-lighter: #BE1A0D;
   --ion-color-green-lighter: #29A88F;
-  --ion-color-orange-lighter: #F1AE2C;
+  --ion-color-orange-lighter: #DA8A26;
 
   /** MY COLORS - light version for chat **/
   --ion-color-blue-light: #e9f7ff;

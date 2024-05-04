@@ -59,9 +59,7 @@ const notification = reactive({
     notification.isNotEmpty = newNotif
   })
 
-async function checkIfAreNotifications(){
 
-}
 </script>
 
 <style scoped>

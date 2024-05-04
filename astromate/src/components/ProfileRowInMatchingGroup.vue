@@ -241,6 +241,15 @@ const colors = computed(()=>{
   background: var(--ion-color-blue-lighter);
 }
 
+.description-background-red {
+  background: var(--ion-color-darkRed-lighter);
+}
+
+.description-background-orange {
+  background: var(--ion-color-orange-lighter);
+}
+
+
 .background-color-green {
   background-color: var(--ion-color-green-lighter);
 }
@@ -248,6 +257,15 @@ const colors = computed(()=>{
 .background-color-blue {
   background-color: var(--ion-color-blue-lighter);
 }
+
+.background-color-red {
+  background-color: var(--ion-color-darkRed-lighter);
+}
+
+.background-color-orange {
+  background-color: var(--ion-color-orange-lighter);
+}
+
 
 
 .dot {

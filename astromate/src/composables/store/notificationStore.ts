@@ -1,5 +1,5 @@
 import {reactive, ref} from "vue";
-import {onSnapshot, query, Query, where} from "firebase/firestore";
+import {onSnapshot, orderBy, query, Query, where} from "firebase/firestore";
 import {notification_collection} from "@/firebase-service";
 import {globalProfile} from "@/composables/store/profileStore";
 import {NotificationMessage} from "@/model/notification/NotificationMessage";
@@ -12,7 +12,7 @@ export const globalNotifications = ref<NotificationMessage[]>([])
 let unsubscribe = null as null|Function
 
 export function listenNotifications(){
-    const q : Query = query(notification_collection,where("receiver","==", globalProfile.id),where("read","==",false))
+    const q : Query = query(notification_collection,where("receiver","==", globalProfile.id),where("read","==",false),)
     unsubscribe = onSnapshot(q, (querySnapshot)=>{
         // processNotifications(querySnapshot)
         globalNotifications.value = []

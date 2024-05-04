@@ -52,7 +52,7 @@
       :handy="profile.handy"
       :plan="profile.plan"
       :thinking="profile.thinking"
-      :color="colorsCases.Blue"></scrolling-characteristics>
+      :color="props.color"></scrolling-characteristics>
   </div>
   </div>
   </template>
@@ -197,12 +197,30 @@ import { returnCategory } from '@/composables/categoryConvertor';
     background-color: var(--ion-color-blue-lighter);
   }
 
+  .background-color-red {
+    background-color: var(--ion-color-darkRed-lighter);
+  }
+
+  .background-color-orange {
+    background-color: var(--ion-color-orange-lighter);
+  }
+
+
+
   .background-green {
     background: var(--ion-color-green-lighter);
   }
 
   .background-blue {
     background: var(--ion-color-blue-lighter);
+  }
+
+  .background-red {
+    background: var(--ion-color-darkRed-lighter);
+  }
+
+  .background-orange {
+    background: var(--ion-color-orange-lighter);
   }
 
   .compatibility-text {
