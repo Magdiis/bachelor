@@ -1,36 +1,11 @@
 import {Group} from '@/model/group/Group';
 import type {User} from '@/model/group/User'
-import {
-    FirestoreDataConverter,
-    orderBy,
-    getDoc,
-    Query,
-    getDocs,
-    query,
-    onSnapshot,
-    where,
-    doc,
-    collection
-} from "firebase/firestore";
-import {
-    db, groups_chat_collection,
-    groups_collection,
-    notification_collection,
-    profiles_collection,
-    users_collection
-} from '@/firebase-service';
-import {toRefs} from 'vue';
-import {
-    useCase, useCasesValues, workCases, workCasesValues, SportCases,
-    sportCasesValues, colorsCases, colorsCasesValues
-} from '@/model/group/createGroupEnums'
+import {doc, getDoc, getDocs, query, Query, where} from "firebase/firestore";
+import {db, groups_collection, profiles_collection, users_collection} from '@/firebase-service';
 import {convertCategory} from '@/composables/categoryConvertor'
-import {returnCategory} from '@/composables/categoryConvertor'
 import {Profile} from "@/model/profile/Profile";
 //import firebase from "firebase/compat";
-import firebase from 'firebase/app';
 import 'firebase/firestore';
-import {NotificationMessage} from "@/model/notification/NotificationMessage";
 import {useProfileStore} from "@/composables/store/profileStore";
 import {GroupChat} from "@/model/chat/Chat";
 
@@ -202,59 +177,7 @@ export default function fetchingFirebase() {
 
     }
 
-    // async function fetchGroupChats(profileId: string): Promise<GroupChat[]> {
-    //     var groupChats: GroupChat[] = []
-    //     try {
-    //         const q: Query = query(groups_chat_collection, where('membersIDs', "array-contains", profileId))
-    //         const groupChatsRef = await getDocs(q)
-    //         if (groupChatsRef.empty) {
-    //             return groupChats
-    //         } else {
-    //             await Promise.all(groupChatsRef.docs.map(async (doc) => {
-    //                 // if everyone leave group chat, but admin did not delete the group
-    //                 // check if group chat contains messages - admin can be in chat group alone
-    //                 if (doc.data().countMembers === 1) {
-    //                     const hasMessages = await hasGroupChatMessages(doc.id)
-    //                     if (hasMessages) {
-    //                         pushToGroupChats(doc)
-    //                     }
-    //                 } else {
-    //                     pushToGroupChats(doc)
-    //                 }
-    //             }))
-    //             return groupChats
-    //         }
-    //     } catch (e) {
-    //         console.error("Error ", e)
-    //         throw new Error("Error")
-    //     }
-    //
-    //     function pushToGroupChats(doc: any) {
-    //         groupChats.push({
-    //             color: doc.data().color,
-    //             countMembers: doc.data().countMembers,
-    //             id: doc.id,
-    //             isPairs: doc.data().isPairs,
-    //             membersIDs: doc.data().membersIDs,
-    //             membersNames: doc.data().membersNames,
-    //             ownerID: doc.data().ownerID,
-    //             name: doc.data().name,
-    //             membersNamesAndIDs: doc.data().membersNamesAndIDs,
-    //         })
-    //     }
-    // }
 
-    // async function hasGroupChatMessages(chatId: string): Promise<boolean> {
-    //     const path = "chats/" + chatId + "/messages"
-    //     const q = query(collection(db, path))
-    //     try {
-    //         const chatRef = await getDocs(q)
-    //         return !chatRef.empty
-    //     } catch (e) {
-    //         console.error("error fetching messages ", e)
-    //         throw new Error("")
-    //     }
-    // }
 
     async function getGroupChat(groupChatId: string): Promise<GroupChat>{
         try {
@@ -282,7 +205,63 @@ export default function fetchingFirebase() {
         }
     }
 
-    return {getGroupChat,isUsernameExist, getOwnGroups, getOwnUsers, fetchMembersProfiles, fetchProfile, isProfileExist}
+
+    async function getSearchedGroupByGroupId(groupId: string, ownerId: string): Promise<User>{
+        try {
+            const q: Query = query(users_collection, where('groupId','==',groupId), where('userId','==',ownerId))
+            const docSnap = await getDocs(q)
+            if(docSnap.empty){
+                console.error("error fetching searchedGroup, bad groupId or ownerId", e)
+                throw new Error("")
+            } else {
+                const {sportCaseThis,workCaseThis} = convertCategory(docSnap.docs[0].data().useCase,docSnap.docs[0].data().category)
+                return {
+                    id: docSnap.docs[0].id,
+                    userId: docSnap.docs[0].data().userId,
+                    groupName: docSnap.docs[0].data().groupName,
+                    useCase: docSnap.docs[0].data().useCase,
+                    workCase: workCaseThis,
+                    sportCase: sportCaseThis,
+                    color: docSnap.docs[0].data().color,
+                    groupId: docSnap.docs[0].data().groupId
+                }
+            }
+
+        } catch (e) {
+            console.error("error fetching searchedGroup, bad groupId", e)
+            throw new Error("")
+        }
+    }
+
+    async function getGroupById(groupId: string):Promise<Group>{
+        try {
+            const docRef = doc(db, "groups", groupId)
+            const docSnap = await getDoc(docRef)
+            if(docSnap.exists()){
+                const {sportCaseThis,workCaseThis} = convertCategory(docSnap.data().useCase,docSnap.data().category)
+                return {
+                    id:docSnap.id,
+                    userId: docSnap.data().userId,
+                    name:docSnap.data().name,
+                    maxMembers: docSnap.data().maxMembers,
+                    currentMembers: docSnap.data().currentMembers,
+                    description: docSnap.data().description,
+                    useCase: docSnap.data().useCase,
+                    workCase:workCaseThis,
+                    sportCase:sportCaseThis ,
+                    membersIDs: docSnap.data().membersIDs,
+                    color: docSnap.data().color
+                }
+            } else {
+                throw new Error("error fetching group, bad groupId")
+            }
+        }catch (e) {
+            console.error("error fetching group, bad groupId", e)
+            throw new Error("")
+        }
+    }
+
+    return {getGroupById,getSearchedGroupByGroupId, getGroupChat,isUsernameExist, getOwnGroups, getOwnUsers, fetchMembersProfiles, fetchProfile, isProfileExist}
 }
 
 

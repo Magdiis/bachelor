@@ -24,9 +24,7 @@
     <div class="container">
       <ion-img style="width: 81vw" :src="colors.sphere"></ion-img>
       <div class="centered">
-        <h2 v-if="props.url == 'error'">Chyba</h2>
-        <h2 v-if="url == ''">Načítání..</h2>
-        <img v-else style="border-radius: 50%; height: 76vw; width: 76vw" :src="props.url"/>
+        <img v-if="props.url.length > 0 && props.url !== 'error'" style="border-radius: 50%; height: 76vw; width: 76vw" :src="props.url"/>
       </div>
     </div>
   </div>

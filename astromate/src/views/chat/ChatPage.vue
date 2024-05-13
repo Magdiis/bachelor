@@ -179,11 +179,14 @@ import {Profile} from "@/model/profile/Profile";
 import fetchingFirebase from "@/composables/fetchingFromFirestore";
 import ProfileInModal from "@/components/profile/profileInModal.vue";
 import deletingInFirestore from "@/composables/deletingInForestore";
+import {useOwnGroupStore} from "@/composables/store/useOwnGroupStore";
+import {convertCategory} from "@/composables/categoryConvertor";
 
 const router = useRouter()
 const route = useRoute()
 const groupChatStore = useGroupChatStore()
 const groupStore = useGroupStore()
+const ownGroupStore = useOwnGroupStore()
 const saveToFirestore = savingToFirestore()
 const fetchFromFirestore = fetchingFirebase()
 const deleteInFirestore = deletingInFirestore()
@@ -258,12 +261,34 @@ function openModalClosePopover(){
 
 
 // EDIT GROUP
-function editOwnGroup(){
+async function editOwnGroup(){
 // TODO: EDIT OWN GROUP
-  console.log(globalGroups)
-  const group = groupStore.getGroup(currentGroupChat.id)
-  groupStore.setEditingGroup(group)
-  router.push({name:routesNames.SearchPeopleEdit})
+  const ownGroup = ownGroupStore.returnOwnGroup(currentGroupChat.id)
+  if(ownGroup){
+    const {workCaseThis,sportCaseThis} = convertCategory(ownGroup.useCase,ownGroup.category)
+    const toGroup: Group = {
+      id:ownGroup.id,
+      userId: ownGroup.userId,
+      name:ownGroup.name,
+      maxMembers: ownGroup.maxMembers,
+      currentMembers: ownGroup.currentMembers,
+      description: ownGroup.description,
+      useCase: ownGroup.useCase,
+      workCase: workCaseThis,
+      sportCase:sportCaseThis ,
+      membersIDs: ownGroup.membersIDs,
+      color: ownGroup.color
+    }
+    groupStore.setEditingGroup(toGroup)
+    await router.push({name:routesNames.SearchPeopleEdit})
+  } else {
+    loading.value = true
+    const group = await fetchFromFirestore.getGroupById(currentGroupChat.id)
+    groupStore.setEditingGroup(group)
+    loading.value = false
+    await router.push({name:routesNames.SearchPeopleEdit})
+  }
+
 }
 
 // DELETE GROUP
@@ -307,7 +332,7 @@ async function leaveGroup() {
   if(currentGroupChat.id != ''){
     loading.value = true
     const findedGroupChat = groupChatStore.getGroupChat(currentGroupChat.id)
-    const findedSearchedGroup = groupStore.getSearchedGroupByGroupId(currentGroupChat.id)
+    const findedSearchedGroup = await (fetchingFirebase().getSearchedGroupByGroupId(currentGroupChat.id,globalProfile.id))
     // leave from groupChat
     await (updateInFirestore().leaveGroupChat(leaveChatGroup(findedGroupChat)))
     // FROM STORE - SET GROUP_ID = ""
@@ -364,7 +389,8 @@ async function removeUser(name: string){
     await (updateInFirestore().removeGroupFromSearchedGroup(currentGroupChat.id,removingId))
 
     // from store - remove from group members
-    const findedGroup: Group = groupStore.getGroup(currentGroupChat.id)
+    const findedGroup: Group = await fetchFromFirestore.getGroupById(currentGroupChat.id)
+
     await (updateInFirestore().removeUserFromGroup(removeUserFromGroup(findedGroup,removingId)))
     // NOTIFICATION
     const notification: NotificationMessage = {

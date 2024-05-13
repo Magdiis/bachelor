@@ -5,6 +5,9 @@ const port = 3000
 const cors = require('cors')
 
 const fetchingFromFirestore = require("./fetchingFromFirestore")
+const authorization = require("./useAuthorization")
+
+
 
 var corsOptions = {
     origin: 'http://localhost:8100'
@@ -17,52 +20,67 @@ app.get('/', (req, res) => {
     res.send("Hello world")
 })
 
-app.get("/getOtherGroups/:userId/:useCase/:category", (req, res) => {
-
+app.get("/getOtherGroups/:userId/:useCase/:category", async (req, res) => {
     var body = {
         groups: []
     }
-    fetchingFromFirestore.getOtherGroupsFromFirestore(req.params.userId, req.params.useCase, req.params.category).then(querySnapshot  =>{
-        if(querySnapshot.size === 0){
+    const token = req.get('Authorization')
 
-            // empty json
-            res.json(body)
-        } else {
+    if(await authorization.verifyToken(token)){
+        fetchingFromFirestore.getOtherGroupsFromFirestore(req.params.userId, req.params.useCase, req.params.category).then(querySnapshot  =>{
+            if(querySnapshot.size === 0){
 
-            body.groups = fetchingFromFirestore.filterGroups(req.params.userId, querySnapshot)
-            res.json(body)
-        }
-    })
+                // empty json
+                res.json(body)
+            } else {
+
+                body.groups = fetchingFromFirestore.filterGroups(req.params.userId, querySnapshot)
+                res.json(body)
+            }
+        })
+    } else {
+        res.json(body)
+    }
+
 })
 
-app.get("/getOtherUsers/:userId/:useCase/:category",(req, res) => {
+app.get("/getOtherUsers/:userId/:useCase/:category", async (req, res) => {
     var body = {
         users: []
     }
-    fetchingFromFirestore.getOtherUsersFromFirestore(req.params.userId, req.params.useCase, req.params.category).then(querySnapshot => {
-        if (querySnapshot.size === 0){
-            res.json(body)
-        } else {
-            body.users = fetchingFromFirestore.filterUsers(req.params.userId, querySnapshot)
-            res.json(body)
-        }
-    })
+    const token = req.get('Authorization')
+    if(await authorization.verifyToken(token)){
+        fetchingFromFirestore.getOtherUsersFromFirestore(req.params.userId, req.params.useCase, req.params.category).then(querySnapshot => {
+            if (querySnapshot.size === 0){
+                res.json(body)
+            } else {
+                body.users = fetchingFromFirestore.filterUsers(req.params.userId, querySnapshot)
+                res.json(body)
+            }
+        })
+    } else {
+        res.json(body)
+    }
+
 })
 
 app.get("/getOwnGroups/:userId",async (req, res)=>{
     var body = {
         ownGroups: []
     }
-    var groupsFromFirestore = []
-    var groupsWithProfiles = []
+    const token = req.get('Authorization')
 
-    groupsFromFirestore = await fetchingFromFirestore.getOwnGroupsFromFirestore(req.params.userId)
-    if(groupsFromFirestore.length < 1){
-        res.json(body)
-    } else {
-        groupsWithProfiles = await fetchingFromFirestore.addProfilesToGroups(groupsFromFirestore)
 
-        groupsWithProfiles.forEach((groupWithProfiles)=>{
+    if(await authorization.verifyToken(token)){
+        var groupsFromFirestore = []
+        var groupsWithProfiles = []
+
+        groupsFromFirestore = await fetchingFromFirestore.getOwnGroupsFromFirestore(req.params.userId)
+        if(groupsFromFirestore.length < 1){
+            res.json(body)
+        } else {
+            groupsWithProfiles = await fetchingFromFirestore.addProfilesToGroups(groupsFromFirestore)
+            groupsWithProfiles.forEach((groupWithProfiles)=>{
                 body.ownGroups.push({
                     id: groupWithProfiles.id,
                     category: groupWithProfiles.category,
@@ -76,34 +94,44 @@ app.get("/getOwnGroups/:userId",async (req, res)=>{
                     userId: groupWithProfiles.userId,
                     compatibility: fetchingFromFirestore.calculateCompatibility(groupWithProfiles.membersProfiles)
                 })
-        })
+            })
+            res.json(body)
+        }
+    } else {
         res.json(body)
     }
 })
 
 app.get("/getOwnUsers/:userId",async (req, res)=>{
+    const token = req.get('Authorization')
+
     var body = {
         ownUsers: []
     }
-    const usersFromFirestore = await fetchingFromFirestore.getOwnUsersFromFirestore(req.params.userId)
-    if(usersFromFirestore.length < 1){
-        res.json(body)
-    } else {
-        for (const user of usersFromFirestore) {
-            const membersIds = user.groupId === '' ? [] : await fetchingFromFirestore.getMembersIdsByGroupId(user.groupId);
-            const profiles = membersIds.length > 1 ?  await fetchingFromFirestore.getProfiles(membersIds) : []
-            const compatibility = profiles.length > 1 ? await fetchingFromFirestore.calculateCompatibility(profiles) : 0
-            body.ownUsers.push({
-                id: user.id,
-                category: user.category,
-                color: user.color,
-                groupId: user.groupId,
-                groupName: user.groupName,
-                useCase: user.useCase,
-                userId: user.userId,
-                compatibility: compatibility
-            });
+
+    if(await authorization.verifyToken(token)){
+        const usersFromFirestore = await fetchingFromFirestore.getOwnUsersFromFirestore(req.params.userId)
+        if(usersFromFirestore.length < 1){
+            res.json(body)
+        } else {
+            for (const user of usersFromFirestore) {
+                const membersIds = user.groupId === '' ? [] : await fetchingFromFirestore.getMembersIdsByGroupId(user.groupId);
+                const profiles = membersIds.length > 1 ?  await fetchingFromFirestore.getProfiles(membersIds) : []
+                const compatibility = profiles.length > 1 ? await fetchingFromFirestore.calculateCompatibility(profiles) : 0
+                body.ownUsers.push({
+                    id: user.id,
+                    category: user.category,
+                    color: user.color,
+                    groupId: user.groupId,
+                    groupName: user.groupName,
+                    useCase: user.useCase,
+                    userId: user.userId,
+                    compatibility: compatibility
+                });
+            }
+            res.json(body)
         }
+    } else {
         res.json(body)
     }
 })

@@ -103,7 +103,7 @@ const loginInfo: Login = reactive({
   password: ""
 })
 
-const authResponse = ref<AuthResponse>({errorMessage: "", user: null})
+const authResponse = ref<AuthResponse>({errorMessage: "", user: null, token: ""})
 
 async function LogIn(loginInfo: Login) {
   isEmpty(loginInfo)

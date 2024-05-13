@@ -22,8 +22,8 @@ IonHeader, IonToolbar, IonItem, IonRow, IonCol, IonGrid,onIonViewWillEnter} from
 import {computed, ref} from "vue";
 
 import {NotificationMessage} from "@/model/notification/NotificationMessage";
-import {onSnapshot, orderBy, query, Query, where} from "firebase/firestore";
-import {auth, notification_collection} from "@/firebase-service";
+import {doc, getDoc, getDocs, onSnapshot, orderBy, query, Query, where} from "firebase/firestore";
+import {auth, db, groups_chat_collection, notification_collection} from "@/firebase-service";
 import NotificationRow from "@/components/notifications/NotificationRow.vue";
 import {globalProfile} from "@/composables/store/profileStore";
 import NoNotifications from "@/components/placeholders/NoNotifications.vue";
@@ -33,8 +33,6 @@ import {globalNotifications, isNotificationEmpty, listenNotifications} from "@/c
 const notifications = ref<Array<NotificationMessage>>([])
 
 const filteredNotifications = computed(()=>globalNotifications.value.filter(n => !n.toBeDeleted))
-
-
 
 
 

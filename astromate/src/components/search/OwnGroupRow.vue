@@ -53,7 +53,9 @@ const props = defineProps<{
 
 
 function setSelectedGroup(){
-  const {workCaseThis,sportCaseThis} = convertCategory(props.ownGroup.useCase,props.ownGroup.category)
+  console.log("set selected group, use case: ", props.ownGroup.useCase)
+  console.log("set selected group, category: ", props.ownGroup.category)
+  const {sportCaseThis,workCaseThis} = convertCategory(props.ownGroup.useCase, props.ownGroup.category)
   const toGroup: Group = {
     color: props.ownGroup.color,
     currentMembers: props.ownGroup.currentMembers,

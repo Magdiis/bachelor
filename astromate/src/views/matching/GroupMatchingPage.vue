@@ -132,10 +132,12 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import Done from "@/components/placeholders/Done.vue";
     import fetchingFirebase from "@/composables/fetchingFromFirestore";
     import {groupCompatibility} from "@/composables/empheremis/useCompatibility";
+    import {useOwnGroupStore} from "@/composables/store/useOwnGroupStore";
     
     const router = useRouter()
     const route = useRoute()
     const groupStore = useGroupStore()
+    const ownGroupStore = useOwnGroupStore()
     const groupChatStore = useGroupChatStore()
     const deleteFirestore = deletingInFirestore()
     const updateFirestore = updateInFirestore()
@@ -324,7 +326,10 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
       }
       // NAVIGATE
+      // FETCH GROUPS AFTER DELETE
+      await ownGroupStore.getGroupsFromBackend()
       loading.value = false
+
       router.back()
     }
 

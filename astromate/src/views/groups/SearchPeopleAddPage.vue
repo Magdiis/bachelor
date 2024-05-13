@@ -10,7 +10,7 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-        <div class="center ion-padding">
+        <div class="ion-padding">
           <ion-input id="add-group-name-input" label="Jméno skupiny" fill="outline" label-placement="floating" v-model="group.name" error-text="Špatný nazev"
                      :counter="true" maxlength="20"
                      :helper-text="isInputEmpty.name ? 'povinné': '' " class="custom"

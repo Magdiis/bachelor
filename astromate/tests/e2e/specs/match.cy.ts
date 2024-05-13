@@ -1,3 +1,5 @@
+
+
 describe('Groups', () => {
     it('Create group and searched group. Check that while matching I do not see myself', () => {
         cy.visit('/login')
@@ -73,7 +75,7 @@ describe('accept invitation', () => {
         cy.get('#notification-item').contains('fake2')
         cy.get('#notification-item-accept-button').click()
         cy.wait(500)
-        cy.contains('Hledej').click()
+        cy.get('.bottom-navigation-button-discover').click()
         // check if text group 2 exist and check placeholder
         cy.contains('test group 2').click()
         cy.contains('Skupina nalezena')
@@ -115,7 +117,7 @@ describe('accept request', () => {
         cy.get('#notification-item-accept-button').click()
         cy.wait(1000)
         // groups
-        cy.contains('Hledej').click()
+        cy.get('.bottom-navigation-button-discover').click()
         cy.wait(3000)
         cy.contains('test group').click()
         cy.contains('Skupina naplněna')
@@ -202,4 +204,27 @@ describe('chat', () => {
         cy.contains('fake2 vás odebral ze skupiny test group 2')
     })
 })
+
+describe('delete', () => {
+    it('Delete own and searched groups', () => {
+        cy.visit('/login')
+        cy.get('#login_email_input').type("test@test.cz")
+        cy.get('#login_password_input').type("123456")
+        cy.get('#login_button').click()
+        cy.wait(3000)
+        cy.get('#groups-group-item').click()
+        cy.get('#popover-edit-group').click()
+        cy.get('#present-alert-delete-group').click()
+        cy.contains('Smazat').click()
+        cy.wait(3000)
+        cy.get('#groups-searched-group-item-created').click()
+        cy.get('#popover-edit-searched-group').click()
+        cy.get('#present-alert-delete-searched-group').click()
+        cy.contains('Smazat').click()
+        cy.wait(3000)
+        cy.get('#noGroups-add-group-button')
+    })
+})
+
+
 

@@ -182,12 +182,10 @@ export default function updateInFirestore() {
         try{
             const groupDoc = doc(db,"groups", updatedGroup.id)
             await updateDoc(groupDoc,{
-                category: returnCategory(updatedGroup.useCase,updatedGroup.workCase,updatedGroup.sportCase),
                 color: updatedGroup.color,
                 description: updatedGroup.description,
                 maxMembers: updatedGroup.maxMembers,
-                name: updatedGroup.name,
-                useCase: updatedGroup.useCase
+                name: updatedGroup.name
             })
         } catch (e) {
             console.error("Error updating group document: ", e)
@@ -210,10 +208,7 @@ export default function updateInFirestore() {
         try {
             const searchedGroupDoc = doc(db,"users", updatedSearchedGroup.id)
             await updateDoc(searchedGroupDoc,{
-                category: returnCategory(updatedSearchedGroup.useCase, updatedSearchedGroup.workCase,updatedSearchedGroup
-                    .sportCase),
-                color: updatedSearchedGroup.color,
-                useCase: updatedSearchedGroup.useCase
+                color: updatedSearchedGroup.color
             })
         } catch (e) {
             console.error("Error updating searched group document: ", e)

@@ -11,7 +11,7 @@
 
     <ion-content :fullscreen="true">
 
-      <div class="center ion-padding">
+      <div class="ion-padding">
         <ion-input label="Jméno skupiny" fill="outline" label-placement="floating" v-model="globalGroupEditing.name" error-text="Špatný nazev"
                    :counter="true" maxlength="20"
                    :helper-text="isInputEmpty.name ? 'povinné': '' " class="custom"
@@ -130,7 +130,9 @@ onIonViewWillEnter(()=>{
 const rangeNumbers: number[] = []
 
 for (let i = globalGroupEditing.currentMembers; i <= 30; i++) {
-  rangeNumbers.push(i)
+  if(i>1){
+    rangeNumbers.push(i)
+  }
 }
 
 async function update(){

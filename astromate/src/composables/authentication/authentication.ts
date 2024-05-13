@@ -1,12 +1,22 @@
-import {auth } from "@/firebase-service";
-import {onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,updateProfile,updateEmail,updatePassword, deleteUser,signOut} from "firebase/auth";
+import {auth} from "@/firebase-service";
+import {
+    createUserWithEmailAndPassword,
+    deleteUser,
+    getAuth,
+    signInWithEmailAndPassword,
+    signOut,
+    updateEmail,
+    updatePassword,
+    updateProfile
+} from "firebase/auth";
 import {AuthResponse} from "@/model/auth/AuthResponse";
 import managePreferences, {preferencesKeys} from "@/composables/localStorage/managePreferences";
 
-export default function authentication() {
+export default function useAuthentication() {
     async function createProfile(email: string, password: string):Promise<AuthResponse>{
         try {
             const user = await createUserWithEmailAndPassword(auth,email,password)
+
             return {
                 errorMessage: "", user: user
             }
@@ -72,16 +82,15 @@ export default function authentication() {
         });
     }
 
-     function isUserLoggedIn(): boolean{
-        // onAuthStateChanged(auth,(user) => {
-        //     if(user){
-        //         return true
-        //     } else {
-        //         return false
-        //     }
-        // })
-         return !!auth.currentUser
+    async function getToken(): Promise<string>{
+        const auth = getAuth()
+        if(auth.currentUser != null){
+            return await auth.currentUser.getIdToken()
+        } else {
+            return ""
+        }
     }
+
 
     // const getCurrentAuthUserID = new Promise<void>((resolve) => {
     //     onAuthStateChanged(auth, (authUser) => {
@@ -166,5 +175,5 @@ export default function authentication() {
         passing the credentials to reauthenticateWithCredential. For example:
 
      */
-    return {createProfile, deleteProfile, logout, signIn, isUserLoggedIn}
+    return {getToken,createProfile, deleteProfile, logout, signIn,}
 }

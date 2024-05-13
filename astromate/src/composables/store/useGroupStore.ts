@@ -33,6 +33,8 @@ export const useGroupStore = () => {
 
     /****************** SET ******************/
     // all groups
+
+
     const setOwnGroups = (addedOwnGroups: Group[])=>{
         globalGroups.splice(0)
         globalGroups.push(...addedOwnGroups)

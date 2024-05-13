@@ -68,6 +68,7 @@ onIonViewWillEnter(async () => {
   onSnapshot(q, (querySnapshot)=>{
     // processNotifications(querySnapshot)
     allGroupChats.value = []
+
     querySnapshot.forEach((doc) => {
       allGroupChats.value.push({
         color: doc.data().color,
@@ -81,6 +82,7 @@ onIonViewWillEnter(async () => {
         ownerID: doc.data().ownerID
       })
     })
+
     isEmpty.value = allGroupChats.value.length < 1
     filterMyAndOthersGroupChats(allGroupChats.value)
     groupChatStore.setGroupChats(allGroupChats.value)

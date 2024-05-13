@@ -130,6 +130,7 @@
     import useStorage from "@/composables/firebaseStorage/useStorage";
     import Done from "@/components/placeholders/Done.vue";
     import {Group} from "@/model/group/Group";
+    import {useOwnGroupStore} from "@/composables/store/useOwnGroupStore";
 
     const router = useRouter()
     const route = useRoute()
@@ -137,6 +138,7 @@
     const updateFirestore = updateInFirestore()
     const groupStore = useGroupStore()
     const firebaseStorage = useStorage()
+    const ownGroupStore = useOwnGroupStore()
 
     const isEmpty = ref(false) // for placeholder
 
@@ -296,6 +298,9 @@
       await updateFirestore.setGroupIdEmptyInGroups(groupId)
       // SEND NOTIFICATION TO MEMBERS
       await sendNotificationToMembers(globalSelectedGroup)
+
+      // FETCH GROUPS AFTER DELETE
+      await ownGroupStore.getGroupsFromBackend()
       // NAVIGATE
       await router.push({name: routesNames.Groups})
       loading.value = false

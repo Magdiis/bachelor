@@ -20,6 +20,7 @@ import SearchGroupsEditPage from "@/views/groups/SearchGroupsEditPage.vue";
 import { routesNames } from './routesNames';
 import authentication from "@/composables/authentication/authentication";
 import CreateProfilePage from "@/views/profile/CreateProfilePage.vue";
+import {getAuth, onAuthStateChanged} from "firebase/auth";
 
 const routes: Array<RouteRecordRaw> = [
 
@@ -32,7 +33,8 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/registration',
     name: routesNames.Registration,
-    component: RegistrationPage
+    component: RegistrationPage,
+
   },
   {
     path: '/groupMatching',
@@ -62,17 +64,17 @@ const routes: Array<RouteRecordRaw> = [
     path: '/createProfile',
     name: routesNames.CreateProfile,
     component: CreateProfilePage,
-    // meta: {
-    //   requiresAuth: true
-    // }
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/editProfile',
     name: routesNames.EditProfile,
     component: EditProfile,
-    // meta: {
-    //   requiresAuth: true
-    // }
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/addGroup',
@@ -168,17 +170,16 @@ const router = createRouter({
   routes
 })
 
-// router.beforeEach((to, from, next) => {
-//   const isAuthRequired = to.matched.some((record) => record.meta.requiresAuth)
-//
-//
-//   if (isAuthRequired && !authentication().isUserLoggedIn()) {
-//     next({ name: routesNames.Login })
-//   // } else if (isGuestRequired && authStore.isUserLoggedIn) {
-//   //   next({ name: "books"})
-//   } else {
-//     next()
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  const isAuthRequired = to.matched.some((record) => record.meta.requiresAuth)
+  const auth = getAuth()
+ if(isAuthRequired && auth.currentUser === null){
+   next({ name: routesNames.Login })
+ } else {
+   next()
+ }
+
+
+})
 
 export default router

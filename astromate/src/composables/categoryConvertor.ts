@@ -5,7 +5,6 @@ import {ref} from 'vue'
 export function convertCategory(useCaseParam: string, categoryParam: string) {
     var sportCaseThis: string = ""
     var workCaseThis: string = ""
-
     if (categoryParam == "") {
         return {sportCaseThis, workCaseThis}
     } if (useCaseParam == useCase.Work) {
