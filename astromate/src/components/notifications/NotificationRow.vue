@@ -62,6 +62,9 @@ import updateInFirestore from "@/composables/updateInFirestore";
 import {globalProfile} from "@/composables/store/profileStore";
 import {closeOutline, informationCircleOutline} from "ionicons/icons";
 import type { Animation } from '@ionic/vue';
+import deletingInFirestore from "@/composables/deletingInForestore";
+import fetchingFirebase from "@/composables/fetchingFromFirestore";
+import {useOwnGroupStore} from "@/composables/store/useOwnGroupStore";
 
 const props = defineProps<{
   notification: NotificationMessage,
@@ -69,8 +72,9 @@ const props = defineProps<{
 
 
 const notificationMessageStyle = ref<Partial<CSSStyleDeclaration>>({})
-const firestoreUpdate = updateInFirestore()
 
+const firestoreDelete = deletingInFirestore()
+const ownGroupStore = useOwnGroupStore()
 
 const isNotificationInfo = computed(()=>{
   return props.notification.text === notificationText.UserWantsToUsersGroup || props.notification.text === notificationText.UserWantsUserToHisGroup
@@ -128,20 +132,32 @@ async function accept(senderId: string, receiverId: string, groupDocumentId: str
   setTimeout(async ()=>{
     props.notification.toBeDeleted = true
     if (props.notification.text === notificationText.UserWantsToUsersGroup){
-      await addMember(groupDocumentId,senderId)
-      await addGroupIdAndName(userDocumentId,groupDocumentId,notification.groupName)
-      await addMemberToGroupChat(groupDocumentId, senderId, senderName)
-      await firestoreUpdate.readNotification(notification)
+      await firestoreDelete.deleteNotification(notification.id)
+      const isUnfilled = await fetchingFirebase().checkIfGroupIsUnfilled(groupDocumentId)
+      if(isUnfilled){
+        await addMember(groupDocumentId,senderId)
+        await addGroupIdAndName(userDocumentId,groupDocumentId,notification.groupName)
+        await addMemberToGroupChat(groupDocumentId, senderId, senderName)
+        await ownGroupStore.getGroupsFromBackend()
+      } else {
+        // show ion-alert
+        console.log("SHOW ALERT")
+      }
 
     } else if (props.notification.text === notificationText.UserWantsUserToHisGroup){
-      await addMember(groupDocumentId,receiverId)
-      await addGroupIdAndName(userDocumentId,groupDocumentId,notification.groupName)
-      await addMemberToGroupChat(groupDocumentId, globalProfile.id, globalProfile.name)
-      await firestoreUpdate.readNotification(notification)
-
+      await firestoreDelete.deleteNotification(notification.id)
+      const isUnfilled = await fetchingFirebase().checkIfGroupIsUnfilled(groupDocumentId)
+      if(isUnfilled){
+        await addMember(groupDocumentId,receiverId)
+        await addGroupIdAndName(userDocumentId,groupDocumentId,notification.groupName)
+        await addMemberToGroupChat(groupDocumentId, globalProfile.id, globalProfile.name)
+        await ownGroupStore.getGroupsFromBackend()
+      } else {
+        // show ion-alert
+        console.log("SHOW ALERT")
+      }
     }
-  },500)
-
+  },450)
 
 }
 
@@ -150,8 +166,9 @@ async function decline(notification: NotificationMessage){
   setTimeout(async ()=>{
     props.notification.toBeDeleted = true
     notificationMessageStyle.value.animationName=''
-    await firestoreUpdate.readNotification(notification)
-  },500)
+
+    await firestoreDelete.deleteNotification(notification.id)
+  },450)
 }
 
 
@@ -168,7 +185,6 @@ async function addMemberToGroupChat(groupChatId: string,memberId: string, member
 }
 
 function animate(){
-
   notificationMessageStyle.value.position = 'relative'
   notificationMessageStyle.value.animationName='notificationRight'
   notificationMessageStyle.value.animationTimingFunction='ease-in'

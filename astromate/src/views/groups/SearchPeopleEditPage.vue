@@ -109,9 +109,11 @@ import {
 import {reactive, ref} from "vue";
 import updateInFirestore from "@/composables/updateInFirestore";
 import {currentGroupChat} from "@/composables/store/useGroupChatStore";
+import {useOwnGroupStore} from "@/composables/store/useOwnGroupStore";
 
 const router = useRouter()
 const updateFirestore = updateInFirestore()
+const onwGroupStore = useOwnGroupStore()
 
 const loading = ref(false)
 
@@ -143,6 +145,8 @@ async function update(){
     await updateFirestore.updateColorAndNameInGroupChat(globalGroupEditing.color,globalGroupEditing.name, globalGroupEditing.id)
     currentGroupChat.color = globalGroupEditing.color
     currentGroupChat.name = globalGroupEditing.name
+
+    onwGroupStore.changeOwnGroupAfterEdit(globalGroupEditing.id, globalGroupEditing)
     router.back()
     loading.value = false
   }

@@ -41,7 +41,7 @@
 
       <!-- delete -->
 <!--      <ion-button @click="router.push({name:routesNames.CreateProfile})"> create profile </ion-button>-->
-<!--      <ion-button shape="round" @click="LoginHardcore()">Login hardcore</ion-button>-->
+      <ion-button shape="round" @click="LoginHardcore()">Test database</ion-button>
     </ion-content>
 
   </ion-page>
@@ -75,13 +75,14 @@ import authentication from "@/composables/authentication/authentication";
 import {routesNames} from "@/router/routesNames";
 import {useRouter} from "vue-router";
 import {AuthResponse} from "@/model/auth/AuthResponse";
-import {auth} from "@/firebase-service";
+import {auth, db} from "@/firebase-service";
 import fetchingFirebase from "@/composables/fetchingFromFirestore";
 import {globalProfile, useProfileStore} from "@/composables/store/profileStore";
 import {useGroupStore} from "@/composables/store/useGroupStore";
 import {useGroupChatStore} from "@/composables/store/useGroupChatStore";
 import {lockClosed, mailOutline} from "ionicons/icons";
 import {listenNotifications} from "@/composables/store/notificationStore";
+import {doc, setDoc} from "firebase/firestore";
 
 
 const router = useRouter()
@@ -103,7 +104,7 @@ const loginInfo: Login = reactive({
   password: ""
 })
 
-const authResponse = ref<AuthResponse>({errorMessage: "", user: null, token: ""})
+const authResponse = ref<AuthResponse>({errorMessage: "", user: null,})
 
 async function LogIn(loginInfo: Login) {
   isEmpty(loginInfo)
@@ -122,16 +123,6 @@ async function LogIn(loginInfo: Login) {
   }
 }
 
-async function LoginHardcore() {
-  loading.value = true
-  authResponse.value = await (authentication().signIn("m@m.cz", "123456"))
-  if (authResponse.value.user != null) {
-    profileStore.setId(authResponse.value.user.user.uid)
-    console.log(authResponse.value.user.user.uid)
-    await navigate(globalProfile.id)
-    loading.value = false
-  }
-}
 
 function isEmpty(loginInfo: Login) {
   isInputEmpty.email = loginInfo.email.length < 1
@@ -151,6 +142,7 @@ onIonViewDidLeave(() => {
   loginInfo.email = ""
   isInputEmpty.password = false
   isInputEmpty.email = false
+  authResponse.value.errorMessage = ""
 })
 
 onIonViewWillEnter(() => {

@@ -1,6 +1,5 @@
-describe('My First Test', () => {
-  it('Visits the app root url', () => {
-    cy.visit('/')
-    cy.contains('#container', 'Ready to create an app?')
-  })
-})
+describe('Some Test', () => {
+  it('Adds document to test_hello_world collection of Firestore', () => {
+    cy.callFirestore('add', 'test_hello_world', { some: 'value' });
+  });
+});

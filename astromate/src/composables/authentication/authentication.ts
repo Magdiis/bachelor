@@ -16,7 +16,7 @@ export default function useAuthentication() {
     async function createProfile(email: string, password: string):Promise<AuthResponse>{
         try {
             const user = await createUserWithEmailAndPassword(auth,email,password)
-
+            await signIn(email, password)
             return {
                 errorMessage: "", user: user
             }

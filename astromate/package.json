@@ -8,6 +8,7 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test:e2e": "cypress open",
+    "test:e2eTest": "SERVICE_ACCOUNT=$(cat ./serviceAccount.json) cypress open",
     "test:unit": "vitest",
     "lint": "eslint"
   },
@@ -26,6 +27,7 @@
     "@ionic/vue": "^7.0.0",
     "@ionic/vue-router": "^7.0.0",
     "axios": "^1.6.7",
+    "cypress-firebase": "^4.0.0",
     "ephemeris": "git+https://github.com/hemantgoswami/ephemeris.git",
     "express": "^4.18.3",
     "firebase": "^10.8.0",

@@ -140,6 +140,7 @@ import updateInFirestore from "@/composables/updateInFirestore";
 import {routesNames} from "@/router/routesNames";
 import {useGeolocation} from "@/composables/geolocation/useGeolocation";
 import fetchingFirebase from "@/composables/fetchingFromFirestore";
+import {GroupChat} from "@/model/chat/Chat";
 
 const { takePhoto, photo } = usePhotoGallery();
 const profileStore = useProfileStore()
@@ -217,6 +218,20 @@ async function saveChanges(){
   const validation = await validate(editedProfile.name)
   if(validation){
     loading.value = true
+    // update in group chats
+    if(editedProfile.name !== globalProfile.name){
+      console.log("editedProfileName: ",editedProfile.name)
+      console.log("globalProfileName: ",globalProfile.name)
+      const groupChats = await fetchFromFirebase.getGroupChatByMemberName(globalProfile.name)
+      console.log("group chats: ", groupChats)
+      if(groupChats.length > 0){
+        const updatedGroupChats = changeName(groupChats,editedProfile.name,globalProfile.name)
+        console.log("updated group chats: ", updatedGroupChats)
+        if(updatedGroupChats.length > 0){
+          await updateInFirestore().updateNameInGroupChats(updatedGroupChats)
+        }
+      }
+    }
     profileStore.setProfile(editedProfile)
     await (updateInFirestore().updateProfile(editedProfile))
     if(photo.value != undefined){
@@ -262,7 +277,34 @@ async function validate(username: string): Promise<boolean> {
   }
 }
 
+function changeName(groupChats: GroupChat[], newName: string, oldName: string): GroupChat[] {
 
+  groupChats.forEach((groupChat, index)=>{
+    if(groupChat.membersNames.includes(oldName)){
+      groupChats[index].membersNames = changeMemberNames(groupChat.membersNames,newName,oldName)
+      groupChats[index].membersNamesAndIDs = changeMembersNamesAndIDs(groupChat.membersNamesAndIDs,newName,oldName)
+    }
+  })
+  return groupChats
+}
+
+function changeMemberNames(memberNames: [string], newName: string, oldName: string): [string]{
+  memberNames.forEach((name,index)=>{
+    if(name === oldName){
+      memberNames[index] = newName
+    }
+  })
+  return memberNames
+}
+function changeMembersNamesAndIDs(memberNames: [string], newName: string, oldName: string): [string]{
+  memberNames.forEach((name,index)=>{
+    if(name.includes(oldName)){
+      const id = name.slice(name.indexOf(";"), name.length)
+      memberNames[index] = newName+id
+    }
+  })
+  return memberNames
+}
 
 </script>
 

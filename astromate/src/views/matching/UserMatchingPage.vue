@@ -102,7 +102,6 @@
     import MatchingCardUser from "@/components/MatchingCardUser.vue";
     import {Profile} from "@/model/profile/Profile";
     import fetchingMatchingBackend from "@/composables/matchingBackendController/fetchingMatchingBackend";
-    import {Decision} from "@/model/Decision";
     import {Timestamp} from "firebase/firestore";
     import savingToFirestore from "@/composables/savingToFirestore";
     import updateInFirestore from "@/composables/updateInFirestore";
@@ -223,8 +222,7 @@
     async function makeDecision(like:boolean, user:User) {
       //animation
       animateLikePlaceholder(like)
-      // Save decision
-      await saveDecisionToDB(like, user.id)
+
       // Make notification and send
       if(groupsFilter.value != undefined){
         await makeNotification(
@@ -246,12 +244,7 @@
       await nextUser()
     }
 
-    async function saveDecisionToDB(like: boolean, groupOrProfileID: string){
-      const decision: Decision = {
-        decidedAt: Timestamp.now(), groupOrProfileID: groupOrProfileID, like: like, id: ""
-      }
-      await savingToFirestore().createDecision(decision)
-    }
+
 
     async function addUsersSeenBy(userId: string){
         await updateInFirestore().addUsersSeenBy(userId,globalProfile.id)

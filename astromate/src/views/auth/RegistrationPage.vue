@@ -63,6 +63,7 @@ import authentication from "@/composables/authentication/authentication";
 import {routesNames} from "@/router/routesNames";
 import {AuthResponse} from "@/model/auth/AuthResponse";
 import {useProfileStore} from "@/composables/store/profileStore";
+import {listenNotifications} from "@/composables/store/notificationStore";
 
 
 const router = useRouter()
@@ -102,7 +103,9 @@ async function register(loginInfo: Login){
     authResponse.value = await (authentication().createProfile(loginInfo.email,loginInfo.password))
     loading.value = false
     if (authResponse.value.user != null){
+      //router.back()
       profileStore.setId(authResponse.value.user.user.uid)
+      listenNotifications()
       navigate()
     }
   }

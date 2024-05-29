@@ -60,8 +60,34 @@ export const useOwnGroupStore = () => {
         })
     }
 
+    function changeOwnGroupAfterEdit(groupId: string, group: Group){
+        let findedGroup = globalOwnGroups.value.find((g)=>{
+            return g.id === groupId
+        })
+        if(findedGroup){
+            let index = globalOwnGroups.value.indexOf(findedGroup)
+            if(index !== -1){
+                const editedOwnGroup: OwnGroup = {
+                    category: findedGroup.category,
+                    color: group.color,
+                    compatibility: findedGroup.compatibility,
+                    currentMembers: findedGroup.currentMembers,
+                    description: group.description,
+                    id: findedGroup.id,
+                    maxMembers: group.maxMembers,
+                    membersIDs: findedGroup.membersIDs,
+                    name: group.name,
+                    useCase: findedGroup.useCase,
+                    userId: findedGroup.userId
+                }
+                globalOwnGroups.value[index] = editedOwnGroup
+            }
+        }
+
+    }
+
     return {
-        getGroupsFromBackend, returnOwnGroup
+        changeOwnGroupAfterEdit,getGroupsFromBackend, returnOwnGroup
     }
 
 }

@@ -41,6 +41,7 @@ export default function updateInFirestore() {
         }
     }
 
+
     async function setGroupId(usersDocumentId: string, groupId: string, groupName: string){
         try {
             const userRef = doc(db,"users",usersDocumentId)
@@ -215,18 +216,21 @@ export default function updateInFirestore() {
         }
     }
 
-    // NOTIFICATIONS
-
-    async function readNotification(notificationMessage: NotificationMessage){
-        try {
-            const notificationDoc = doc(db,"notifications",notificationMessage.id)
-            await updateDoc(notificationDoc,{
-                read: true
-            })
-        } catch (e) {
-            console.error("Error updating notification document: ", e)
+    async function updateNameInGroupChats(groupChats: GroupChat[]){
+        for (const g of groupChats) {
+            try {
+                const groupChatDoc = doc(db, "groupChat", g.id)
+                await updateDoc(groupChatDoc,{
+                    membersNames: g.membersNames,
+                    membersNamesAndIDs: g.membersNamesAndIDs
+                })
+            } catch (e) {
+                console.error("Error updating group chat document: ", e , "with id: ", g.id)
+            }
         }
     }
 
-    return {updateColorAndNameInGroupChat,readNotification,updateSearchedGroup,updateGroup,removeGroupFromSearchedGroup,updateProfile,removeUserFromGroup,setGroupIdEmptyInGroups,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
+
+
+    return {updateNameInGroupChats, updateColorAndNameInGroupChat,updateSearchedGroup,updateGroup,removeGroupFromSearchedGroup,updateProfile,removeUserFromGroup,setGroupIdEmptyInGroups,removeFromGroup,addGroupsSeenBy,leaveGroupChat, addUsersSeenBy, addMemberToGroup, setGroupId, addMemberToGroupChat}
 }

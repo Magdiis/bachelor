@@ -1,7 +1,7 @@
 import {Group} from '@/model/group/Group';
 import type {User} from '@/model/group/User'
-import {doc, getDoc, getDocs, query, Query, where} from "firebase/firestore";
-import {db, groups_collection, profiles_collection, users_collection} from '@/firebase-service';
+import {arrayUnion, doc, getDoc, getDocs, increment, query, Query, updateDoc, where} from "firebase/firestore";
+import {db, groups_chat_collection, groups_collection, profiles_collection, users_collection} from '@/firebase-service';
 import {convertCategory} from '@/composables/categoryConvertor'
 import {Profile} from "@/model/profile/Profile";
 //import firebase from "firebase/compat";
@@ -211,7 +211,7 @@ export default function fetchingFirebase() {
             const q: Query = query(users_collection, where('groupId','==',groupId), where('userId','==',ownerId))
             const docSnap = await getDocs(q)
             if(docSnap.empty){
-                console.error("error fetching searchedGroup, bad groupId or ownerId", e)
+                console.error("error fetching searchedGroup, bad groupId or ownerId")
                 throw new Error("")
             } else {
                 const {sportCaseThis,workCaseThis} = convertCategory(docSnap.docs[0].data().useCase,docSnap.docs[0].data().category)
@@ -261,7 +261,54 @@ export default function fetchingFirebase() {
         }
     }
 
-    return {getGroupById,getSearchedGroupByGroupId, getGroupChat,isUsernameExist, getOwnGroups, getOwnUsers, fetchMembersProfiles, fetchProfile, isProfileExist}
+    async function checkIfGroupIsUnfilled(groupDocumentId: string): Promise<boolean>{
+        try {
+            const groupRef = doc(db,"groups",groupDocumentId)
+            const docSnap = await getDoc(groupRef)
+            if(docSnap.exists()){
+                return docSnap.data().currentMembers < docSnap.data().maxMembers
+            } else {
+                return false
+            }
+
+        } catch (e) {
+            console.error("Error get group document: ", e)
+            throw new Error("")
+        }
+    }
+
+    async function getGroupChatByMemberName(name: string): Promise<GroupChat[]>{
+        try {
+            const q: Query = query(groups_chat_collection, where('membersNames','array-contains',name))
+            const docSnap = await getDocs(q)
+            if(docSnap.empty){
+                return []
+            } else {
+                let groupChats: GroupChat[] = []
+                docSnap.forEach((doc)=>{
+                    groupChats.push({
+                        color: "",
+                        countMembers: 0,
+                        id: doc.id,
+                        isPairs: false,
+                        membersIDs: [""],
+                        membersNames: doc.data().membersNames,
+                        membersNamesAndIDs: doc.data().membersNamesAndIDs,
+                        name: "",
+                        ownerID: ""
+                    })
+                })
+                return groupChats
+            }
+
+        } catch (e) {
+            console.error("error fetching group chat, bad name", e)
+            throw new Error("")
+        }
+    }
+
+
+    return {checkIfGroupIsUnfilled, getGroupChatByMemberName, getGroupById,getSearchedGroupByGroupId, getGroupChat,isUsernameExist, getOwnGroups, getOwnUsers, fetchMembersProfiles, fetchProfile, isProfileExist}
 }
 
 

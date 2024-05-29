@@ -1,4 +1,8 @@
 import { defineConfig } from "cypress";
+import admin from 'firebase-admin';
+import { plugin as cypressFirebasePlugin } from 'cypress-firebase';
+import serviceAccount from './serviceAccount.json' with {type: "json"};
+import { ServiceAccount } from 'firebase-admin/lib/credential';
 
 export default defineConfig({
   e2e: {
@@ -11,6 +15,11 @@ export default defineConfig({
     viewportHeight: 667,
     setupNodeEvents(on, config) {
       // implement node event listeners here
+      return cypressFirebasePlugin(on, config, admin, {
+        projectId: "test-89223",
+        credential: admin.credential.cert(serviceAccount as ServiceAccount),
+        databaseURL: "https://test-89223.firebaseio.com"
+      });
     },
   },
 });

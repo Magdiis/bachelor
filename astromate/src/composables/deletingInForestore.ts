@@ -48,7 +48,15 @@ export default function deletingInFirestore(){
         }
     }
 
+    async function deleteNotification(notificationId: string){
+        try {
+            await deleteDoc(doc(db,"notifications", notificationId))
+        } catch (e) {
+            console.error("error with delete searched group document", e)
+        }
+    }
+
     return {
-        deleteGroup, deleteSearchedGroup
+        deleteNotification,deleteGroup, deleteSearchedGroup
     }
 }

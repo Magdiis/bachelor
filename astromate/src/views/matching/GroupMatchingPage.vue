@@ -114,7 +114,7 @@ import {returnCategory} from '@/composables/categoryConvertor'
 import { GroupsFilter } from '@/model/group/GroupsFilter';
 import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
     import savingToFirestore from "@/composables/savingToFirestore";
-    import {Decision} from "@/model/Decision";
+
     import {Timestamp} from "firebase/firestore";
     import updateInFirestore from "@/composables/updateInFirestore";
     import fetchingMatchingBackend from "@/composables/matchingBackendController/fetchingMatchingBackend";
@@ -227,7 +227,6 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
       //animation
       animateLikePlaceholder(like)
       // Save decision
-      await saveDecisionToDB(like, group.id)
       // Make notification and send
       if(groupsFilter.value != undefined){
         await makeNotification(
@@ -250,12 +249,7 @@ import  MatchingCardGroup from '@/components/MatchingCardGroup.vue'
 
     }
 
-    async function saveDecisionToDB(like: boolean, groupOrProfileID: string){
-      const decision: Decision = {
-        decidedAt: Timestamp.now(), groupOrProfileID: groupOrProfileID, like: like, id: ""
-      }
-      await savingToFirestore().createDecision(decision)
-    }
+
 
     async function nextGroup(){
      // groups.value.shift()  //remove first element
